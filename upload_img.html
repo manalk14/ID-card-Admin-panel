@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --primary: #696cff; 
+            --primary-dark: #5f61e6; 
+            --secondary: #8592a3;
+            --success: #71dd37; 
+            --warning: #ffab00; 
+            --danger: #ff3e1d;
+            --info: #03c3ec; 
+            --dark: #233446; 
+            --light: #f5f5f9;
+            --border-color: #d9dee3; 
+            --card-bg: #fff; 
+            --body-bg: #f5f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: #333;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        #sidebar-container {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Mobile Toggle Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media(max-width: 992px) {
+            .menu-toggle { display: block; }
+            #sidebar-container { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.4);
+            backdrop-filter: blur(2px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Content Styles */
+        .content-box {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        /* ENLARGED Image Upload Styles */
+        .image-upload-container {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 6px 2px;
+            margin-right: 10px;
+            margin-left: 10px;
+            text-align: center;
+            transition: all 0.3s;
+            background-color: #f8fafc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-upload-container.drag-over {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .image-upload-container.invalid {
+            border-color: var(--danger);
+            background-color: rgba(255, 62, 29, 0.05);
+        }
+
+        /* Larger upload icon */
+        .upload-icon {
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 25px;
+            background: white;
+            border-radius: 50%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            color: var(--primary-color);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Larger text */
+        .upload-text h4 {
+            color: var(--dark-color);
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .upload-text p {
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 5px;
+        }
+
+        /* Additional info text */
+        .upload-text .file-info {
+            font-size: 13px;
+            color: var(--secondary);
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Take full container space */
+        .upload-label {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Preview image styling */
+        .preview-image {
+            max-width: 250px;
+            max-height: 180px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-left: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ENLARGED Gallery Styles */
+        .gallery-section {
+            margin-top: 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-content-box {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .gallery-stats {
+            font-size: 14px;
+            color: #6c757d;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .gallery-stats i {
+            margin-right: 5px;
+            color: var(--primary-color);
+        }
+
+        .gallery-container-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 70vh;
+            padding-right: 5px;
+            margin-top: 20px;
+        }
+
+        /* Custom scrollbar for gallery */
+        .gallery-container-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .gallery-container-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .gallery-container-wrapper::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .gallery-container-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            padding: 10px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            border-color: var(--primary-color);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-info {
+            padding: 15px;
+            background: white;
+        }
+
+        .gallery-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .gallery-info p {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .gallery-info p i {
+            font-size: 11px;
+        }
+
+        .gallery-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .gallery-date {
+            font-size: 11px;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .gallery-date i {
+            font-size: 10px;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .delete-btn:hover {
+            background: #ff2a00;
+            transform: scale(1.05);
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .empty-gallery h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .empty-gallery p {
+            font-size: 15px;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* Gallery Controls */
+        .gallery-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .sort-options select {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .sort-options select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Message Styles */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            #sidebar-container {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+            
+            .gallery-container-wrapper {
+                max-height: 60vh;
+            }
+            
+            .gallery-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .sort-options {
+                display: flex;
+                width: 100%;
+            }
+            
+            .sort-options select {
+                flex: 1;
+                margin-left: 0;
+            }
+            
+            /* Responsive adjustments for upload area */
+            .image-upload-container {
+                min-height: 220px;
+                padding: 40px 15px;
+            }
+            
+            .upload-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+            }
+            
+            .preview-image {
+                max-width: 200px;
+                max-height: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-box, .gallery-content-box {
+                padding: 20px;
+            }
+            
+            .image-upload-container {
+                padding: 30px 15px;
+                min-height: 200px;
+            }
+            
+            .upload-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            .upload-text h4 {
+                font-size: 16px;
+            }
+            
+            .upload-text p {
+                font-size: 13px;
+            }
+            
+            .preview-image {
+                max-width: 180px;
+                max-height: 130px;
+            }
+            
+            .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .gallery-item img {
+                height: 140px;
+            }
+            
+            .gallery-info {
+                padding: 12px;
+            }
+            
+            .gallery-info h4 {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .gallery-container {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            
+            .gallery-item img {
+                height: 120px;
+            }
+            
+            .gallery-actions {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+            
+            .delete-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar will be loaded here -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1><i class="fas fa-images"></i> Image Gallery</h1>
+                    <p>Upload and manage unlimited images</p>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="message message-success" id="successMessage"></div>
+            <div class="message message-error" id="errorMessage"></div>
+            
+            <!-- Upload Section -->
+            <div class="content-box">
+                <h2 class="section-title"><i class="fas fa-cloud-upload-alt"></i> Upload New Image</h2>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Select Image</label>
+                    
+                    <!-- Upload Area -->
+                    <div class="image-upload-container" id="uploadContainer">
+                        <label class="upload-label" for="fileInput" style="cursor: pointer;">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">
+                                <h4>Upload Image</h4>
+                                <p>Click to browse or drag and drop your image here</p>
+                               
+                            </div>
+                            <input type="file" id="fileInput" accept="image/*">
+                        </label>
+                    </div>
+                    <div class="validation-error" id="imageError" style="display: none; color: var(--danger); font-size: 12px; margin-top: 5px;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Please upload a valid image file (JPG, PNG, GIF)</span>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload Image
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearBtn">
+                        <i class="fas fa-redo"></i> Clear
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Gallery Section -->
+            <div class="gallery-section">
+                <div class="gallery-content-box">
+                    <div class="gallery-header">
+                        <h2 class="section-title"><i class="fas fa-photo-video"></i> Image Gallery</h2>
+                        <div class="gallery-stats" id="galleryStats">
+                            <i class="fas fa-image"></i>
+                            <span id="imageCount">0 images</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Controls -->
+                    <div class="gallery-controls">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search images...">
+                        </div>
+                        <div class="sort-options">
+                            <select id="sortSelect">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="name">Name (A-Z)</option>
+                                <option value="size">Size (Large to Small)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Gallery Container with Scroll -->
+                    <div class="gallery-container-wrapper" id="galleryWrapper">
+                        <div class="gallery-container" id="galleryContainer">
+                            <!-- Images will be loaded here dynamically -->
+                            <div class="empty-gallery" id="emptyGallery">
+                                <div class="empty-icon">
+                                    <i class="fas fa-images"></i>
+                                </div>
+                                <h3>No Images Uploaded Yet</h3>
+                                <p>Start by uploading your first image using the form above</p>
+                                <p style="margin-top: 15px; font-size: 14px; color: var(--primary);">
+                                    <i class="fas fa-infinity"></i> Unlimited storage available
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sidebarContainer = document.getElementById('sidebar-container');
+        const fileInput = document.getElementById('fileInput');
+        const uploadContainer = document.getElementById('uploadContainer');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const galleryContainer = document.getElementById('galleryContainer');
+        const emptyGallery = document.getElementById('emptyGallery');
+        const galleryWrapper = document.getElementById('galleryWrapper');
+        const imageCount = document.getElementById('imageCount');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        
+        // API Endpoints
+        const API_BASE_URL = 'https://www.coremicron.co.in/skynetwork/admin';
+        const UPLOAD_API = `${API_BASE_URL}/action/home_page_templates.php`;
+        const GET_IMAGES_API = `${API_BASE_URL}/home_page_templates.php`;
+        const DELETE_API = `${API_BASE_URL}/action/home_page_templates.php`;
+        
+        // State variables
+        let selectedFile = null;
+        let galleryImages = [];
+        let currentSearch = '';
+        let currentSort = 'newest';
+
+        // Validation rules - REMOVED SIZE LIMIT FOR UNLIMITED UPLOADS
+        const validationRules = {
+            image: {
+                allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
+            }
+        };
+
+        // ========== AUTHENTICATION & SIDEBAR FUNCTIONS ==========
+
+        // Enforce login
+        function enforceLogin() {
+            const appId = localStorage.getItem("app_id");
+            if (!appId) {
+                window.location.replace("login.html");
+            }
+        }
+
+        // Load sidebar
+        async function loadSidebar() {
+            try {
+                const response = await fetch('sidebar.html');
+                if (response.ok) {
+                    const sidebarHtml = await response.text();
+                    sidebarContainer.innerHTML = sidebarHtml;
+                    
+                    setTimeout(() => {
+                        initializeSidebar();
+                    }, 100);
+                } else {
+                    console.error('Failed to load sidebar');
+                }
+            } catch (error) {
+                console.error('Error loading sidebar:', error);
+            }
+        }
+
+        // Initialize sidebar with collapsible sections
+        function initializeSidebar() {
+            console.log("=== INITIALIZING SIDEBAR ===");
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            // Remove ALL event listeners first
+            document.querySelectorAll('.collapsible-header').forEach((header, i) => {
+                const newHeader = header.cloneNode(true);
+                header.parentNode.replaceChild(newHeader, header);
+            });
+            
+            // Get fresh references after cloning
+            const headers = document.querySelectorAll('.collapsible-header');
+            
+            headers.forEach((header, index) => {
+                const section = header.closest('.collapsible-section');
+                const content = section?.querySelector('.collapsible-content');
+                
+                if (!section || !content) return;
+                
+                // Set initial state
+                const links = content.querySelectorAll('a');
+                let isActiveSection = false;
+                
+                links.forEach(link => {
+                    if (link.getAttribute('href') === currentPage || 
+                        link.getAttribute('href') === 'image-gallery.html' || 
+                        link.getAttribute('href').includes('image-gallery')) {
+                        link.classList.add('active');
+                        isActiveSection = true;
+                    }
+                });
+                
+                header.classList.toggle('active', isActiveSection);
+                content.classList.toggle('expanded', isActiveSection);
+                
+                // Create a unique function for this header
+                const handleClick = (function(h, c, idx) {
+                    return function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Toggle only this header
+                        h.classList.toggle('active');
+                        c.classList.toggle('expanded');
+                    };
+                })(header, content, index);
+                
+                // Remove any existing onclick and add new one
+                header.onclick = null;
+                header.addEventListener('click', handleClick, {once: false});
+            });
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            if (sidebar) {
+                sidebar.classList.toggle("active");
+                if (overlay) overlay.classList.toggle("active");
+            }
+        }
+
+        // ========== API FUNCTIONS ==========
+
+        // Make API request
+        async function makeApiRequest(url, method = 'POST', data = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+
+            const options = {
+                method: method,
+                headers: headers,
+                mode: 'cors'
+            };
+
+            if (data && (method === 'POST' || method === 'PUT')) {
+                options.body = JSON.stringify(data);
+            }
+
+            console.log("🌐 Making API request:", {
+                url: url,
+                method: method,
+                headers: headers,
+                data_size: data ? JSON.stringify(data).length : 0
+            });
+
+            try {
+                const response = await fetch(url, options);
+                
+                console.log("📡 API Response status:", response.status, response.statusText);
+                
+                // Check if response is OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                // Try to parse as JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const jsonResponse = await response.json();
+                    console.log("✅ JSON Response received:", jsonResponse);
+                    return jsonResponse;
+                } else {
+                    // If not JSON, return text
+                    const text = await response.text();
+                    console.log("📝 Non-JSON response:", text);
+                    return { success: true, message: text };
+                }
+            } catch (error) {
+                console.error('❌ API request error:', error);
+                throw error;
+            }
+        }
+
+        // Upload image to backend
+        async function uploadImageToBackend(imageData, fileName) {
+            const appId = localStorage.getItem("app_id");
+            
+            if (!appId) {
+                throw new Error("App ID not found. Please login again.");
+            }
+            
+            // Extract base64 data (remove data:image/... prefix)
+            let base64Data = imageData;
+            if (imageData.includes(',')) {
+                base64Data = imageData.split(',')[1];
+            }
+            
+            const requestData = {
+                app_id: appId,
+                image1: base64Data,
+                action: "insert"
+            };
+            
+            // Console log the data being sent
+            console.log("📤 Sending data to API:", {
+                url: UPLOAD_API,
+                app_id: appId,
+                action: "insert",
+                image1_preview: base64Data.substring(0, 50) + "...",
+                image1_length: base64Data.length,
+                image1_type: imageData.substring(0, imageData.indexOf(';')),
+                filename: fileName
+            });
+            
+            console.log("📦 Full request data:", JSON.stringify(requestData));
+            
+            return await makeApiRequest(UPLOAD_API, 'POST', requestData);
+        }
+
+        // Fetch images from backend
+        async function fetchImagesFromBackend() {
+            const appId = localStorage.getItem("app_id");
+            
+            if (!appId) {
+                throw new Error("App ID not found. Please login again.");
+            }
+            
+            try {
+                console.log("🔄 Fetching images from backend...");
+                console.log("🔗 API URL:", `${GET_IMAGES_API}?app_id=${appId}`);
+                
+                // Fetch images from API
+                const response = await makeApiRequest(`${GET_IMAGES_API}?app_id=${appId}`, 'GET');
+                
+                console.log("📥 Images API Response:", response);
+                
+                if (response && response.success && response.data) {
+                    return response.data;
+                } else {
+                    // If response structure is different, try to parse it
+                    if (Array.isArray(response)) {
+                        return response;
+                    }
+                    return [];
+                }
+            } catch (error) {
+                console.error('❌ Error fetching images:', error);
+                return [];
+            }
+        }
+
+        // Delete image from backend
+        async function deleteImageFromBackend(templateId) {
+            const appId = localStorage.getItem("app_id");
+            
+            if (!appId) {
+                throw new Error("App ID not found. Please login again.");
+            }
+            
+            const requestData = {
+                app_id: appId,
+                tempid: templateId,
+                action: "delete"
+            };
+            
+            console.log("🗑️ Deleting image:", requestData);
+            
+            return await makeApiRequest(DELETE_API, 'POST', requestData);
+        }
+
+        // ========== VALIDATION FUNCTIONS ==========
+
+        // Validate image - REMOVED SIZE CHECK
+        function validateImage(file) {
+            const rules = validationRules.image;
+            
+            if (!file) {
+                showError('Please select an image file');
+                return false;
+            }
+            
+            // Check file type
+            if (!rules.allowedTypes.includes(file.type)) {
+                showError('Invalid file type. Please upload JPG, PNG, GIF, WEBP, or SVG files only');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('active');
+            setTimeout(() => {
+                successMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Show loading overlay
+        function showLoading(show) {
+            if (show) {
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        // ========== IMAGE HANDLING FUNCTIONS ==========
+
+        // Convert image to base64
+        function convertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    console.log(`📊 File ${file.name} converted to base64, size: ${reader.result.length} chars`);
+                    resolve({
+                        data: reader.result,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type
+                    });
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Handle drag and drop events
+        ['dragover', 'dragenter'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadContainer.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'dragend'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, () => {
+                uploadContainer.classList.remove('drag-over');
+            });
+        });
+
+        uploadContainer.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            uploadContainer.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                // Handle multiple files
+                await handleMultipleFiles(files);
+            }
+        });
+
+        // Handle multiple file uploads
+        async function handleMultipleFiles(files) {
+            showLoading(true);
+            
+            try {
+                let uploadCount = 0;
+                let failedCount = 0;
+                
+                console.log(`📁 Processing ${files.length} files`);
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    console.log(`🔄 Processing file ${i+1}:`, file.name, file.type, file.size);
+                    
+                    if (validateImage(file)) {
+                        try {
+                            // Convert to base64
+                            const imageData = await convertToBase64(file);
+                            
+                            // Upload to backend
+                            console.log(`🚀 Uploading ${file.name} to backend...`);
+                            const result = await uploadImageToBackend(imageData.data, file.name);
+                            
+                            if (result && result.success) {
+                                uploadCount++;
+                                console.log(`✅ ${file.name} uploaded successfully`);
+                                // Refresh gallery after successful upload
+                                await loadGallery();
+                            } else {
+                                failedCount++;
+                                console.error(`❌ Upload failed for ${file.name}:`, result);
+                            }
+                        } catch (uploadError) {
+                            failedCount++;
+                            console.error(`🔥 Error uploading ${file.name}:`, uploadError);
+                        }
+                    } else {
+                        console.warn(`⚠️ Invalid file skipped: ${file.name}`);
+                    }
+                }
+                
+                console.log(`📊 Upload summary: ${uploadCount} success, ${failedCount} failed`);
+                
+                if (uploadCount > 0) {
+                    showSuccess(`Successfully uploaded ${uploadCount} image(s)!`);
+                }
+                
+                if (failedCount > 0) {
+                    showError(`${failedCount} image(s) failed to upload. Please try again.`);
+                }
+                
+            } catch (err) {
+                console.error('🔥 General upload error:', err);
+                showError('Upload failed. Please try again.');
+            } finally {
+                showLoading(false);
+                resetUploadForm();
+            }
+        }
+
+        // Handle file input change - support multiple files
+        fileInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length > 1) {
+                // Multiple files selected
+                await handleMultipleFiles(files);
+            } else if (files.length === 1) {
+                // Single file selected
+                const file = files[0];
+                if (file) {
+                    await handleFileSelect(file);
+                }
+            }
+        });
+
+        // Handle file selection with LARGE PREVIEW
+        async function handleFileSelect(file) {
+            selectedFile = file;
+            
+            // Create a preview of the selected image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Update upload area to show LARGE preview
+                uploadContainer.innerHTML = `
+                    <label class="upload-label" for="fileInput" style="cursor: pointer;">
+                        <div style="margin-bottom: 25px;">
+                            <img src="${e.target.result}" alt="Preview" class="preview-image">
+                        </div>
+                        <div class="upload-text" style="text-align: center;">
+                            <h4 style="color: var(--success); margin-bottom: 12px;">${file.name}</h4>
+                            <p style="margin-bottom: 8px; font-size: 14px;">
+                                <strong>Size:</strong> ${formatFileSize(file.size)} • 
+                                <strong>Type:</strong> ${file.type.replace('image/', '').toUpperCase()}
+                            </p>
+                            <p style="color: var(--primary); font-weight: 600; font-size: 15px; margin-bottom: 15px;">
+                                <i class="fas fa-check-circle"></i> Ready to upload!
+                            </p>
+                            <p style="font-size: 13px; color: #6c757d; margin-top: 10px; padding: 8px 15px; background: rgba(0,0,0,0.03); border-radius: 6px;">
+                                <i class="fas fa-sync-alt"></i> Click anywhere to select a different image
+                            </p>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*" multiple>
+                    </label>
+                `;
+                
+                // Re-attach event listeners
+                document.getElementById('fileInput').addEventListener('change', async (e) => {
+                    const files = e.target.files;
+                    if (files.length > 1) {
+                        await handleMultipleFiles(files);
+                    } else if (files.length === 1) {
+                        await handleFileSelect(files[0]);
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+            
+            showSuccess('Image selected. Click "Upload Image" to save.');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Upload image
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                showError('Please select an image first');
+                return;
+            }
+
+            if (!validateImage(selectedFile)) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                uploadBtn.disabled = true;
+
+                // Convert to base64
+                const imageData = await convertToBase64(selectedFile);
+                
+                // Log the original base64 data
+                console.log("📷 Original image base64 (first 100 chars):", 
+                    imageData.data.substring(0, 100) + "...");
+                console.log("📁 File info:", {
+                    name: selectedFile.name,
+                    size: selectedFile.size,
+                    type: selectedFile.type
+                });
+                
+                // Upload to backend
+                const result = await uploadImageToBackend(imageData.data, selectedFile.name);
+                
+                // Log API response
+                console.log("📥 API Response:", result);
+                
+                if (result && result.success) {
+                    // Refresh gallery
+                    await loadGallery();
+                    
+                    // Reset form
+                    resetUploadForm();
+                    
+                    showSuccess('Image uploaded successfully!');
+                } else {
+                    console.error("❌ Upload failed:", result);
+                    throw new Error(result?.message || 'Upload failed');
+                }
+                
+            } catch (err) {
+                console.error("🔥 Upload error:", err);
+                showError(err.message || 'Upload failed. Please try again.');
+            } finally {
+                showLoading(false);
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Clear form
+        clearBtn.addEventListener('click', () => {
+            resetUploadForm();
+            showSuccess('Form cleared');
+        });
+
+        // Reset upload form
+        function resetUploadForm() {
+            fileInput.value = '';
+            selectedFile = null;
+            
+            // Reset upload area to original state
+            uploadContainer.innerHTML = `
+                <label class="upload-label" for="fileInput" style="cursor: pointer;">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">
+                        <h4>Upload Image</h4>
+                        <p>Click to browse or drag and drop your image here</p>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" multiple>
+                </label>
+            `;
+            
+            // Re-attach event listeners
+            document.getElementById('fileInput').addEventListener('change', async (e) => {
+                const files = e.target.files;
+                if (files.length > 1) {
+                    await handleMultipleFiles(files);
+                } else if (files.length === 1) {
+                    await handleFileSelect(files[0]);
+                }
+            });
+        }
+
+        // Load gallery from backend
+        async function loadGallery() {
+            try {
+                showLoading(true);
+                
+                console.log("🔄 Loading gallery from backend...");
+                const images = await fetchImagesFromBackend();
+                
+                console.log("📸 Images received:", images);
+                
+                // Transform API response to our gallery format
+                galleryImages = images.map(img => ({
+                    id: img.tempid || img.id,
+                    name: img.filename || `image-${img.tempid}`,
+                    size: img.size || 0,
+                    type: img.type || 'image/jpeg',
+                    data: img.image_path || img.data,
+                    uploadedAt: img.created_at || new Date().toISOString(),
+                    isUrl: true // Flag to indicate this is a URL, not base64
+                }));
+                
+                console.log("🖼️ Gallery images transformed:", galleryImages);
+                
+                updateGalleryStats();
+                renderGallery();
+                
+            } catch (error) {
+                console.error('❌ Error loading gallery:', error);
+                showError('Failed to load images. Please try again.');
+                galleryImages = [];
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update gallery statistics
+        function updateGalleryStats() {
+            const totalImages = galleryImages.length;
+            
+            imageCount.innerHTML = `
+                <i class="fas fa-image"></i>
+                <span>${totalImages} images</span>
+            `;
+        }
+
+        // Sort gallery images
+        function sortGalleryImages(images) {
+            const sorted = [...images];
+            
+            switch (currentSort) {
+                case 'newest':
+                    return sorted.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+                case 'oldest':
+                    return sorted.sort((a, b) => new Date(a.uploadedAt) - new Date(b.uploadedAt));
+                case 'name':
+                    return sorted.sort((a, b) => a.name.localeCompare(b.name));
+                case 'size':
+                    return sorted.sort((a, b) => b.size - a.size);
+                default:
+                    return sorted;
+            }
+        }
+
+        // Filter gallery images by search term
+        function filterGalleryImages(images) {
+            if (!currentSearch.trim()) return images;
+            
+            const searchTerm = currentSearch.toLowerCase();
+            return images.filter(img => 
+                img.name.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Render gallery
+        function renderGallery() {
+            // Update statistics
+            updateGalleryStats();
+            
+            // Filter and sort images
+            let filteredImages = filterGalleryImages(galleryImages);
+            filteredImages = sortGalleryImages(filteredImages);
+            
+            console.log("🎨 Rendering gallery with", filteredImages.length, "images");
+            
+            if (filteredImages.length === 0) {
+                emptyGallery.style.display = 'flex';
+                if (currentSearch.trim()) {
+                    emptyGallery.innerHTML = `
+                        <div class="empty-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>No Images Found</h3>
+                        <p>No images match your search "${currentSearch}"</p>
+                        <button onclick="clearSearch()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-times"></i> Clear Search
+                        </button>
+                    `;
+                }
+                return;
+            }
+            
+            emptyGallery.style.display = 'none';
+            
+            // Clear existing gallery items
+            const existingItems = galleryContainer.querySelectorAll('.gallery-item');
+            existingItems.forEach(item => item.remove());
+            
+            // Add new gallery items
+            filteredImages.forEach(image => {
+                const galleryItem = createGalleryItem(image);
+                galleryContainer.appendChild(galleryItem);
+            });
+        }
+
+        // Create gallery item HTML
+        function createGalleryItem(image) {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+            
+            const sizeFormatted = formatFileSize(image.size);
+            const uploadDate = new Date(image.uploadedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            // Determine image source
+            let imageSrc = image.data;
+            
+            // If it's a URL path (not base64), construct full URL if needed
+            if (image.isUrl && !imageSrc.startsWith('http') && !imageSrc.startsWith('data:')) {
+                // Assuming the API returns relative paths
+                imageSrc = `https://www.coremicron.co.in/skynetwork/admin/${imageSrc.replace(/^\/+/, '')}`;
+            }
+            
+            div.innerHTML = `
+                <img src="${imageSrc}" alt="${image.name}" onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>';">
+                <div class="gallery-info">
+                    <h4 title="${image.name}">${image.name}</h4>
+                    <p>
+                        <i class="fas fa-weight-hanging"></i> ${sizeFormatted}
+                        <span style="margin: 0 5px;">•</span>
+                        <i class="fas fa-file-image"></i> ${image.type ? image.type.replace('image/', '').toUpperCase() : 'Image'}
+                    </p>
+                    <div class="gallery-actions">
+                        <div class="gallery-date">
+                            <i class="far fa-calendar-alt"></i> ${uploadDate}
+                        </div>
+                        <button class="delete-btn" onclick="deleteImage(${image.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Delete image
+        async function deleteImage(imageId) {
+            if (!confirm('Are you sure you want to delete this image?')) {
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                console.log(`🗑️ Deleting image ID: ${imageId}`);
+                
+                // Delete from backend
+                const result = await deleteImageFromBackend(imageId);
+                
+                console.log("🗑️ Delete API Response:", result);
+                
+                if (result && result.success) {
+                    // Remove from local gallery
+                    const imageIndex = galleryImages.findIndex(img => img.id == imageId);
+                    if (imageIndex !== -1) {
+                        galleryImages.splice(imageIndex, 1);
+                        renderGallery();
+                        showSuccess('Image deleted successfully!');
+                    }
+                } else {
+                    throw new Error(result?.message || 'Delete failed');
+                }
+                
+            } catch (error) {
+                console.error('❌ Delete error:', error);
+                showError(error.message || 'Failed to delete image. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Clear search
+        function clearSearch() {
+            searchInput.value = '';
+            currentSearch = '';
+            renderGallery();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("🚀 Image Gallery initialized");
+            
+            // Enforce login first
+            enforceLogin();
+            
+            // Load sidebar and set up collapse functionality
+            await loadSidebar();
+            
+            // Load existing gallery from backend
+            await loadGallery();
+            
+            // Set up search functionality
+            searchInput.addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                renderGallery();
+            });
+            
+            // Set up sort functionality
+            sortSelect.addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                renderGallery();
+            });
+            
+            // Enable multiple file selection hint
+            fileInput.setAttribute('multiple', '');
+            
+            console.log("✅ Image Gallery setup complete");
+        });
+    </script>
+</body>
+</html>

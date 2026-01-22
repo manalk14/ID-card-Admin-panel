@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dealer Reports | Dashboard Pro</title>
+  <link rel="stylesheet" href="fontawesome-free-7.1.0-web/fontawesome-free-7.1.0-web/css/all.min.css"/>
+  <link rel="stylesheet" href="sidebar.css">
+  
+  <!-- Bootstrap Datepicker CSS (Bootstrap 5 compatible) -->
+  <link rel="stylesheet" href="/bootstrap-5.1.3-dist/css/bootstrap-datepicker.min.css"/>
+  
+  <!-- Bootstrap CSS -->
+  <link href="./bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary:#696cff; --primary-dark:#5f61e6; --secondary:#8592a3;
+      --success:#71dd37; --warning:#ffab00; --danger:#ff3e1d;
+      --info:#03c3ec; --dark:#233446; --light:#f5f5f9;
+      --border-color:#d9dee3; --card-bg:#fff; --body-bg:#f5f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--body-bg);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #697a8d;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Main layout */
+    .container {
+      max-width: 1000px;
+      margin-left: 250px;
+      padding: 1.5rem;
+      transition: margin-left .3s;
+      flex: 1;
+      overflow-y: auto;
+    }
+    @media(max-width: 992px) {
+      .container { 
+        margin-left: 0;
+        padding: 1rem;
+      }
+    }
+
+    /* Remove body scrollbar */
+    body::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Container scrollbar styling */
+    .container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    .container::-webkit-scrollbar-thumb {
+      background: var(--secondary);
+      border-radius: 3px;
+    }
+    .container::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    /* Mobile Toggle */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 2000;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    @media(max-width: 992px) {
+      .menu-toggle { display: block; }
+    }
+
+    /* Overlay mobile */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.4);
+      backdrop-filter: blur(2px);
+      z-index: 1500;
+    }
+    .overlay.active { display: block; }
+
+    /* Header */
+    .main-header {
+      background: white;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+      border-radius: .625rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(165,163,174,.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+ .main-header h1 {
+      font-size: 1.7rem;
+      color: var(--dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .page-subtitle {
+      color: var(--secondary);
+      margin: 0.25rem 0 0;
+      font-size: 0.8rem;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: .625rem;
+      border: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(165,163,174,.05);
+    }
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-body {
+      padding: 1rem 1.5rem;
+    }
+
+    /* Form Styles - Compact */
+    .form-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.375rem;
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 0.8rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+       border: 1px solid var(--primary-dark);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--dark);
+      background: white;
+      transition: border-color 0.2s ease;
+      height: 38px;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(105,108,255,0.1);
+    }
+    .form-control::placeholder {
+      color: var(--secondary);
+      font-size: 0.8rem;
+    }
+    .form-select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--primary-dark) ;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--dark);
+      background: white;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238592a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 12px 8px;
+      height: 38px;
+    }
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(105,108,255,0.1);
+    }
+
+    /* Date input group */
+    .input-group {
+      position: relative;
+    }
+    .input-group-append {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      pointer-events: none;
+    }
+    .input-group-append i {
+      color: var(--secondary);
+    }
+
+    /* Buttons - Compact */
+    .btn {
+      padding: .5rem 1rem;
+      border: none;
+      border-radius: .4rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      height: 38px;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(105,108,255,.2);
+    }
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #6c757d;
+    }
+    .btn-outline {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+    .btn-outline:hover {
+      background: rgba(105,108,255,0.05);
+    }
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      height: 28px;
+    }
+
+    /* Auto-complete dropdown - Compact */
+    .autocomplete-container {
+      position: relative;
+    }
+    .autocomplete-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+    .autocomplete-results.active {
+      display: block;
+    }
+    .autocomplete-item {
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.2s;
+      font-size: 0.85rem;
+    }
+    .autocomplete-item:hover {
+      background: var(--light);
+    }
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+    .dealer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .dealer-name {
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 0.85rem;
+    }
+    .dealer-details {
+      font-size: 0.7rem;
+      color: var(--secondary);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Selected dealer info */
+    .selected-dealer-info {
+      display: none;
+      background: rgba(105,108,255,0.05);
+      border: 1px solid rgba(105,108,255,0.2);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .selected-dealer-info.show {
+      display: block;
+    }
+    .selected-dealer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+    .selected-dealer-name {
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+    .clear-dealer-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      padding: 0.125rem 0.5rem;
+      font-size: 0.8rem;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+    .clear-dealer-btn:hover {
+      background: rgba(255,62,29,0.1);
+    }
+
+    /* Custom datepicker styling */
+    .datepicker {
+      z-index: 1000 !important;
+    }
+    .datepicker-dropdown {
+      border-radius: 6px !important;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+      border: 1px solid var(--border-color) !important;
+    }
+    .datepicker table tr td.today {
+      background: rgba(105,108,255,0.1) !important;
+      color: var(--primary) !important;
+    }
+    .datepicker table tr td.today:hover {
+      background: var(--primary) !important;
+      color: white !important;
+    }
+    .datepicker table tr td.active,
+    .datepicker table tr td.active:hover {
+      background: var(--primary) !important;
+      color: white !important;
+    }
+    .datepicker table tr td.day:hover {
+      background: rgba(105,108,255,0.1) !important;
+    }
+
+    /* Report Results - List View */
+    .report-results {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .report-results.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .datepicker {
+  width: 340px;
+}
+
+.datepicker table {
+  width: 100%;
+  font-size: 16px;
+}
+
+.datepicker td,
+.datepicker th {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.datepicker-dropdown {
+  padding: 12px;
+}
+
+
+    /* Report List View */
+    .report-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .report-item {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .report-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(105,108,255,0.1);
+      transform: translateY(-1px);
+    }
+    .report-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .report-item-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .report-item-title {
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 0.95rem;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .report-item-badge {
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .badge-primary {
+      background: rgba(105,108,255,0.1);
+      color: var(--primary);
+    }
+    .badge-success {
+      background: rgba(113,221,55,0.1);
+      color: var(--success);
+    }
+    .badge-secondary {
+      background: rgba(133,146,163,0.1);
+      color: var(--secondary);
+    }
+    .report-item-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      color: var(--secondary);
+    }
+    .detail-label {
+      font-weight: 500;
+      color: var(--dark);
+    }
+    .report-item-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Stats Summary - Compact */
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-box {
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0.25rem 0;
+    }
+    .stat-label {
+      color: var(--secondary);
+      font-size: 0.75rem;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(105,108,255,.1);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .empty-state i {
+      font-size: 2rem;
+      color: var(--secondary);
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+    .empty-state p {
+      color: var(--secondary);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    /* Export Buttons */
+    .export-buttons {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Action Menu */
+    .action-menu {
+      position: relative;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: .375rem;
+      font-size: 1rem;
+      color: var(--secondary);
+      transition: color .2s;
+    }
+    .action-btn:hover {
+      color: var(--primary);
+    }
+    .action-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: .4rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,.1);
+      min-width: 140px;
+      z-index: 100;
+    }
+    .action-dropdown.show {
+      display: block;
+    }
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem .75rem;
+      cursor: pointer;
+      transition: background .2s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    .action-item:hover {
+      background: var(--light);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: .75rem;
+      color: var(--secondary);
+      border-top: 1px solid var(--border-color);
+      background: white;
+      margin-top: auto;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: .75rem;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    }
+    .modal-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      margin: 0;
+      color: var(--dark);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--secondary);
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close-btn:hover {
+      color: var(--danger);
+    }
+    .modal-body {
+      padding: 1rem 1.5rem;
+    }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .export-buttons {
+        flex-direction: column;
+      }
+      .form-actions {
+        flex-direction: column;
+      }
+      .form-actions .btn {
+        width: 100%;
+      }
+      .report-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+      .report-item-actions {
+        margin-left: 0;
+        justify-content: flex-end;
+      }
+      .report-item-header {
+        flex-wrap: wrap;
+      }
+      .report-item-details {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 0.75rem;
+      }
+      .main-header {
+        padding: 0.75rem 1rem;
+      }
+      .card-header, .card-body {
+        padding: 0.75rem 1rem;
+      }
+      .stats-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- LOAD SIDEBAR FROM EXTERNAL FILE -->
+<div id="sidebar-container"></div>
+
+<!-- Mobile Overlay -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Mobile Toggle Button -->
+<button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <header class="main-header">
+    <div>
+      <h1><i class="fas fa-chart-bar"></i>Dealer Reports</h1>
+      <p class="page-subtitle">Generate detailed reports for dealer activities</p>
+    </div>
+  </header>
+
+  <!-- Report Filters Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3><i class="fas fa-filter"></i> Report Filters</h3>
+    </div>
+    <div class="card-body">
+      <form id="reportForm">
+        <div class="row g-3">
+          
+          <!-- Dealer Auto-complete -->
+          <div class="col-lg-6 col-md-6 col-12">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-user-tie"></i> Select Dealer
+              </label>
+              <div class="autocomplete-container">
+                <input type="text" class="form-control" id="dealerSearch"
+                  placeholder="Search dealer by name or phone..." autocomplete="off">
+                <div class="autocomplete-results" id="dealerResults"></div>
+              </div>
+              <div class="selected-dealer-info" id="selectedDealerInfo">
+                <div class="selected-dealer-header">
+                  <span class="selected-dealer-name" id="selectedDealerName"></span>
+                  <button type="button" class="clear-dealer-btn" onclick="clearDealer()">
+                    <i class="fas fa-times"></i> Clear
+                  </button>
+                </div>
+                <div class="dealer-details">
+                  <span id="selectedDealerPhone"></span>
+                  <span id="selectedDealerEmail"></span>
+                </div>
+              </div>
+              <input type="hidden" id="selectedDealerId">
+            </div>
+          </div>
+
+          <!-- Style Dropdown -->
+          <div class="col-lg-6 col-md-6 col-12">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-palette"></i> Select Style
+              </label>
+              <select class="form-select" id="styleSelect">
+                <option value="">All Styles</option>
+                <option value="id_card">ID Card</option>
+                <option value="langyard">Langyard</option>
+                <option value="custom_design">Custom Design</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- From Date -->
+          <div class="col-lg-6 col-md-6 col-12">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-calendar-alt"></i> From Date
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control date-input" id="fromDate" readonly>
+                <span class="input-group-append">
+                  <i class="fas fa-calendar-alt"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- To Date -->
+          <div class="col-lg-6 col-md-6 col-12">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-calendar-alt"></i> To Date
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control date-input" id="toDate" readonly>
+                <span class="input-group-append">
+                  <i class="fas fa-calendar-alt"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="resetForm()">
+            <i class="fas fa-redo"></i> Reset
+          </button>
+          <button type="submit" class="btn btn-primary" id="generateReportBtn">
+            <i class="fas fa-search"></i> Generate Report
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Report Results Card -->
+  <div class="card report-results" id="reportResults">
+    <div class="card-header">
+      <h3><i class="fas fa-file-alt"></i> Report Results</h3>
+      <div class="export-buttons">
+        <button type="button" class="btn btn-outline btn-sm" onclick="exportToCSV()">
+          <i class="fas fa-file-csv"></i> CSV
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="exportToPDF()">
+          <i class="fas fa-file-pdf"></i> PDF
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="printReport()">
+          <i class="fas fa-print"></i> Print
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Report Summary -->
+      <div id="reportSummary" class="stats-summary">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+
+      <!-- Loading Spinner -->
+      <div id="reportLoading" class="text-center" style="display: none;">
+        <div class="spinner"></div>
+        <p style="margin-top: 0.5rem; color: var(--secondary); font-size: 0.85rem;">Generating report...</p>
+      </div>
+
+      <!-- Report List -->
+      <div class="report-list" id="reportList" style="display: none;">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="reportEmpty" class="empty-state" style="display: none;">
+        <i class="fas fa-chart-line"></i>
+        <p>No report data found for the selected criteria</p>
+        <button type="button" class="btn btn-primary mt-2" onclick="resetForm()" style="font-size: 0.85rem; padding: 0.375rem 0.75rem;">
+          <i class="fas fa-redo"></i> Try Different Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- END MAIN CONTENT -->
+
+<!-- Report Detail Modal -->
+<div class="modal" id="reportDetailModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-info-circle"></i> Project Details</h3>
+      <button class="close-btn" onclick="closeModal('reportDetailModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="reportDetailContent">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('reportDetailModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery (required for datepicker) -->
+
+<script src="./bootstrap-5.1.3-dist/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap Bundle -->
+<script src="./bootstrap-5.1.3-dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Datepicker -->
+<script src="bootstrap-5.1.3-dist/js/bootstrap-datepicker.min.js"></script>
+
+<!-- PDF Export Library -->
+<script src="./bootstrap-5.1.3-dist/jquery.js"></script>
+<script src="./bootstrap-5.1.3-dist/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+// Global variables
+let dealersList = [];
+let reportData = [];
+let currentDealer = null;
+
+// Initialize the page
+function initializePage() {
+  enforceLogin();
+  loadSidebar();
+  initializeDatepickers();
+  setupEventListeners();
+  
+  // Set container height to fill viewport
+  adjustContainerHeight();
+  window.addEventListener('resize', adjustContainerHeight);
+}
+
+// Adjust container height
+function adjustContainerHeight() {
+  const container = document.querySelector('.container');
+  if (container) {
+    const headerHeight = document.querySelector('.main-header').offsetHeight;
+    const remainingHeight = window.innerHeight - headerHeight - 20; // 20px padding
+    container.style.maxHeight = remainingHeight + 'px';
+  }
+}
+
+// Enforce login
+function enforceLogin() {
+  const appId = localStorage.getItem("app_id");
+  if (!appId) {
+    window.location.replace("login.html");
+  }
+}
+
+// Load sidebar
+
+// ========== SIDEBAR FUNCTIONS ==========
+function loadSidebar() {
+    fetch("sidebar.html")
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Sidebar not found');
+            }
+            return res.text();
+        })
+        .then(html => {
+            document.getElementById("sidebar-container").innerHTML = html;
+            
+            // Initialize sidebar after a short delay
+            setTimeout(() => {
+                initializeSidebar();
+            }, 100);
+            
+            // Initialize sidebar toggle
+            const toggleBtn = document.querySelector('.menu-toggle');
+            const overlay = document.getElementById('overlay');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    if (overlay) overlay.classList.toggle('active');
+                });
+            }
+            
+            if (overlay && sidebar) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    this.classList.remove('active');
+                });
+            }
+        })
+        .catch(err => {
+            console.log("Sidebar not found, continuing without it.");
+        });
+}
+
+function initializeSidebar() {
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    // Highlight active nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.getAttribute('href') === currentPage) {
+            item.classList.add('active');
+        }
+    });
+    
+    // Initialize ALL collapsible sections
+    const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+    
+    collapsibleHeaders.forEach(header => {
+        const section = header.closest('.collapsible-section');
+        if (!section) return;
+        
+        const content = section.querySelector('.collapsible-content');
+        if (!content) return;
+        
+        // Check if this is the Reports section (for auto-expand)
+        const isReportsSection = header.textContent.includes('Report') || 
+                                header.textContent.includes('Analytics') ||
+                                header.querySelector('i.fa-chart-bar') ||
+                                header.querySelector('i.fa-file-alt');
+        
+        // Check if this is a reports page
+        const isReportsPage = currentPage === 'dealer_reports.html' || 
+                             currentPage === 'style_reports.html' ||
+                             currentPage.includes('report');
+        
+        // Auto-expand Reports section on reports pages
+        if (isReportsSection && isReportsPage) {
+            header.classList.add('active');
+            content.classList.add('expanded');
+            
+            // Also highlight the specific report item
+            const reportItems = content.querySelectorAll('.collapsible-item');
+            reportItems.forEach(item => {
+                if (item.getAttribute('href') === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Check all links in this section
+        const links = section.querySelectorAll('a');
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Clone header to prevent duplicate event listeners
+        const newHeader = header.cloneNode(true);
+        header.parentNode.replaceChild(newHeader, header);
+        
+        // Add toggle click event
+        newHeader.addEventListener('click', function() {
+            this.classList.toggle('active');
+            content.classList.toggle('expanded');
+        });
+    });
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    if (sidebar) {
+        sidebar.classList.toggle("active");
+        if (overlay) overlay.classList.toggle("active");
+    }
+}
+
+// ========== INITIALIZE ==========
+enforceLogin();
+document.addEventListener('DOMContentLoaded', function() {
+    loadSidebar();
+});
+// Initialize datepickers
+function initializeDatepickers() {
+  // Initialize fromDate
+  $('#fromDate').datepicker({
+    format: 'yyyy-mm-dd',
+    autoclose: true,
+    todayHighlight: true,
+    endDate: new Date()
+  });
+
+  // Initialize toDate
+  $('#toDate').datepicker({
+    format: 'yyyy-mm-dd',
+    autoclose: true,
+    todayHighlight: true,
+    endDate: new Date()
+  });
+
+  // Set default dates (last 30 days)
+  const today = new Date();
+  const lastMonth = new Date();
+  lastMonth.setDate(today.getDate() - 30);
+  
+  $('#fromDate').datepicker('setDate', lastMonth);
+  $('#toDate').datepicker('setDate', today);
+  
+  // Trigger change events
+  $('#fromDate').on('changeDate', function() {
+    $('#toDate').datepicker('setStartDate', $(this).val());
+  });
+  
+  $('#toDate').on('changeDate', function() {
+    $('#fromDate').datepicker('setEndDate', $(this).val());
+  });
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  // Dealer search input
+  const dealerSearch = document.getElementById('dealerSearch');
+  if (dealerSearch) {
+    dealerSearch.addEventListener('input', handleDealerSearch);
+    dealerSearch.addEventListener('focus', handleDealerSearchFocus);
+  }
+
+  // Form submission
+  const reportForm = document.getElementById('reportForm');
+  if (reportForm) {
+    reportForm.addEventListener('submit', handleFormSubmit);
+  }
+
+  // Datepicker click handlers
+  document.querySelectorAll('.input-group-append').forEach(append => {
+    append.addEventListener('click', function(e) {
+      const input = this.previousElementSibling;
+      if (input && input.id) {
+        $('#' + input.id).datepicker('show');
+      }
+    });
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(event) {
+    const results = document.getElementById('dealerResults');
+    const search = document.getElementById('dealerSearch');
+    
+    if (results && !event.target.closest('.autocomplete-container')) {
+      results.classList.remove('active');
+    }
+  });
+}
+
+// Handle dealer search focus
+async function handleDealerSearchFocus(e) {
+  if (dealersList.length === 0) {
+    await loadDealersList();
+  }
+  
+  const searchTerm = e.target.value.trim().toLowerCase();
+  const results = document.getElementById('dealerResults');
+  
+  // If empty search box, show all dealers
+  if (!searchTerm && dealersList.length > 0) {
+    showAllDealers();
+  }
+}
+
+// Handle dealer search input
+function handleDealerSearch(e) {
+  const searchTerm = e.target.value.trim().toLowerCase();
+  const results = document.getElementById('dealerResults');
+  
+  if (!searchTerm) {
+    // If empty, show all dealers
+    showAllDealers();
+    return;
+  }
+
+  // Filter dealers
+  const filteredDealers = dealersList.filter(dealer => 
+    dealer.dealer_name.toLowerCase().includes(searchTerm) ||
+    dealer.phone.includes(searchTerm)
+  );
+
+  // Display results
+  displayDealerResults(filteredDealers);
+}
+
+// Show all dealers
+function showAllDealers() {
+  const results = document.getElementById('dealerResults');
+  if (dealersList.length > 0) {
+    displayDealerResults(dealersList);
+  } else {
+    results.innerHTML = '<div class="autocomplete-item">Loading dealers...</div>';
+    results.classList.add('active');
+  }
+}
+
+// Display dealer results
+function displayDealerResults(dealers) {
+  const results = document.getElementById('dealerResults');
+  
+  if (dealers.length > 0) {
+    results.innerHTML = dealers.map(dealer => `
+      <div class="autocomplete-item" onclick="selectDealer(${dealer.id}, '${escapeHtml(dealer.dealer_name)}', '${dealer.phone}', '${dealer.email || ''}')">
+        <div class="dealer-info">
+          <div class="dealer-name">${dealer.dealer_name}</div>
+        </div>
+      </div>
+    `).join('');
+    results.classList.add('active');
+  } else {
+    results.innerHTML = '<div class="autocomplete-item">No dealers found</div>';
+    results.classList.add('active');
+  }
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Load dealers list from API
+async function loadDealersList() {
+  try {
+    const app_id = localStorage.getItem('app_id');
+    
+    if (!app_id) {
+      console.error('No app_id found');
+      return;
+    }
+
+    const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/get_dealer.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ app_id: app_id })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data && data.result === "1" && data.dealers) {
+      dealersList = data.dealers;
+      console.log('Dealers loaded:', dealersList);
+    } else {
+      console.warn('No dealers found or invalid data format');
+      dealersList = [];
+    }
+  } catch (error) {
+    console.error('Error loading dealers list:', error);
+    dealersList = [];
+  }
+}
+
+// Select a dealer
+function selectDealer(id, name, phone, email) {
+  currentDealer = { id, name, phone, email };
+  
+  // Update UI
+  document.getElementById('dealerSearch').value = '';
+  document.getElementById('selectedDealerId').value = id;
+  document.getElementById('selectedDealerName').textContent = name;
+  document.getElementById('selectedDealerPhone').textContent = phone;
+  
+  if (email) {
+    document.getElementById('selectedDealerEmail').textContent = email;
+    document.getElementById('selectedDealerEmail').style.display = 'inline';
+  } else {
+    document.getElementById('selectedDealerEmail').style.display = 'none';
+  }
+  
+  document.getElementById('selectedDealerInfo').classList.add('show');
+  
+  // Hide results
+  document.getElementById('dealerResults').classList.remove('active');
+}
+
+// Clear selected dealer
+function clearDealer() {
+  currentDealer = null;
+  document.getElementById('selectedDealerId').value = '';
+  document.getElementById('selectedDealerInfo').classList.remove('show');
+  document.getElementById('dealerSearch').value = '';
+  document.getElementById('dealerSearch').focus();
+}
+
+// Handle form submission
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  
+  // Show loading
+  document.getElementById('reportLoading').style.display = 'block';
+  document.getElementById('reportList').style.display = 'none';
+  document.getElementById('reportEmpty').style.display = 'none';
+  
+  // Show results section
+  document.getElementById('reportResults').classList.add('active');
+  
+  // Get form data
+  const formData = {
+    dealerId: document.getElementById('selectedDealerId').value,
+    style: document.getElementById('styleSelect').value,
+    fromDate: document.getElementById('fromDate').value,
+    toDate: document.getElementById('toDate').value,
+    app_id: localStorage.getItem('app_id')
+  };
+
+  try {
+    // TODO: Replace with your actual API endpoint for reports
+    const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/reports.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Hide loading
+    document.getElementById('reportLoading').style.display = 'none';
+    
+    if (data && data.result === "1" && data.reports) {
+      reportData = data.reports;
+      displayReportResults(data.reports);
+    } else {
+      showEmptyReport();
+    }
+  } catch (error) {
+    console.error('Error generating report:', error);
+    document.getElementById('reportLoading').style.display = 'none';
+    
+    // For demo purposes, show sample data
+    generateSampleReportData();
+    displayReportResults(reportData);
+  }
+}
+
+// Generate sample report data for demo
+function generateSampleReportData() {
+  const styles = ['id_card', 'langyard', 'custom_design', 'business_card', 'invitation_card'];
+  const statuses = ['pending', 'active', 'completed'];
+  
+  reportData = [];
+  
+  for (let i = 1; i <= 20; i++) {
+    const style = styles[Math.floor(Math.random() * styles.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const amount = Math.floor(Math.random() * 5000) + 1000;
+    
+    // Random date within last 30 days
+    const randomDay = Math.floor(Math.random() * 30);
+    const date = new Date();
+    date.setDate(date.getDate() - randomDay);
+    const formattedDate = date.toISOString().split('T')[0];
+    
+    reportData.push({
+      id: i,
+      date: formattedDate,
+      dealer_name: currentDealer ? currentDealer.name : 'John Doe',
+      phone: currentDealer ? currentDealer.phone : '9876543210',
+      style: style,
+      project_name: `Project ${i}`,
+      status: status,
+      amount: amount,
+      notes: 'Sample project notes for demonstration purposes.'
+    });
+  }
+}
+
+// Display report results in list format
+function displayReportResults(data) {
+  if (!data || data.length === 0) {
+    showEmptyReport();
+    return;
+  }
+
+  // Update summary
+  updateReportSummary(data);
+  
+  // Update list
+  const listContainer = document.getElementById('reportList');
+  listContainer.innerHTML = data.map((item, index) => `
+    <div class="report-item">
+      <div class="report-item-content">
+        <div class="report-item-header">
+          <h4 class="report-item-title">${item.project_name}</h4>
+          <span class="report-item-badge badge-${getStatusColor(item.status)}">${formatStatus(item.status)}</span>
+          <span class="report-item-badge badge-primary">${formatStyle(item.style)}</span>
+        </div>
+        <div class="report-item-details">
+          <div class="detail-item">
+            <span class="detail-label">Dealer:</span>
+            <span>${item.dealer_name}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Phone:</span>
+            <span>${item.phone}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date:</span>
+            <span>${formatDate(item.date)}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Amount:</span>
+            <span style="color: var(--success); font-weight: 600;">₹${item.amount.toLocaleString()}</span>
+          </div>
+        </div>
+      </div>
+      <div class="report-item-actions">
+        <button class="btn btn-sm btn-outline" onclick="viewReportDetails(${item.id})">
+          <i class="fas fa-eye"></i> View
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="downloadProject(${item.id})">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+
+  // Show list
+  listContainer.style.display = 'block';
+}
+
+// Format style for display
+function formatStyle(style) {
+  const styleMap = {
+    'id_card': 'ID Card',
+    'langyard': 'Langyard',
+    'custom_design': 'Custom Design',
+    'business_card': 'Business Card',
+    'invitation_card': 'Invitation Card',
+    'visiting_card': 'Visiting Card'
+  };
+  return styleMap[style] || style;
+}
+
+// Format status
+function formatStatus(status) {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+// Get status color
+function getStatusColor(status) {
+  switch(status.toLowerCase()) {
+    case 'completed':
+      return 'success';
+    case 'active':
+      return 'secondary';
+    case 'pending':
+      return 'secondary';
+    default:
+      return 'secondary';
+  }
+}
+
+// Format date
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
+// Update report summary
+function updateReportSummary(data) {
+  const totalProjects = data.length;
+  const totalAmount = data.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const averageAmount = totalAmount / totalProjects;
+  
+  const summaryHTML = `
+    <div class="stat-box">
+      <div class="stat-label">Total Projects</div>
+      <div class="stat-value">${totalProjects}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Total Amount</div>
+      <div class="stat-value">₹${totalAmount.toLocaleString()}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Average Value</div>
+      <div class="stat-value">₹${Math.round(averageAmount).toLocaleString()}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Date Range</div>
+      <div class="stat-value" style="font-size: 1.2rem;">
+        ${formatDate(document.getElementById('fromDate').value)} - ${formatDate(document.getElementById('toDate').value)}
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('reportSummary').innerHTML = summaryHTML;
+}
+
+// Show empty report state
+function showEmptyReport() {
+  document.getElementById('reportSummary').innerHTML = '';
+  document.getElementById('reportList').style.display = 'none';
+  document.getElementById('reportEmpty').style.display = 'block';
+}
+
+// View report details
+function viewReportDetails(projectId) {
+  const project = reportData.find(item => item.id === projectId);
+  
+  if (project) {
+    const detailHTML = `
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="background: var(--light); padding: 1rem; border-radius: 8px;">
+          <h4 style="margin: 0 0 0.75rem; color: var(--dark); font-size: 1rem;">Project Information</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;">
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Project Name</p>
+              <p style="margin: 0; color: var(--dark); font-weight: 500; font-size: 0.9rem;">${project.project_name}</p>
+            </div>
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Style</p>
+              <p style="margin: 0; color: var(--dark); font-weight: 500; font-size: 0.9rem;">${formatStyle(project.style)}</p>
+            </div>
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Date</p>
+              <p style="margin: 0; color: var(--dark); font-weight: 500; font-size: 0.9rem;">${formatDate(project.date)}</p>
+            </div>
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Status</p>
+              <span class="report-item-badge badge-${getStatusColor(project.status)}">${formatStatus(project.status)}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background: var(--light); padding: 1rem; border-radius: 8px;">
+          <h4 style="margin: 0 0 0.75rem; color: var(--dark); font-size: 1rem;">Dealer Information</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;">
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Dealer Name</p>
+              <p style="margin: 0; color: var(--dark); font-weight: 500; font-size: 0.9rem;">${project.dealer_name}</p>
+            </div>
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Phone</p>
+              <p style="margin: 0; color: var(--dark); font-weight: 500; font-size: 0.9rem;">${project.phone}</p>
+            </div>
+            <div>
+              <p style="margin: 0.25rem 0; color: var(--secondary); font-size: 0.8rem;">Amount</p>
+              <p style="margin: 0; color: var(--dark); font-weight: 500; font-size: 0.9rem;">₹${project.amount.toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+        
+        ${project.notes ? `
+          <div style="background: var(--light); padding: 1rem; border-radius: 8px;">
+            <h4 style="margin: 0 0 0.75rem; color: var(--dark); font-size: 1rem;">Notes</h4>
+            <p style="margin: 0; color: var(--secondary); font-size: 0.9rem;">${project.notes}</p>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    document.getElementById('reportDetailContent').innerHTML = detailHTML;
+    openModal('reportDetailModal');
+  }
+}
+
+// Download project
+function downloadProject(projectId) {
+  const project = reportData.find(item => item.id === projectId);
+  if (project) {
+    alert(`Downloading project: ${project.project_name}\nThis feature will be implemented soon.`);
+  }
+}
+
+// Export to CSV
+function exportToCSV() {
+  if (reportData.length === 0) {
+    alert('No data to export');
+    return;
+  }
+  
+  // Define headers
+  const headers = ['S.No', 'Date', 'Dealer Name', 'Phone', 'Style', 'Project Name', 'Amount'];
+  
+  // Create CSV content
+  let csvContent = headers.join(',') + '\n';
+  
+  reportData.forEach((item, index) => {
+    const row = [
+      index + 1,
+      item.date,
+      `"${item.dealer_name}"`,
+      item.phone,
+      formatStyle(item.style),
+      `"${item.project_name}"`,
+      `₹${item.amount}`
+    ];
+    csvContent += row.join(',') + '\n';
+  });
+  
+  // Create download link
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', `dealer_report_${new Date().toISOString().slice(0,10)}.csv`);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Export to PDF
+function exportToPDF() {
+  if (reportData.length === 0) {
+    alert('No data to export');
+    return;
+  }
+  
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+  
+  // Add title
+  doc.setFontSize(14);
+  doc.text('Dealer Report', 20, 15);
+  
+  // Add date range
+  doc.setFontSize(10);
+  const fromDate = document.getElementById('fromDate').value;
+  const toDate = document.getElementById('toDate').value;
+  doc.text(`Date Range: ${fromDate} to ${toDate}`, 20, 23);
+  
+  // Add dealer info if selected
+  if (currentDealer) {
+    doc.text(`Dealer: ${currentDealer.name} (${currentDealer.phone})`, 20, 31);
+  }
+  
+  // Prepare table data
+  const tableData = reportData.map((item, index) => [
+    index + 1,
+    item.date,
+    item.dealer_name,
+    item.phone,
+    formatStyle(item.style),
+    item.project_name,
+    `₹${item.amount}`
+  ]);
+  
+  // Add table
+  doc.autoTable({
+    head: [['S.No', 'Date', 'Dealer', 'Phone', 'Style', 'Project', 'Amount']],
+    body: tableData,
+    startY: currentDealer ? 40 : 30,
+    theme: 'grid',
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [105, 108, 255] }
+  });
+  
+  // Save PDF
+  doc.save(`dealer_report_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+// Print report
+function printReport() {
+  const printContent = document.getElementById('reportResults').innerHTML;
+  const originalContent = document.body.innerHTML;
+  
+  document.body.innerHTML = `
+    <div style="padding: 20px;">
+      <h1 style="text-align: center; margin-bottom: 30px;">Dealer Report</h1>
+      ${printContent}
+    </div>
+  `;
+  
+  window.print();
+  document.body.innerHTML = originalContent;
+  window.location.reload();
+}
+
+// Reset form
+function resetForm() {
+  document.getElementById('reportForm').reset();
+  clearDealer();
+  
+  // Reset dates to default (last 30 days)
+  const today = new Date();
+  const lastMonth = new Date();
+  lastMonth.setDate(today.getDate() - 30);
+  
+  $('#fromDate').datepicker('setDate', lastMonth);
+  $('#toDate').datepicker('setDate', today);
+  
+  // Hide results
+  document.getElementById('reportResults').classList.remove('active');
+}
+
+// Modal functions
+function openModal(modalId) {
+  document.getElementById(modalId).classList.add('active');
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.remove('active');
+}
+
+// Toggle sidebar
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar-container");
+  const overlay = document.getElementById("overlay");
+  if (sidebar) {
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
+}
+
+// Initialize page when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializePage);
+</script>
+
+</body>
+</html>

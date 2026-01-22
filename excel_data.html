@@ -1,0 +1,3521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional ID Card Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  
+<style>
+      * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #8b5cf6, #d946ef);
+        }
+
+        /* Project Setup Modal - Reduced Size */
+        .project-setup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .project-modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #374151 100%);
+            border-radius: 16px;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .project-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+           
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .project-modal-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #a78bfa;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+        }
+
+        .excel-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 18px 0;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .excel-upload-area:hover {
+            border-color: #a78bfa;
+            background: rgba(167, 139, 250, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: #a78bfa;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .upload-subtext {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .modal-btn.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .modal-btn.primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Excel Row Navigation Bar - NOW INTEGRATED INTO CANVAS HEADER */
+        .excel-nav-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .excel-nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .excel-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .excel-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .excel-row-indicator {
+            background: rgba(51, 51, 51, 0.8);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 110px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* XLS Sidebar Section */
+        .xls-sidebar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(43, 43, 43, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .xls-section-title {
+            font-size: 11px;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .xls-action-btn {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .xls-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Column Selection Menu - FIXED */
+        .column-menu {
+            position: fixed;
+            background: #232733;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 12px;
+            z-index: 10001;
+            padding: 12px 0;
+            min-width: 200px;
+            max-width: 280px;
+            max-height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .column-menu-header {
+            padding: 8px 16px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .column-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .column-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Sidebar - Added Scroll */
+        .sidebar {
+            width: 300px;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+          
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .side-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .side-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .side-btn.active {
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            color: white;
+            box-shadow: 0 8px 20px rgba(167, 139, 250, 0.4);
+        }
+
+        .side-btn:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .side-btn:not(.active):hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .add-btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            box-shadow: 0 8px 20px rgba(167, 139, 250, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .file-upload-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+            font-size: 14px;
+        }
+
+        .file-upload-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 42px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 15px 0;
+        }
+
+        /* Main Canvas Area - Fixed Alignment */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            overflow: hidden;
+            height: 100vh;
+            min-width: 0;
+        }
+
+        /* Canvas Header - UPDATED TO INCLUDE EXCEL NAV */
+        .canvas-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 900px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .undo-redo-btn {
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .undo-redo-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .undo-redo-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .side-indicator {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 13px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 6px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .zoom-btn {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .zoom-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .zoom-level {
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        /* Canvas content area - Fixed Alignment */
+        .canvas-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            flex: 1;
+            width: 100%;
+            padding: 5px;
+            overflow-y: auto;
+            min-height: 0;
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        .canvas {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+        }
+
+        .canvas-element.selected {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .canvas-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #3b82f6;
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .resize-handle.nw {
+            top: -5px;
+            left: -5px;
+            cursor: nw-resize;
+        }
+
+        .resize-handle.ne {
+            top: -5px;
+            right: -5px;
+            cursor: ne-resize;
+        }
+
+        .resize-handle.sw {
+            bottom: -5px;
+            left: -5px;
+            cursor: sw-resize;
+        }
+
+        .resize-handle.se {
+            bottom: -5px;
+            right: -5px;
+            cursor: se-resize;
+        }
+
+        /* Right Panel - Added Scroll */
+        .right-panel {
+            width: 300px;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .panel h3 {
+            font-size: 16px;
+            margin-bottom: 14px;
+            color: white;
+        }
+
+        .property-group {
+            margin-bottom: 14px;
+        }
+
+        .property-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+           
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+        }
+
+        .style-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .style-btn {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 55px;
+            font-size: 13px;
+        }
+
+        .style-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .style-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .action-btn.duplicate {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .layer-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .layer-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .layer-item.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .layer-info {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .layer-icon {
+            font-size: 18px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .layer-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .layer-type {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: capitalize;
+        }
+
+        .layer-delete {
+            padding: 6px;
+            background: rgba(239, 68, 68, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .layer-delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 45px;
+            height: 45px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #10b981;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .loading-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .backbtn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: button;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .backbtn:hover {
+            background-color: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .backbtn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Excel Data Preview */
+        .excel-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .excel-preview-title {
+            color: #a78bfa;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .excel-preview-data {
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .excel-data-row {
+            padding: 4px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Image URL Input */
+        .image-url-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .image-url-input input {
+            flex: 1;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .image-url-input button {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Additional Image Upload Area */
+        .additional-images-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .image-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-upload-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .image-upload-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #a78bfa;
+            transform: translateY(-2px);
+        }
+
+        .image-upload-icon {
+            font-size: 24px;
+            color: #a78bfa;
+            margin-bottom: 5px;
+        }
+
+        .image-upload-text {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .quick-image-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 6px;
+            color: #3b82f6;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-image-btn:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1200px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .sidebar,
+            .right-panel {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                max-height: 400px;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .right-panel {
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .canvas-container {
+                height: auto;
+                min-height: 70vh;
+            }
+            
+            .canvas-header {
+                padding: 8px 10px;
+                gap: 8px;
+                flex-direction: column;
+            }
+            
+            .excel-nav-section {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            .undo-redo-btn, .side-indicator, .zoom-controls {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .zoom-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+            }
+        }
+</style>
+</head>
+
+<body>
+    <!-- Project Setup Modal -->
+    <div class="project-setup-modal" id="projectSetupModal">
+        <div class="project-modal-content">
+            <h2 class="project-modal-title">Create New Project</h2>
+            <p class="project-modal-subtitle">Setup your ID card project details</p>
+            
+            <div class="form-group">
+                <label class="form-label">Project Name</label>
+                <input type="text" class="form-input" id="projectName" placeholder="Enter project name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Card Type</label>
+                <select class="form-select" id="cardType">
+                    <option value="single">Single Sided</option>
+                    <option value="double">Double Sided</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Card Size</label>
+                <select class="form-select" id="cardSize">
+                    <option value="700x450">Standard (700×450)</option>
+                    <option value="850x550">Large (850×550)</option>
+                    <option value="856x540">Credit Card (856×540)</option>
+                </select>
+            </div>
+
+            <!-- Excel Upload Section -->
+            <div class="form-group">
+                <label class="form-label">Upload Excel Data (Optional)</label>
+                <div class="excel-upload-area" id="excelUploadArea" onclick="document.getElementById('excelFileInput').click()">
+                    <div class="upload-icon">📊</div>
+                    <div class="upload-text">Upload Excel File</div>
+                    <div class="upload-subtext">Click to upload .xlsx or .csv file with data</div>
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelUpload(event)">
+                </div>
+                <div id="excelFileName" style="text-align:center;color:#a78bfa;margin-top:10px;font-size:12px;"></div>
+                
+                <!-- Excel Data Preview -->
+                <div class="excel-preview" id="excelPreview" style="display:none;">
+                    <div class="excel-preview-title">Data Preview (First 5 rows):</div>
+                    <div class="excel-preview-data" id="excelPreviewData"></div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="cancelProject()">Cancel</button>
+                <button class="modal-btn primary" id="createProjectBtn" onclick="createProject()">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer" style="display:none;">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <h1 id="projectTitle">ID Card Editor</h1>
+
+            <!-- Side Toggle -->
+            <div class="side-toggle">
+                <button class="side-btn active" id="frontSideBtn" onclick="switchSide('front')">Front</button>
+                <button class="side-btn" id="backSideBtn" onclick="switchSide('back')">Back</button>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="section">
+                <div class="section-label">🔍 Canvas Zoom</div>
+                <div class="zoom-controls" style="justify-content: center;">
+                    <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
+                </div>
+            </div>
+
+            <!-- Border Radius -->
+            <div class="section">
+                <div class="section-label">⭕ Border Radius</div>
+                <input type="range" min="0" max="40" value="20" id="radiusRange" oninput="updateRadius(this.value)">
+                <div class="range-value">
+                    <span id="radiusValue">20</span> px
+                </div>
+            </div>
+
+            <!-- Excel Data Section -->
+            <div class="xls-sidebar-section" id="xlsSidebarSection" style="display:none;">
+                <div class="xls-section-title">EXCEL DATA</div>
+                <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <button class="xls-action-btn" id="addTextFromXlsBtn" title="Add Text from Excel">📝</button>
+                    <button class="xls-action-btn" id="addImageFromXlsBtn" title="Add Image from Excel">🖼️</button>
+                    <button class="xls-action-btn" onclick="showExcelColumnManager()" title="Manage Columns">⚙️</button>
+                </div>
+                
+                <!-- Excel Info Display -->
+                <div id="excelInfo" style="font-size: 11px; color: rgba(255, 255, 255, 0.7); text-align: center; margin-top: 8px;">
+                    <div>Columns: <span id="columnCount">0</span></div>
+                    <div>Rows: <span id="rowCount">0</span></div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Fixed Data Section -->
+            <div class="section">
+                <div class="section-label">FIXED DATA</div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="xls-action-btn" onclick="addText('New Text')" title="Add Text">📝</button>
+                    <button class="xls-action-btn" onclick="document.getElementById('imageUpload').click()" title="Add Image">🖼️</button>
+                    <button class="xls-action-btn" onclick="addQRCodeFromInput()" title="Add QR Code">📱</button>
+                </div>
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="addImage(event)">
+            </div>
+
+            <!-- Add Text -->
+            <div class="section">
+                <div class="section-label">📝 Add Custom Text</div>
+                <div class="input-group">
+                    <input type="text" id="textInput" placeholder="Enter text..." onkeypress="if(event.key==='Enter')addCustomText()">
+                    <button class="add-btn" onclick="addCustomText()">+</button>
+                </div>
+            </div>
+
+            <!-- Add QR Code -->
+            <div class="section">
+                <div class="section-label">📱 Add QR Code</div>
+                <div class="input-group">
+                    <input type="text" id="qrInput" placeholder="QR data..." onkeypress="if(event.key==='Enter')addQRCodeFromInput()">
+                    <button class="add-btn" onclick="addQRCodeFromInput()">+</button>
+                </div>
+            </div>
+
+            <!-- Canvas Background -->
+            <div class="section">
+                <div class="section-label">🎨 Canvas Background</div>
+                <input type="color" id="bgColorInput" value="#ffffff" onchange="changeCanvasBackground()">
+            </div>
+
+            <!-- Save/Load -->
+            <div class="section">
+                <div class="section-label">💾 Save/Load</div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="add-btn" onclick="exportProject()" style="flex: 1;">Save</button>
+                    <label class="file-upload-btn" style="flex: 1;">
+                        Load
+                        <input type="file" accept=".json" onchange="importProject(event)" style="display: none;">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Additional Image Upload Area - ADDED AT BOTTOM -->
+            <div class="additional-images-section">
+                <div class="section-label">🖼️ Additional Images</div>
+                <div class="image-upload-grid">
+                    <div class="image-upload-item" onclick="addQuickImage('logo')">
+                        <div class="image-upload-icon">🏢</div>
+                        <div class="image-upload-text">Logo</div>
+                    </div>
+                    <div class="image-upload-item" onclick="addQuickImage('signature')">
+                        <div class="image-upload-icon">✍️</div>
+                        <div class="image-upload-text">Signature</div>
+                    </div>
+                    <div class="image-upload-item" onclick="addQuickImage('badge')">
+                        <div class="image-upload-icon">🎖️</div>
+                        <div class="image-upload-text">Badge</div>
+                    </div>
+                    <div class="image-upload-item" onclick="addQuickImage('barcode')">
+                        <div class="image-upload-icon">📊</div>
+                        <div class="image-upload-text">Barcode</div>
+                    </div>
+                </div>
+                
+                <!-- Bulk Image Upload -->
+                <div style="margin-top: 15px;">
+                    <div class="section-label">📁 Bulk Upload Images</div>
+                    <label class="file-upload-btn" style="margin-bottom: 10px;">
+                        📤 Upload Multiple Images
+                        <input type="file" id="bulkImageUpload" accept="image/*" multiple style="display: none;" onchange="handleBulkImageUpload(event)">
+                    </label>
+                    
+                    <button class="quick-image-btn" onclick="openImageLibrary()">
+                        📚 Open Image Library
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-container">
+            <!-- Canvas Header - NOW INCLUDES EXCEL NAVIGATION -->
+            <div class="canvas-header">
+                <button class="undo-redo-btn" id="undoBtn" onclick="undo()" disabled>↶ Undo</button>
+                <button class="undo-redo-btn" id="redoBtn" onclick="redo()" disabled>↷ Redo</button>
+                <div class="side-indicator" id="sideIndicator">📄 Front Side</div>
+                
+                <!-- Excel Navigation - INTEGRATED HERE -->
+                <div class="excel-nav-section" id="excelNavSection" style="display:none;">
+                    <button class="excel-nav-btn" id="prevRowBtn" onclick="prevExcelRow()">◀</button>
+                    <div class="excel-row-indicator" id="excelRowIndicator">Row 1 of 1</div>
+                    <button class="excel-nav-btn" id="nextRowBtn" onclick="nextExcelRow()">▶</button>
+                    <button class="excel-nav-btn" onclick="showExcelDataModal()" title="View Excel Data">📊</button>
+                    <button class="excel-nav-btn" onclick="exportExcelData()" title="Export Data">📥</button>
+                    <button class="excel-nav-btn" onclick="importImagesFromExcel()" title="Import Images from Excel">🖼️</button>
+                </div>
+                
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
+                </div>
+            </div>
+
+            <!-- Canvas Content Area -->
+            <div class="canvas-content-wrapper">
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <div id="frontCanvas" class="canvas"></div>
+                    <div id="backCanvas" class="canvas hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <button class="backbtn" onclick="goBack()">← Back to Projects</button>
+
+            <!-- Toolbar -->
+            <div class="panel" id="toolbarPanel">
+                <h3>Element Properties</h3>
+                <div id="noSelection" class="empty-state">
+                    Select an element to edit its properties
+                </div>
+                <div id="elementProperties" class="hidden"></div>
+            </div>
+
+            <!-- Layers -->
+            <div class="panel">
+                <h3>Layers (<span id="layerCount">0</span>)</h3>
+                <div id="layersList"></div>
+            </div>
+            
+            <!-- Excel Bound Elements -->
+            <div class="panel" id="excelBoundPanel" style="display:none;">
+                <h3>📊 Excel-Bound Elements</h3>
+                <div id="excelBoundList" class="empty-state">No Excel-bound elements</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing...</div>
+        <div class="loading-details" id="loadingDetails">Please wait</div>
+    </div>
+    
+    <!-- Excel Data Modal -->
+    <div class="project-setup-modal" id="excelDataModal" style="display:none;z-index:10001;">
+        <div class="project-modal-content" style="max-width:800px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;">
+            <h2 class="project-modal-title">Excel Data</h2>
+            <div style="flex:1;overflow:auto;margin:15px 0;">
+                <div id="excelDataTable" style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="document.getElementById('excelDataModal').style.display='none'">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Excel Column Manager -->
+    <div class="project-setup-modal" id="excelColumnManager" style="display:none;z-index:10001;">
+        <div class="project-modal-content" style="max-width:500px;">
+            <h2 class="project-modal-title">Excel Column Manager</h2>
+            <div id="columnManagerContent" style="margin:20px 0;max-height:300px;overflow-y:auto;"></div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="document.getElementById('excelColumnManager').style.display='none'">Close</button>
+                <button class="modal-btn primary" onclick="refreshExcelData()">Refresh</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Column Setup Modal -->
+    <div class="project-setup-modal" id="imageColumnModal" style="display:none;z-index:10001;">
+        <div class="project-modal-content" style="max-width:500px;">
+            <h2 class="project-modal-title">Setup Image from Excel</h2>
+            <div class="form-group">
+                <label class="form-label">Select Excel Column for Image URL/Path</label>
+                <select class="form-select" id="imageColumnSelect">
+                    <option value="">-- Select Column --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Image Base URL (Optional)</label>
+                <input type="text" class="form-input" id="imageBaseUrl" placeholder="https://example.com/images/">
+                <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:5px;">
+                    If images are stored online with a common base URL
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Default Image (Optional)</label>
+                <input type="text" class="form-input" id="defaultImageUrl" placeholder="https://example.com/default.jpg">
+                <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:5px;">
+                    URL of default image to use when Excel cell is empty
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="document.getElementById('imageColumnModal').style.display='none'">Cancel</button>
+                <button class="modal-btn primary" onclick="createExcelImageElement()">Create Image Element</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Excel Image Import Modal -->
+    <div class="project-setup-modal" id="excelImageImportModal" style="display:none;z-index:10001;">
+        <div class="project-modal-content" style="max-width:600px;">
+            <h2 class="project-modal-title">Import Images from Excel</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Select Excel Column with Image Data</label>
+                <select class="form-select" id="excelImageColumnSelect">
+                    <option value="">-- Select Column --</option>
+                </select>
+                <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:5px;">
+                    Select column containing Base64 image data or image URLs
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Image Type</label>
+                <div style="display:flex;gap:10px;margin-top:5px;">
+                    <label style="display:flex;align-items:center;gap:5px;">
+                        <input type="radio" name="imageType" value="base64" checked onchange="toggleImageType()">
+                        <span>Base64 Images</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:5px;">
+                        <input type="radio" name="imageType" value="url" onchange="toggleImageType()">
+                        <span>Image URLs</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group" id="base64Settings">
+                <label class="form-label">Base64 Settings</label>
+                <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:5px;">
+                    Excel cells should contain complete Base64 image data (data:image/...)
+                </div>
+            </div>
+            
+            <div class="form-group hidden" id="urlSettings">
+                <label class="form-label">URL Settings</label>
+                <input type="text" class="form-input" id="imageBaseUrl2" placeholder="Base URL (optional)">
+                <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:5px;">
+                    Add base URL if Excel contains relative paths
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Preview</label>
+                <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;min-height:100px;max-height:200px;overflow:auto;" id="imagePreviewArea">
+                    <div class="empty-state">Select a column to preview images</div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="document.getElementById('excelImageImportModal').style.display='none'">Cancel</button>
+                <button class="modal-btn primary" onclick="importExcelImages()">Import Images</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Library Modal -->
+    <div class="project-setup-modal" id="imageLibraryModal" style="display:none;z-index:10001;">
+        <div class="project-modal-content" style="max-width:800px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;">
+            <h2 class="project-modal-title">Image Library</h2>
+            <div style="display:flex;gap:10px;margin-bottom:15px;">
+                <input type="text" class="form-input" id="imageSearchInput" placeholder="Search images..." style="flex:1;">
+                <button class="modal-btn secondary" onclick="refreshImageLibrary()">Refresh</button>
+            </div>
+            <div style="flex:1;overflow:auto;margin:10px 0;">
+                <div id="imageLibraryGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));gap:10px;padding:10px;background:rgba(255,255,255,0.05);border-radius:10px;">
+                    <div class="empty-state">No images in library</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="document.getElementById('imageLibraryModal').style.display='none'">Close</button>
+                <button class="modal-btn primary" onclick="uploadToImageLibrary()">Upload More</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // ============ GLOBAL VARIABLES ============
+        let projectData = null;
+        let excelData = [];
+        let excelColumns = [];
+        let xlsCurrentRow = 1;
+        let xlsBoundElements = new Map(); // Map of elementId -> {column, type, config}
+        let imageCache = new Map(); // Cache for loaded images
+        let imageLibrary = []; // Store uploaded images in library
+        
+        // Editor state
+        let state = {
+            front: {
+                elements: [],
+                background: '#ffffff',
+                backgroundImage: null,
+                width: 700,
+                height: 450
+            },
+            back: {
+                elements: [],
+                background: '#ffffff',
+                backgroundImage: null,
+                width: 700,
+                height: 450
+            },
+            activeSide: 'front',
+            selectedElement: null,
+            history: {
+                front: [],
+                back: []
+            },
+            historyIndex: {
+                front: -1,
+                back: -1
+            }
+        };
+
+        let zoomLevel = 1;
+        const minZoom = 0.25;
+        const maxZoom = 3;
+        const zoomStep = 0.25;
+        let downloadQuality = 2;
+        let isDragging = false;
+        let isResizing = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let resizeStartData = null;
+
+        // ============ PROJECT SETUP FUNCTIONS ============
+        function goBack() {
+            if (confirm('Are you sure you want to leave? All unsaved changes will be lost.')) {
+                window.location.href = "template.html";
+            }
+        }
+
+        function cancelProject() {
+            if (confirm('Are you sure you want to cancel?')) {
+                window.location.href = "template.html";
+            }
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Show file name
+            document.getElementById('excelFileName').textContent = `Selected: ${file.name}`;
+            document.getElementById('excelPreview').style.display = 'block';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    
+                    // Try to extract images from the workbook
+                    extractExcelImages(workbook);
+                    
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    
+                    if (jsonData.length === 0) {
+                        alert('Excel file is empty');
+                        return;
+                    }
+                    
+                    // Store data
+                    excelColumns = jsonData[0] || [];
+                    excelData = jsonData.slice(1).map(row => {
+                        const obj = {};
+                        excelColumns.forEach((header, index) => {
+                            obj[header] = row[index] || '';
+                        });
+                        return obj;
+                    });
+                    
+                    // Show preview
+                    showExcelPreview();
+                    
+                    console.log('Excel data loaded:', excelData.length, 'rows');
+                    
+                } catch (error) {
+                    console.error('Error reading Excel file:', error);
+                    alert('Error reading Excel file. Please make sure it\'s a valid file.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function extractExcelImages(workbook) {
+            // This is a simplified approach - real Excel image extraction requires more complex handling
+            console.log('Excel workbook loaded, checking for embedded images...');
+            
+            // For now, we'll store a flag that images might exist
+            // In a real implementation, you would use a library like 'xlsx-img' or similar
+            // to extract embedded images from the Excel file
+            
+            // Show message if images might be present
+            const sheetNames = workbook.SheetNames;
+            console.log('Sheet names:', sheetNames);
+            
+            // We'll assume images might be in Base64 format in cells
+            // The actual image import will be handled separately
+        }
+
+        function showExcelPreview() {
+            const previewData = document.getElementById('excelPreviewData');
+            let html = '';
+            
+            // Show headers
+            html += `<div class="excel-data-row" style="font-weight:bold;background:rgba(167,139,250,0.1);">`;
+            excelColumns.forEach(col => {
+                html += `<span style="display:inline-block;min-width:80px;padding-right:10px;">${col}</span>`;
+            });
+            html += `</div>`;
+            
+            // Show first 5 rows
+            for (let i = 0; i < Math.min(5, excelData.length); i++) {
+                html += `<div class="excel-data-row">`;
+                excelColumns.forEach(col => {
+                    const value = excelData[i][col] || '';
+                    // Check if value looks like image data
+                    const isImage = value.toString().startsWith('data:image') || 
+                                  value.toString().includes('base64') ||
+                                  value.toString().match(/\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i);
+                    const displayValue = isImage ? 
+                        `<span style="color:#a78bfa;">🖼️ ${value.toString().substring(0, 20)}...</span>` : 
+                        value;
+                    html += `<span style="display:inline-block;min-width:80px;padding-right:10px;">${displayValue}</span>`;
+                });
+                html += `</div>`;
+            }
+            
+            if (excelData.length > 5) {
+                html += `<div class="excel-data-row" style="color:#a78bfa;text-align:center;">... and ${excelData.length - 5} more rows</div>`;
+            }
+            
+            previewData.innerHTML = html;
+        }
+
+        function showExcelDataModal() {
+            const modal = document.getElementById('excelDataModal');
+            const table = document.getElementById('excelDataTable');
+            
+            let html = '<div style="overflow:auto;">';
+            html += '<table style="width:100%;border-collapse:collapse;">';
+            
+            // Headers
+            html += '<thead><tr style="background:rgba(167,139,250,0.2);">';
+            html += '<th style="padding:10px;border:1px solid rgba(255,255,255,0.1);">Row</th>';
+            excelColumns.forEach(col => {
+                html += `<th style="padding:10px;border:1px solid rgba(255,255,255,0.1);">${col}</th>`;
+            });
+            html += '</tr></thead>';
+            
+            // Data rows
+            html += '<tbody>';
+            excelData.forEach((row, index) => {
+                html += `<tr style="background:${index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent'};">`;
+                html += `<td style="padding:8px;border:1px solid rgba(255,255,255,0.1);text-align:center;color:#fff;font-weight:bold;">${index + 1}</td>`;
+                excelColumns.forEach(col => {
+                    const value = row[col] || '';
+                    // Check if value looks like image data
+                    const isImage = value.toString().startsWith('data:image') || 
+                                  value.toString().includes('base64');
+                    const isImageUrl = value.toString().match(/\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i);
+                    
+                    let displayValue = value;
+                    if (isImage) {
+                        displayValue = `<span style="color:#a78bfa;">🖼️ Base64 Image (${Math.round(value.length/1024)}KB)</span>`;
+                    } else if (isImageUrl) {
+                        displayValue = `<span style="color:#a78bfa;">🖼️ ${value.substring(0, 30)}${value.length > 30 ? '...' : ''}</span>`;
+                    }
+                    
+                    html += `<td style="padding:8px;border:1px solid rgba(255,255,255,0.1);max-width:200px;overflow:hidden;text-overflow:ellipsis;">${displayValue}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            
+            table.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+
+        function exportExcelData() {
+            if (excelData.length === 0) {
+                alert('No Excel data to export');
+                return;
+            }
+            
+            // Convert to CSV
+            const headers = excelColumns.join(',');
+            const rows = excelData.map(row => 
+                excelColumns.map(col => {
+                    const val = row[col] || '';
+                    // Truncate base64 data for CSV
+                    if (val.toString().startsWith('data:image')) {
+                        return `"🖼️ [Image Data - ${Math.round(val.length/1024)}KB]"`;
+                    }
+                    return `"${val}"`;
+                }).join(',')
+            );
+            const csv = [headers, ...rows].join('\n');
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${projectData.name}-data-${Date.now()}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function createProject() {
+            const projectName = document.getElementById('projectName').value.trim() || 'Untitled Project';
+            const cardType = document.getElementById('cardType').value;
+            const cardSize = document.getElementById('cardSize').value;
+            const [width, height] = cardSize.split('x').map(Number);
+            
+            // Store project data
+            projectData = {
+                name: projectName,
+                type: cardType,
+                width: width,
+                height: height,
+                hasExcelData: excelData.length > 0
+            };
+            
+            // Initialize canvas
+            state.front.width = width;
+            state.front.height = height;
+            state.back.width = width;
+            state.back.height = height;
+            
+            // Update UI
+            document.getElementById('projectTitle').textContent = projectName;
+            document.getElementById('projectSetupModal').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            
+            // Hide back button if single sided
+            if (cardType === 'single') {
+                document.getElementById('backSideBtn').style.display = 'none';
+            }
+            
+            // Show Excel features if data exists
+            if (excelData.length > 0) {
+                showExcelFeatures();
+            }
+            
+            // Initialize editor
+            initializeEditor();
+        }
+
+        // ============ EXCEL FUNCTIONS ============
+        function showExcelFeatures() {
+            document.getElementById('xlsSidebarSection').style.display = 'flex';
+            document.getElementById('excelNavSection').style.display = 'flex';
+            document.getElementById('excelBoundPanel').style.display = 'block';
+            updateExcelRowIndicator();
+            updateExcelInfo();
+            updateExcelBoundElementsList();
+        }
+
+        function updateExcelInfo() {
+            document.getElementById('columnCount').textContent = excelColumns.length;
+            document.getElementById('rowCount').textContent = excelData.length;
+        }
+
+        function updateExcelRowIndicator() {
+            if (excelData.length > 0) {
+                const totalRows = excelData.length;
+                document.getElementById('excelRowIndicator').textContent = `Row ${xlsCurrentRow} of ${totalRows}`;
+                document.getElementById('prevRowBtn').disabled = xlsCurrentRow <= 1;
+                document.getElementById('nextRowBtn').disabled = xlsCurrentRow >= totalRows;
+            }
+        }
+
+        function prevExcelRow() {
+            if (xlsCurrentRow > 1) {
+                xlsCurrentRow--;
+                updateExcelRowIndicator();
+                updateXlsBoundElements();
+            }
+        }
+
+        function nextExcelRow() {
+            if (excelData.length > 0 && xlsCurrentRow < excelData.length) {
+                xlsCurrentRow++;
+                updateExcelRowIndicator();
+                updateXlsBoundElements();
+            }
+        }
+
+        function updateXlsBoundElements() {
+            const currentRowData = excelData[xlsCurrentRow - 1];
+            if (!currentRowData) return;
+            
+            // Update all Excel-bound elements
+            let updated = false;
+            xlsBoundElements.forEach((elementInfo, elementId) => {
+                const element = state[state.activeSide].elements.find(el => el.id === elementId);
+                if (element) {
+                    const value = currentRowData[elementInfo.column] || '';
+                    
+                    if (elementInfo.type === 'text') {
+                        element.content = value;
+                        updated = true;
+                    } 
+                    else if (elementInfo.type === 'image') {
+                        // Handle different image types
+                        if (elementInfo.files) {
+                            // Folder upload type - find matching file
+                            let foundFile = null;
+                            if (value) {
+                                foundFile = Array.from(elementInfo.files).find(f => 
+                                    f.name === String(value) || 
+                                    f.name.toLowerCase().includes(value.toLowerCase())
+                                );
+                            }
+                            
+                            if (foundFile) {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    element.content = e.target.result;
+                                    renderCanvas();
+                                };
+                                reader.readAsDataURL(foundFile);
+                            } else if (elementInfo.defaultImage) {
+                                // Use default image
+                                element.content = elementInfo.defaultImage;
+                            }
+                            updated = true;
+                        } else if (elementInfo.baseUrl) {
+                            // URL type - get image URL from Excel
+                            let imageUrl = value;
+                            
+                            // Apply base URL if configured
+                            if (elementInfo.baseUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                                imageUrl = elementInfo.baseUrl + imageUrl;
+                            }
+                            
+                            // Use default image if Excel cell is empty
+                            if (!imageUrl && elementInfo.defaultImage) {
+                                imageUrl = elementInfo.defaultImage;
+                            }
+                            
+                            // Only update if URL has changed
+                            if (imageUrl && imageUrl !== element.content) {
+                                loadImageForElement(element, imageUrl, elementInfo);
+                                updated = true;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            if (updated) {
+                renderCanvas();
+                updateExcelBoundElementsList();
+            }
+        }
+
+        async function loadImageForElement(element, imageUrl, elementInfo) {
+            try {
+                // Check cache first
+                if (imageCache.has(imageUrl)) {
+                    element.content = imageCache.get(imageUrl);
+                    return;
+                }
+                
+                // Show loading
+                element.content = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMzMzMzMzMiLz48cGF0aCBkPSJNNTAuNSAyNS41VjUwLjVIMjUuNVY2Mi41SDUwLjVWODcuNUg2Mi41VjYyLjVIODcuNVY1MC41SDYyLjVWMjUuNUg1MC41WiIgZmlsbD0iI0ZGRkZGRiIvPjwvc3ZnPg=='; // Loading placeholder
+                
+                // If it's already a data URL, use it directly
+                if (imageUrl.startsWith('data:')) {
+                    element.content = imageUrl;
+                    imageCache.set(imageUrl, imageUrl);
+                    return;
+                }
+                
+                // Load image from URL
+                const response = await fetch(imageUrl, { mode: 'cors' });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    element.content = e.target.result;
+                    // Cache the image
+                    imageCache.set(imageUrl, e.target.result);
+                    renderCanvas();
+                };
+                
+                reader.readAsDataURL(blob);
+                
+            } catch (error) {
+                console.error('Error loading image:', error);
+                // Use default image if available
+                if (elementInfo.defaultImage && elementInfo.defaultImage !== imageUrl) {
+                    loadImageForElement(element, elementInfo.defaultImage, elementInfo);
+                } else {
+                    // Show error placeholder
+                    element.content = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNGRjIyMjIiLz48cGF0aCBkPSJNMjUgMjVMNzUgNzUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHBhdGggZD0iTTc1IDI1TDI1IDc1IiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iOCIvPjwvc3ZnPg==';
+                    renderCanvas();
+                    alert(`Error loading image from Excel: ${imageUrl}`);
+                }
+            }
+        }
+
+        function showExcelColumnManager() {
+            const manager = document.getElementById('excelColumnManager');
+            const content = document.getElementById('columnManagerContent');
+            
+            let html = '<div style="display:grid;gap:10px;">';
+            excelColumns.forEach(col => {
+                const boundElements = Array.from(xlsBoundElements.values()).filter(info => info.column === col);
+                const textCount = boundElements.filter(info => info.type === 'text').length;
+                const imageCount = boundElements.filter(info => info.type === 'image').length;
+                
+                html += `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;">
+                        <div>
+                            <div style="font-weight:600;">${col}</div>
+                            ${boundElements.length > 0 ? `
+                                <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:3px;">
+                                    ${textCount > 0 ? `📝 ${textCount} text` : ''} 
+                                    ${imageCount > 0 ? `🖼️ ${imageCount} image` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <span style="color:#a78bfa;font-size:12px;">${boundElements.length} bound</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            content.innerHTML = html;
+            manager.style.display = 'flex';
+        }
+
+        function refreshExcelData() {
+            // Refresh Excel data display
+            updateExcelInfo();
+            updateExcelRowIndicator();
+            updateExcelBoundElementsList();
+            alert('Excel data refreshed');
+        }
+
+        function updateExcelBoundElementsList() {
+            const boundList = document.getElementById('excelBoundList');
+            
+            if (xlsBoundElements.size === 0) {
+                boundList.innerHTML = '<div class="empty-state">No Excel-bound elements</div>';
+                return;
+            }
+            
+            let html = '<div style="display:grid;gap:8px;">';
+            xlsBoundElements.forEach((elementInfo, elementId) => {
+                const element = state[state.activeSide].elements.find(el => el.id === elementId);
+                const currentRowData = excelData[xlsCurrentRow - 1];
+                const value = currentRowData ? currentRowData[elementInfo.column] || '' : '';
+                
+                let valueDisplay = value;
+                if (elementInfo.type === 'image') {
+                    if (elementInfo.files) {
+                        const files = Array.from(elementInfo.files);
+                        const foundFile = files.find(f => 
+                            f.name === String(value) || 
+                            f.name.toLowerCase().includes(value.toLowerCase())
+                        );
+                        valueDisplay = foundFile ? `🖼️ ${foundFile.name}` : 'No matching image';
+                    } else if (value.startsWith('data:')) {
+                        valueDisplay = '🖼️ Base64 Image';
+                    } else {
+                        valueDisplay = value ? '🖼️ ' + (value.length > 20 ? value.substring(0, 20) + '...' : value) : 'No image';
+                    }
+                }
+                
+                html += `
+                    <div style="padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;border-left:3px solid ${elementInfo.type === 'text' ? '#a78bfa' : '#a78bfa'};">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                            <span style="font-size:12px;color:${elementInfo.type === 'text' ? '#a78bfa' : '#a78bfa'};">${elementInfo.column}</span>
+                            <span style="font-size:11px;color:rgba(255,255,255,0.5);">${elementInfo.type}</span>
+                        </div>
+                        <div style="font-size:13px;color:white;margin-bottom:5px;">
+                            ${element ? (elementInfo.type === 'text' ? element.content.substring(0, 30) : '🖼️ Image') : 'Element not found'}${element && elementInfo.type === 'text' && element.content.length > 30 ? '...' : ''}
+                        </div>
+                        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px;">
+                            Current Excel value: "${valueDisplay}"
+                        </div>
+                        ${elementInfo.files ? `<div style="font-size:10px;color:#a78bfa;">${elementInfo.files.length} files loaded</div>` : ''}
+                        ${elementInfo.baseUrl ? `<div style="font-size:10px;color:#a78bfa;">Base URL: ${elementInfo.baseUrl}</div>` : ''}
+                        <button onclick="removeExcelBinding('${elementId}')" style="margin-top:8px;padding:4px 8px;background:rgba(239,68,68,0.2);color:#ef4444;border:none;border-radius:4px;font-size:11px;cursor:pointer;width:100%;">Remove Binding</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            boundList.innerHTML = html;
+        }
+
+        function removeExcelBinding(elementId) {
+            if (confirm('Remove Excel binding from this element?')) {
+                xlsBoundElements.delete(elementId);
+                const element = state[state.activeSide].elements.find(el => el.id === elementId);
+                if (element) {
+                    delete element.excelBound;
+                    delete element.excelColumn;
+                    delete element.excelConfig;
+                    delete element._fileList;
+                }
+                updateExcelBoundElementsList();
+                renderCanvas();
+                alert('Excel binding removed');
+            }
+        }
+
+        // ============ EXCEL IMAGE UPLOAD FUNCTION ============
+        // Add image from XLS column with folder upload
+        document.getElementById('addImageFromXlsBtn').onclick = function() {
+            if (!excelColumns || excelColumns.length === 0) {
+                alert('No Excel columns available. Please upload an Excel file first.');
+                return;
+            }
+            
+            // Create column selection menu
+            const menu = document.createElement('div');
+            menu.id = 'xlsColMenu';
+            menu.style.position = 'fixed';
+            menu.style.background = '#232733';
+            menu.style.color = '#fff';
+            menu.style.border = '1px solid #444';
+            menu.style.borderRadius = '12px';
+            menu.style.zIndex = '10001';
+            menu.style.padding = '15px 0';
+            menu.style.minWidth = '250px';
+            menu.style.maxWidth = '350px';
+            menu.style.maxHeight = '350px';
+            menu.style.overflowY = 'auto';
+            menu.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.5)';
+            
+            // Add header
+            const header = document.createElement('div');
+            header.className = 'column-menu-header';
+            header.style.padding = '10px 20px';
+            header.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            header.style.marginBottom = '10px';
+            header.style.fontWeight = 'bold';
+            header.textContent = 'Select Excel Column for Image Binding:';
+            menu.appendChild(header);
+            
+            // Add column options
+            excelColumns.forEach(col => {
+                // Check how many elements are already bound to this column
+                const boundCount = Array.from(xlsBoundElements.values()).filter(info => 
+                    info.column === col && info.type === 'image'
+                ).length;
+                
+                const item = document.createElement('div');
+                item.className = 'column-item';
+                item.textContent = col;
+                item.style.padding = '12px 20px';
+                item.style.cursor = 'pointer';
+                item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+                item.style.transition = 'all 0.2s ease';
+                
+                if (boundCount > 0) {
+                    const countSpan = document.createElement('span');
+                    countSpan.style.float = 'right';
+                    countSpan.style.color = '#a78bfa';
+                    countSpan.style.fontSize = '12px';
+                    countSpan.style.background = 'rgba(167,139,250,0.2)';
+                    countSpan.style.padding = '2px 8px';
+                    countSpan.style.borderRadius = '10px';
+                    countSpan.textContent = boundCount;
+                    item.innerHTML = col + ' ';
+                    item.appendChild(countSpan);
+                }
+                
+                item.onmouseover = () => item.style.background = 'rgba(255, 255, 255, 0.1)';
+                item.onmouseout = () => item.style.background = '';
+                item.onclick = function() {
+                    // Remove menu
+                    menu.remove();
+                    
+                    // Create file input for folder selection
+                    const folderInput = document.createElement('input');
+                    folderInput.type = 'file';
+                    folderInput.webkitdirectory = true;
+                    folderInput.directory = true;
+                    folderInput.multiple = true;
+                    folderInput.style.display = 'none';
+                    folderInput.accept = 'image/*';
+                    
+                    folderInput.onchange = function(e) {
+                        const files = Array.from(e.target.files);
+                        if (files.length === 0) {
+                            alert('No images selected');
+                            return;
+                        }
+                        
+                        showLoading(`Processing ${files.length} images...`);
+                        
+                        // Process image files and create Excel-bound image element
+                        setTimeout(() => {
+                            // Get current row data for initial image
+                            const currentRowData = excelData[xlsCurrentRow - 1];
+                            let initialImageUrl = '';
+                            
+                            if (currentRowData && currentRowData[col]) {
+                                const imageName = currentRowData[col];
+                                // Find matching file
+                                const foundFile = files.find(f => 
+                                    f.name === String(imageName) || 
+                                    f.name.toLowerCase().includes(imageName.toLowerCase())
+                                );
+                                
+                                if (foundFile) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(ev) {
+                                        initialImageUrl = ev.target.result;
+                                        createExcelImageElement(col, files, initialImageUrl);
+                                        hideLoading();
+                                    };
+                                    reader.readAsDataURL(foundFile);
+                                    return;
+                                }
+                            }
+                            
+                            // If no image found, create with empty placeholder
+                            createExcelImageElement(col, files, '');
+                            hideLoading();
+                        }, 100);
+                    };
+                    
+                    // Add to document and trigger click
+                    document.body.appendChild(folderInput);
+                    folderInput.click();
+                    document.body.removeChild(folderInput);
+                };
+                
+                menu.appendChild(item);
+            });
+            
+            // Add cancel option
+            const cancelItem = document.createElement('div');
+            cancelItem.className = 'column-item';
+            cancelItem.textContent = 'Cancel';
+            cancelItem.style.padding = '12px 20px';
+            cancelItem.style.cursor = 'pointer';
+            cancelItem.style.borderBottom = 'none';
+            cancelItem.style.color = '#ef4444';
+            cancelItem.style.textAlign = 'center';
+            cancelItem.style.fontWeight = '600';
+            cancelItem.onmouseover = () => cancelItem.style.background = 'rgba(239, 68, 68, 0.2)';
+            cancelItem.onmouseout = () => cancelItem.style.background = '';
+            cancelItem.onclick = function() {
+                menu.remove();
+            };
+            menu.appendChild(cancelItem);
+            
+            // Position menu - ensure it stays within viewport
+            const btn = document.getElementById('addImageFromXlsBtn');
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Calculate position
+                let left = rect.left - 150;
+                let top = rect.bottom + 5;
+                
+                // Ensure menu stays within viewport horizontally
+                if (left < 10) left = 10;
+                if (left + 300 > viewportWidth) left = viewportWidth - 310;
+                
+                // Ensure menu stays within viewport vertically
+                const menuHeight = Math.min(excelColumns.length * 40 + 120, 350);
+                if (top + menuHeight > viewportHeight) {
+                    // Show above button if not enough space below
+                    top = rect.top - menuHeight - 5;
+                    if (top < 10) top = 10; // Minimum top position
+                }
+                
+                menu.style.position = 'fixed';
+                menu.style.left = left + 'px';
+                menu.style.top = top + 'px';
+                
+                document.body.appendChild(menu);
+                
+                // Close menu when clicking outside
+                setTimeout(() => {
+                    document.addEventListener('click', function handler(e) {
+                        if (!menu.contains(e.target) && e.target.id !== 'addImageFromXlsBtn') {
+                            menu.remove();
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 100);
+            }
+        };
+
+        // Helper function to create Excel-bound image element
+        function createExcelImageElement(column, files, initialImage) {
+            // Create image element
+            const element = {
+                id: Date.now().toString(),
+                type: 'image',
+                content: initialImage || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiPkV4Y2VsIEltYWdlPC90ZXh0Pjwvc3ZnPg==',
+                x: 50,
+                y: 50,
+                width: 150,
+                height: 150,
+                excelBound: true,
+                excelColumn: column,
+                excelConfig: {
+                    files: files, // Store file list for lookup
+                    type: 'folder_upload'
+                }
+            };
+            
+            // Add to canvas
+            state[state.activeSide].elements.push(element);
+            state.selectedElement = element.id;
+            
+            // Store file list for this element
+            element._fileList = files;
+            
+            // Track Excel-bound element
+            xlsBoundElements.set(element.id, {
+                type: 'image',
+                column: column,
+                files: files
+            });
+            
+            // Save and update UI
+            saveToHistory();
+            updateUI();
+            updateExcelBoundElementsList();
+            
+            // Show success message
+            alert(`Image element bound to column "${column}" added.\n\n` +
+                  `Loaded ${files.length} images from folder.\n` +
+                  `Images will update automatically as you navigate Excel rows.`);
+        }
+
+        function showColumnSelectionMenu(elementType) {
+            // Remove existing menu
+            const existingMenu = document.querySelector('.column-menu');
+            if (existingMenu) existingMenu.remove();
+            
+            if (excelColumns.length === 0) {
+                alert('No Excel columns available. Please upload an Excel file first.');
+                return;
+            }
+            
+            // Create menu
+            const menu = document.createElement('div');
+            menu.className = 'column-menu';
+            
+            // Limit the number of columns shown and add scroll if needed
+            const maxColumns = 10;
+            const columnsToShow = excelColumns.slice(0, maxColumns);
+            
+            menu.innerHTML = `
+                <div class="column-menu-header">Select Excel Column:</div>
+                ${columnsToShow.map(col => {
+                    const boundCount = Array.from(xlsBoundElements.values()).filter(info => info.column === col).length;
+                    return `
+                        <div class="column-item" onclick="${elementType === 'text' ? `selectColumn('${col}', 'text')` : `setupExcelImage('${col}')`}">
+                            ${col} ${boundCount > 0 ? `<span style="float:right;color:#a78bfa;font-size:11px;">${boundCount}</span>` : ''}
+                        </div>
+                    `;
+                }).join('')}
+                ${excelColumns.length > maxColumns ? 
+                    `<div class="column-item" style="color:#a78bfa;text-align:center;font-size:11px;">
+                        ... and ${excelColumns.length - maxColumns} more columns
+                    </div>` : ''}
+            `;
+            
+            // Position menu - ensure it stays within viewport
+            const btnId = elementType === 'text' ? 'addTextFromXlsBtn' : 'addImageFromXlsBtn';
+            const btn = document.getElementById(btnId);
+            
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Calculate position
+                let left = rect.left - 150;
+                let top = rect.bottom + 5;
+                
+                // Ensure menu stays within viewport horizontally
+                if (left < 10) left = 10;
+                if (left + 250 > viewportWidth) left = viewportWidth - 260;
+                
+                // Ensure menu stays within viewport vertically
+                const menuHeight = Math.min(columnsToShow.length * 40 + 80, 350);
+                if (top + menuHeight > viewportHeight) {
+                    // Show above button if not enough space below
+                    top = rect.top - menuHeight - 5;
+                    if (top < 10) top = 10; // Minimum top position
+                }
+                
+                menu.style.position = 'fixed';
+                menu.style.left = left + 'px';
+                menu.style.top = top + 'px';
+                menu.style.zIndex = '10001';
+                menu.style.maxHeight = '350px';
+                menu.style.overflowY = 'auto';
+                
+                document.body.appendChild(menu);
+                
+                // Close on outside click
+                setTimeout(() => {
+                    document.addEventListener('click', function handler(e) {
+                        if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                            menu.remove();
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 100);
+            }
+        }
+
+        function selectColumn(column, elementType) {
+            // Remove menu
+            const menu = document.querySelector('.column-menu');
+            if (menu) menu.remove();
+            
+            const currentRowData = excelData[xlsCurrentRow - 1];
+            let initialValue = currentRowData ? currentRowData[column] : `{${column}}`;
+            
+            if (elementType === 'text') {
+                // Create text element bound to Excel column
+                const element = {
+                    id: Date.now().toString(),
+                    type: 'text',
+                    content: initialValue,
+                    x: 100,
+                    y: 100,
+                    fontSize: 20,
+                    color: '#000000',
+                    fontFamily: "'Inter', sans-serif",
+                    excelBound: true,
+                    excelColumn: column
+                };
+                
+                state[state.activeSide].elements.push(element);
+                state.selectedElement = element.id;
+                
+                // Track Excel-bound element
+                xlsBoundElements.set(element.id, {
+                    type: 'text',
+                    column: column
+                });
+                
+                saveToHistory();
+                updateUI();
+                updateExcelBoundElementsList();
+                alert(`Text element bound to column "${column}" added. Navigate between rows to update values.`);
+            }
+        }
+
+        function setupExcelImage(column) {
+            // Remove menu
+            const menu = document.querySelector('.column-menu');
+            if (menu) menu.remove();
+            
+            // Show image setup modal
+            const modal = document.getElementById('imageColumnModal');
+            const select = document.getElementById('imageColumnSelect');
+            
+            // Populate column select
+            select.innerHTML = '<option value="">-- Select Column --</option>';
+            excelColumns.forEach(col => {
+                select.innerHTML += `<option value="${col}" ${col === column ? 'selected' : ''}>${col}</option>`;
+            });
+            
+            // Clear previous values
+            document.getElementById('imageBaseUrl').value = '';
+            document.getElementById('defaultImageUrl').value = '';
+            
+            modal.style.display = 'flex';
+        }
+
+        // ============ EXCEL IMAGE IMPORT FUNCTIONS ============
+        function importImagesFromExcel() {
+            if (excelData.length === 0) {
+                alert('Please upload an Excel file first');
+                return;
+            }
+            
+            const modal = document.getElementById('excelImageImportModal');
+            const select = document.getElementById('excelImageColumnSelect');
+            
+            // Populate column select
+            select.innerHTML = '<option value="">-- Select Column --</option>';
+            excelColumns.forEach(col => {
+                select.innerHTML += `<option value="${col}">${col}</option>`;
+            });
+            
+            // Set default image type based on first row data
+            const firstRow = excelData[0];
+            let hasBase64 = false;
+            let hasUrls = false;
+            
+            excelColumns.forEach(col => {
+                const val = firstRow[col] || '';
+                if (val.toString().startsWith('data:image')) {
+                    hasBase64 = true;
+                } else if (val.toString().match(/\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i)) {
+                    hasUrls = true;
+                }
+            });
+            
+            if (hasBase64) {
+                document.querySelector('input[name="imageType"][value="base64"]').checked = true;
+            } else if (hasUrls) {
+                document.querySelector('input[name="imageType"][value="url"]').checked = true;
+            }
+            
+            toggleImageType();
+            modal.style.display = 'flex';
+            
+            // Add change listener for preview
+            select.onchange = function() {
+                updateImagePreview();
+            };
+        }
+
+        function toggleImageType() {
+            const type = document.querySelector('input[name="imageType"]:checked').value;
+            const base64Settings = document.getElementById('base64Settings');
+            const urlSettings = document.getElementById('urlSettings');
+            
+            if (type === 'base64') {
+                base64Settings.classList.remove('hidden');
+                urlSettings.classList.add('hidden');
+            } else {
+                base64Settings.classList.add('hidden');
+                urlSettings.classList.remove('hidden');
+            }
+            
+            updateImagePreview();
+        }
+
+        function updateImagePreview() {
+            const column = document.getElementById('excelImageColumnSelect').value;
+            const type = document.querySelector('input[name="imageType"]:checked').value;
+            const previewArea = document.getElementById('imagePreviewArea');
+            
+            if (!column) {
+                previewArea.innerHTML = '<div class="empty-state">Select a column to preview images</div>';
+                return;
+            }
+            
+            let html = '<div style="display:grid;gap:10px;">';
+            let imageCount = 0;
+            
+            for (let i = 0; i < Math.min(5, excelData.length); i++) {
+                const row = excelData[i];
+                const value = row[column] || '';
+                
+                if (type === 'base64' && value.toString().startsWith('data:image')) {
+                    html += `
+                        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+                            <div style="padding:5px;background:rgba(167,139,250,0.1);font-size:11px;color:#a78bfa;">Row ${i + 1}</div>
+                            <img src="${value}" style="width:100%;height:80px;object-fit:contain;background:#222;" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNGRjIyMjIiLz48cGF0aCBkPSJNMjUgMjVMNzUgNzUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHBhdGggZD0iTTc1IDI1TDI1IDc1IiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iOCIvPjwvc3ZnPg=='">
+                            <div style="padding:5px;font-size:10px;color:rgba(255,255,255,0.7);">${Math.round(value.length/1024)}KB</div>
+                        </div>
+                    `;
+                    imageCount++;
+                } else if (type === 'url' && value.toString().match(/\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i)) {
+                    const baseUrl = document.getElementById('imageBaseUrl2').value.trim();
+                    let imageUrl = value;
+                    if (baseUrl && !imageUrl.startsWith('http')) {
+                        imageUrl = baseUrl + imageUrl;
+                    }
+                    
+                    html += `
+                        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+                            <div style="padding:5px;background:rgba(59,130,246,0.1);font-size:11px;color:#3b82f6;">Row ${i + 1}</div>
+                            <div style="padding:10px;text-align:center;background:#222;">
+                                <div style="color:#a78bfa;font-size:12px;">URL Image</div>
+                                <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:5px;">${value.substring(0, 30)}${value.length > 30 ? '...' : ''}</div>
+                            </div>
+                        </div>
+                    `;
+                    imageCount++;
+                }
+            }
+            
+            if (imageCount === 0) {
+                html += `<div class="empty-state">No ${type === 'base64' ? 'Base64' : 'URL'} images found in this column</div>`;
+            } else {
+                html += `<div style="font-size:11px;color:#a78bfa;text-align:center;">Found ${imageCount} images in first 5 rows</div>`;
+            }
+            
+            html += '</div>';
+            previewArea.innerHTML = html;
+        }
+
+        function importExcelImages() {
+            const column = document.getElementById('excelImageColumnSelect').value;
+            const type = document.querySelector('input[name="imageType"]:checked').value;
+            const baseUrl = document.getElementById('imageBaseUrl2').value.trim();
+            
+            if (!column) {
+                alert('Please select a column');
+                return;
+            }
+            
+            showLoading(`Importing images from Excel column "${column}"...`);
+            
+            let importedCount = 0;
+            let errorCount = 0;
+            
+            // Process each row
+            excelData.forEach((row, index) => {
+                const value = row[column] || '';
+                let imageData = value;
+                
+                if (type === 'url') {
+                    if (!imageData.match(/\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i)) {
+                        return; // Skip non-image URLs
+                    }
+                    
+                    if (baseUrl && !imageData.startsWith('http')) {
+                        imageData = baseUrl + imageData;
+                    }
+                } else if (type === 'base64') {
+                    if (!imageData.startsWith('data:image')) {
+                        return; // Skip non-base64 data
+                    }
+                } else {
+                    return; // Skip invalid data
+                }
+                
+                // Create image element
+                const element = {
+                    id: Date.now().toString() + index,
+                    type: 'image',
+                    content: type === 'base64' ? imageData : '', // Will load URLs
+                    x: 50 + (index % 3) * 200,
+                    y: 50 + Math.floor(index / 3) * 200,
+                    width: 150,
+                    height: 150,
+                    excelBound: true,
+                    excelColumn: column,
+                    excelConfig: {
+                        type: type,
+                        baseUrl: type === 'url' ? baseUrl : null
+                    }
+                };
+                
+                // Track Excel-bound element
+                xlsBoundElements.set(element.id, {
+                    type: 'image',
+                    column: column,
+                    baseUrl: type === 'url' ? baseUrl : null,
+                    defaultImage: null
+                });
+                
+                // Load image if it's a URL
+                if (type === 'url' && imageData) {
+                    loadImageForElement(element, imageData, {
+                        baseUrl: baseUrl,
+                        defaultImage: null
+                    });
+                }
+                
+                state[state.activeSide].elements.push(element);
+                importedCount++;
+            });
+            
+            hideLoading();
+            
+            if (importedCount > 0) {
+                saveToHistory();
+                updateUI();
+                updateExcelBoundElementsList();
+                alert(`Successfully imported ${importedCount} images from Excel column "${column}"`);
+                document.getElementById('excelImageImportModal').style.display = 'none';
+            } else {
+                alert(`No valid ${type} images found in column "${column}"`);
+            }
+        }
+
+        // ============ ADDITIONAL IMAGE FUNCTIONS ============
+        function addQuickImage(type) {
+            let placeholderImage = '';
+            let name = '';
+            
+            switch(type) {
+                case 'logo':
+                    placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDAiIGZpbGw9IiMzODVGRjAiIHN0cm9rZT0iIzFBNUZDNyIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHRleHQgeD0iNTAiIHk9IjU1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIj5MT0dPPC90ZXh0Pjwvc3ZnPg==';
+                    name = 'Logo';
+                    break;
+                case 'signature':
+                    placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIwIDYwTDM1IDQ1TDYwIDcwTDgwIDQwTDg1IDU1IiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHRleHQgeD0iNTAiIHk9IjkwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNJR05BVFVSRTwvdGV4dD48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=';
+                    name = 'Signature';
+                    break;
+                case 'badge':
+                    placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUwIDIwTDgwIDQwTDY1IDgwTDM1IDgwTDIwIDQwTDUwIDIwWiIgZmlsbD0iI0ZGN0IwMCIgc3Ryb2tlPSIjRkZENjAwIiBzdHJva2UtddpkdGg9IjQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyMCIgZmlsbD0iI0ZGRkZGRiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSIjMDAwMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+QkFER0U8L3RleHQ+PC9zdmc+';
+                    name = 'Badge';
+                    break;
+                case 'barcode':
+                    placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMwMDAwMDAiLz48cmVjdCB4PSIxMCIgeT0iMjAiIHdpZHRoPSI4IiBoZWlnaHQ9IjYwIiBmaWxsPSIjRkZGRkZGIi8+PHJlY3QgeD0iMjAiIHk9IjIwIiB3aWR0aD0iMyIgaGVpZ2h0PSI2MCIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjI1IiB5PSIyMCIgd2lkdGg9IjYiIGhlaWdodD0iNjAiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSIzMyIgeT0iMjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjYwIiBmaWxsPSIjRkZGRkZGIi8+PHJlY3QgeD0iMzkiIHk9IjIwIiB3aWR0aD0iMiIgaGVpZ2h0PSI2MCIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjQzIiB5PSIyMCIgd2lkdGg9IjUiIGhlaWdodD0iNjAiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSI1MCIgeT0iMjAiIHdpZHRoPSIzIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRkZGRkZGIi8+PHJlY3QgeD0iNTUiIHk9IjIwIiB3aWR0aD0iNyIgaGVpZ2h0PSI2MCIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjY0IiB5PSIyMCIgd2lkdGg9IjQiIGhlaWdodD0iNjAiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSI3MCIgeT0iMjAiIHdpZHRoPSIyIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRkZGRkZGIi8+PHJlY3QgeD0iNzQiIHk9IjIwIiB3aWR0aD0iNiIgaGVpZ2h0PSI2MCIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjgyIiB5PSIyMCIgd2lkdGg9IjMiIGhlaWdodD0iNjAiIGZpbGw9IiNGRkZGRkYiLz48dGV4dCB4PSI1MCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+MTIzNDU2Nzg5MDwvdGV4dD48L3N2Zz4=';
+                    name = 'Barcode';
+                    break;
+            }
+            
+            const element = {
+                id: Date.now().toString(),
+                type: 'image',
+                content: placeholderImage,
+                x: 50,
+                y: 50,
+                width: 150,
+                height: 150,
+                name: name
+            };
+            
+            state[state.activeSide].elements.push(element);
+            state.selectedElement = element.id;
+            saveToHistory();
+            updateUI();
+            
+            alert(`${name} placeholder added. Click to replace with your own image.`);
+        }
+
+        function handleBulkImageUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            
+            showLoading(`Uploading ${files.length} images...`);
+            
+            let uploadedCount = 0;
+            
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Add to image library
+                    imageLibrary.push({
+                        id: Date.now().toString() + index,
+                        name: file.name,
+                        data: e.target.result,
+                        type: file.type,
+                        size: file.size,
+                        uploaded: new Date().toISOString()
+                    });
+                    
+                    uploadedCount++;
+                    
+                    if (uploadedCount === Math.min(files.length, 10)) { // Limit to first 10
+                        hideLoading();
+                        alert(`Successfully uploaded ${uploadedCount} images to library`);
+                        event.target.value = '';
+                        refreshImageLibrary();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (uploadedCount === 0) {
+                hideLoading();
+                alert('No valid image files selected');
+            }
+        }
+
+        function openImageLibrary() {
+            const modal = document.getElementById('imageLibraryModal');
+            refreshImageLibrary();
+            modal.style.display = 'flex';
+        }
+
+        function refreshImageLibrary() {
+            const searchTerm = document.getElementById('imageSearchInput').value.toLowerCase();
+            const grid = document.getElementById('imageLibraryGrid');
+            
+            if (imageLibrary.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No images in library. Upload some images first.</div>';
+                return;
+            }
+            
+            const filteredImages = imageLibrary.filter(img => 
+                img.name.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredImages.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No images match your search</div>';
+                return;
+            }
+            
+            let html = '';
+            filteredImages.forEach((img, index) => {
+                html += `
+                    <div style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;cursor:pointer;transition:all 0.3s ease;" 
+                         onclick="addImageFromLibrary('${img.id}')"
+                         onmouseover="this.style.borderColor='#a78bfa';this.style.transform='translateY(-2px)'"
+                         onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='translateY(0)'">
+                        <img src="${img.data}" style="width:100%;height:80px;object-fit:cover;background:#222;" 
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiPkltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                        <div style="padding:8px;background:rgba(255,255,255,0.05);">
+                            <div style="font-size:11px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${img.name}</div>
+                            <div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px;">${Math.round(img.size/1024)}KB</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        function addImageFromLibrary(imageId) {
+            const img = imageLibrary.find(i => i.id === imageId);
+            if (!img) return;
+            
+            const element = {
+                id: Date.now().toString(),
+                type: 'image',
+                content: img.data,
+                x: 50,
+                y: 50,
+                width: 150,
+                height: 150,
+                name: img.name
+            };
+            
+            state[state.activeSide].elements.push(element);
+            state.selectedElement = element.id;
+            saveToHistory();
+            updateUI();
+            
+            document.getElementById('imageLibraryModal').style.display = 'none';
+            alert(`Added "${img.name}" to canvas`);
+        }
+
+        function uploadToImageLibrary() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.multiple = true;
+            input.onchange = (e) => handleBulkImageUpload(e);
+            input.click();
+        }
+
+        // ============ EDITOR FUNCTIONS ============
+        function initializeEditor() {
+            saveToHistory();
+            updateUI();
+            updateZoomDisplay();
+            
+            // Center the canvas wrapper
+            const wrapper = document.getElementById('canvasWrapper');
+            wrapper.style.display = 'flex';
+            wrapper.style.justifyContent = 'center';
+            wrapper.style.alignItems = 'center';
+            
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('canvas')) {
+                    state.selectedElement = null;
+                    updateUI();
+                }
+            });
+            
+            // Setup Excel buttons
+            document.getElementById('addTextFromXlsBtn').onclick = () => showColumnSelectionMenu('text');
+        }
+
+        function updateUI() {
+            renderCanvas();
+            renderLayers();
+            renderToolbar();
+            updateUndoRedoButtons();
+        }
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            document.getElementById('canvasWrapper').style.transform = `scale(${zoomLevel})`;
+            document.getElementById('zoomOutBtn').disabled = zoomLevel <= minZoom;
+            document.getElementById('zoomInBtn').disabled = zoomLevel >= maxZoom;
+        }
+
+
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
+                updateZoomDisplay();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
+                updateZoomDisplay();
+            }
+        }
+
+        function resetZoom() {
+            zoomLevel = 1;
+            updateZoomDisplay();
+        }
+
+        function updateRadius(value) {
+            document.querySelectorAll('.canvas').forEach(canvas => {
+                canvas.style.borderRadius = value + 'px';
+            });
+            document.getElementById('radiusValue').innerText = value;
+        }
+
+        function switchSide(side) {
+            state.activeSide = side;
+            state.selectedElement = null;
+            
+            document.getElementById('frontSideBtn').classList.toggle('active', side === 'front');
+            document.getElementById('backSideBtn').classList.toggle('active', side === 'back');
+            document.getElementById('frontCanvas').classList.toggle('hidden', side !== 'front');
+            document.getElementById('backCanvas').classList.toggle('hidden', side !== 'back');
+            document.getElementById('sideIndicator').textContent = side === 'front' ? '📄 Front Side' : '📄 Back Side';
+            
+            updateUI();
+            updateUndoRedoButtons();
+            updateExcelBoundElementsList();
+        }
+
+        // ============ ELEMENT MANAGEMENT ============
+        function addText(text) {
+            if (!text) return;
+            const element = {
+                id: Date.now().toString(),
+                type: 'text',
+                content: text,
+                x: 50,
+                y: 50,
+                fontSize: 24,
+                color: '#000000',
+                fontFamily: "'Inter', sans-serif"
+            };
+            state[state.activeSide].elements.push(element);
+            state.selectedElement = element.id;
+            saveToHistory();
+            updateUI();
+        }
+
+        function addCustomText() {
+            const input = document.getElementById('textInput');
+            if (input.value.trim()) {
+                addText(input.value);
+                input.value = '';
+            }
+        }
+
+        function addQRCodeFromInput() {
+            const input = document.getElementById('qrInput');
+            if (!input.value.trim()) return;
+            
+            showLoading('Generating QR code...');
+            
+            QRCode.toDataURL(input.value, { width: 150, margin: 1 }, (err, url) => {
+                if (err) {
+                    alert("Error generating QR code");
+                    hideLoading();
+                    return;
+                }
+                
+                const element = {
+                    id: Date.now().toString(),
+                    type: 'image',
+                    content: url,
+                    x: 50,
+                    y: 50,
+                    width: 150,
+                    height: 150
+                };
+                
+                state[state.activeSide].elements.push(element);
+                state.selectedElement = element.id;
+                saveToHistory();
+                updateUI();
+                hideLoading();
+            });
+            
+            input.value = '';
+        }
+
+        function addImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                event.target.value = '';
+                return;
+            }
+            
+            showLoading('Loading image...');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = function() {
+                    const element = {
+                        id: Date.now().toString(),
+                        type: 'image',
+                        content: e.target.result,
+                        x: 50,
+                        y: 50,
+                        width: Math.min(img.width, 300),
+                        height: Math.min(img.height, 300)
+                    };
+                    state[state.activeSide].elements.push(element);
+                    state.selectedElement = element.id;
+                    saveToHistory();
+                    updateUI();
+                    hideLoading();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function changeCanvasBackground() {
+            const color = document.getElementById('bgColorInput').value;
+            state[state.activeSide].background = color;
+            state[state.activeSide].backgroundImage = null;
+            saveToHistory();
+            updateUI();
+        }
+
+        function updateElement(id, updates) {
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            if (element) {
+                Object.assign(element, updates);
+                saveToHistory();
+                updateUI();
+                updateExcelBoundElementsList();
+            }
+        }
+
+        function deleteElement(id) {
+            state[state.activeSide].elements = state[state.activeSide].elements.filter(el => el.id !== id);
+            xlsBoundElements.delete(id);
+            if (state.selectedElement === id) {
+                state.selectedElement = null;
+            }
+            saveToHistory();
+            updateUI();
+            updateExcelBoundElementsList();
+        }
+
+        function duplicateElement(id) {
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            if (element) {
+                const newElement = JSON.parse(JSON.stringify(element));
+                newElement.id = Date.now().toString();
+                newElement.x += 20;
+                newElement.y += 20;
+                
+                // If it's Excel-bound, don't duplicate the binding
+                if (newElement.excelBound) {
+                    delete newElement.excelBound;
+                    delete newElement.excelColumn;
+                    delete newElement.excelConfig;
+                }
+                
+                state[state.activeSide].elements.push(newElement);
+                state.selectedElement = newElement.id;
+                saveToHistory();
+                updateUI();
+            }
+        }
+
+        // ============ RENDER FUNCTIONS ============
+        function renderCanvas() {
+            const side = state.activeSide;
+            const canvas = document.getElementById(side + 'Canvas');
+            const canvasState = state[side];
+            
+            canvas.style.width = canvasState.width + 'px';
+            canvas.style.height = canvasState.height + 'px';
+            
+            if (canvasState.backgroundImage) {
+                canvas.style.backgroundImage = `url(${canvasState.backgroundImage})`;
+                canvas.style.backgroundSize = 'cover';
+                canvas.style.backgroundColor = 'transparent';
+            } else {
+                canvas.style.backgroundImage = 'none';
+                canvas.style.backgroundColor = canvasState.background;
+            }
+            
+            canvas.innerHTML = '';
+            
+            canvasState.elements.forEach(element => {
+                const div = document.createElement('div');
+                div.className = 'canvas-element' + (state.selectedElement === element.id ? ' selected' : '');
+                div.style.left = element.x + 'px';
+                div.style.top = element.y + 'px';
+                div.style.transform = `rotate(${element.rotation || 0}deg)`;
+                div.dataset.id = element.id;
+                
+                if (element.type === 'text') {
+                    div.style.fontSize = element.fontSize + 'px';
+                    div.style.color = element.color;
+                    div.style.fontFamily = element.fontFamily || "'Inter', sans-serif";
+                    div.style.width = 'auto';
+                    div.style.minWidth = '50px';
+                    div.style.padding = '5px';
+                    div.style.maxWidth = (state[side].width - element.x - 20) + 'px';
+                    div.style.wordBreak = 'break-word';
+                    
+                    // REMOVED YELLOW/BLUE BORDERS for Excel-bound elements
+                    if (element.excelBound) {
+                        div.title = `Excel-bound to column: ${element.excelColumn}`;
+                    }
+                    
+                    div.textContent = element.content;
+                } else if (element.type === 'image') {
+                    div.style.width = (element.width || 150) + 'px';
+                    div.style.height = (element.height || 150) + 'px';
+                    const img = document.createElement('img');
+                    img.src = element.content || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMzMzMzMzMiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+bm8gaW1hZ2U8L3RleHQ+PC9zdmc+';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    img.onerror = function() {
+                        this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNGRjIyMjIiLz48cGF0aCBkPSJNMjUgMjVMNzUgNzUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHBhdGggZD0iTTc1IDI1TDI1IDc1IiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iOCIvPjwvc3ZnPg==';
+                    };
+                    div.appendChild(img);
+                    
+                    // REMOVED YELLOW/BLUE BORDERS for Excel-bound elements
+                    if (element.excelBound) {
+                        div.title = `Excel-bound to column: ${element.excelColumn}`;
+                    }
+                }
+                
+                div.addEventListener('mousedown', (e) => onElementMouseDown(e, element.id));
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    state.selectedElement = element.id;
+                    updateUI();
+                });
+                
+                if (state.selectedElement === element.id && element.type !== 'text') {
+                    ['nw', 'ne', 'sw', 'se'].forEach(corner => {
+                        const handle = document.createElement('div');
+                        handle.className = 'resize-handle ' + corner;
+                        handle.addEventListener('mousedown', (e) => onResizeMouseDown(e, element.id, corner));
+                        div.appendChild(handle);
+                    });
+                }
+                
+                canvas.appendChild(div);
+            });
+        }
+
+        function renderLayers() {
+            const layersList = document.getElementById('layersList');
+            const elements = state[state.activeSide].elements;
+            
+            document.getElementById('layerCount').textContent = elements.length;
+            
+            if (elements.length === 0) {
+                layersList.innerHTML = '<div class="empty-state">No elements yet</div>';
+                return;
+            }
+            
+            layersList.innerHTML = '';
+            [...elements].reverse().forEach(element => {
+                const div = document.createElement('div');
+                div.className = 'layer-item' + (state.selectedElement === element.id ? ' selected' : '');
+                div.onclick = () => {
+                    state.selectedElement = element.id;
+                    updateUI();
+                };
+                
+                const icon = element.type === 'text' ? '📝' : '🖼️';
+                const name = element.type === 'text' 
+                    ? element.content.substring(0, 20) + (element.content.length > 20 ? '...' : '')
+                    : (element.name || 'Image');
+                
+                let excelBadge = '';
+                if (element.excelBound) {
+                    excelBadge = `<span style="color:#a78bfa;font-size:10px;margin-left:5px;">[Excel]</span>`;
+                }
+                
+                div.innerHTML = `
+                    <span class="layer-icon">${icon}</span>
+                    <div class="layer-info">
+                        <div class="layer-name">${name}${excelBadge}</div>
+                        <div class="layer-type">${element.type}${element.excelBound ? ' · ' + element.excelColumn : ''}</div>
+                    </div>
+                    <button class="layer-delete" onclick="event.stopPropagation(); deleteElement('${element.id}')">🗑️</button>
+                `;
+                
+                layersList.appendChild(div);
+            });
+        }
+
+        function renderToolbar() {
+            const noSelection = document.getElementById('noSelection');
+            const properties = document.getElementById('elementProperties');
+            
+            const element = state[state.activeSide].elements.find(el => el.id === state.selectedElement);
+            
+            if (!element) {
+                noSelection.classList.add('hidden');
+                properties.classList.remove('hidden');
+                properties.innerHTML = `
+                    <div class="property-group">
+                        <div class="property-label">Canvas Background Color</div>
+                        <input type="color" id="toolbarBgColor" value="${state[state.activeSide].background}" onchange="changeCanvasBackground()" style="width:100%">
+                    </div>
+                `;
+                return;
+            }
+            
+            noSelection.classList.add('hidden');
+            properties.classList.remove('hidden');
+            
+            let html = '';
+            
+            if (element.type === 'text') {
+                html += `
+                    <div class="property-group">
+                        <div class="property-label">Content</div>
+                        <input type="text" value="${element.content}" onchange="updateElement('${element.id}', {content: this.value})"
+                            style="width:100%;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:white;">
+                        ${element.excelBound ? `<div style="font-size:11px;color:#a78bfa;margin-top:4px;padding:5px;background:rgba(167,139,250,0.1);border-radius:4px;">Excel-bound to: ${element.excelColumn}</div>` : ''}
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Font Size</div>
+                        <input type="range" min="12" max="72" value="${element.fontSize}" oninput="updateElement('${element.id}', {fontSize: parseInt(this.value)})">
+                        <div class="range-value">${element.fontSize}px</div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Text Color</div>
+                        <input type="color" value="${element.color}" onchange="updateElement('${element.id}', {color: this.value})">
+                    </div>
+                `;
+            } else if (element.type === 'image') {
+                html += `
+                    <div class="property-group">
+                        <div class="property-label">Width</div>
+                        <input type="range" min="50" max="500" value="${element.width || 150}" oninput="updateElement('${element.id}', {width: parseInt(this.value)})">
+                        <div class="range-value">${element.width || 150}px</div>
+                    </div>
+                    <div class="property-group">
+                        <div class="property-label">Height</div>
+                        <input type="range" min="50" max="500" value="${element.height || 150}" oninput="updateElement('${element.id}', {height: parseInt(this.value)})">
+                        <div class="range-value">${element.height || 150}px</div>
+                    </div>
+                    ${element.excelBound ? `
+                        <div class="property-group">
+                            <div class="property-label">Excel Configuration</div>
+                            <div style="font-size:11px;color:#a78bfa;padding:8px;background:rgba(167,139,250,0.1);border-radius:6px;margin-top:5px;">
+                                <div>Column: ${element.excelColumn}</div>
+                                ${element.excelConfig && element.excelConfig.files ? `<div>${element.excelConfig.files.length} files loaded</div>` : ''}
+                                ${element.excelConfig && element.excelConfig.baseUrl ? `<div>Base URL: ${element.excelConfig.baseUrl}</div>` : ''}
+                                ${element.excelConfig && element.excelConfig.defaultImage ? `<div>Default Image: ${element.excelConfig.defaultImage.substring(0, 30)}...</div>` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+            }
+            
+            html += `
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 16px 0; padding-top: 16px;">
+                    <button class="action-btn duplicate" onclick="duplicateElement('${element.id}')">📋 Duplicate</button>
+                    <button class="action-btn delete" onclick="deleteElement('${element.id}')">🗑️ Delete</button>
+                </div>
+            `;
+            
+            properties.innerHTML = html;
+        }
+
+        // ============ DRAG & DROP ============
+        function onElementMouseDown(e, id) {
+            if (e.target.classList.contains('resize-handle')) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isDragging = true;
+            state.selectedElement = id;
+            
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            const canvas = document.getElementById(state.activeSide + 'Canvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            dragStartX = e.clientX - rect.left - element.x;
+            dragStartY = e.clientY - rect.top - element.y;
+            
+            updateUI();
+        }
+
+        function onResizeMouseDown(e, id, corner) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isResizing = true;
+            state.selectedElement = id;
+            
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            resizeStartData = {
+                id,
+                corner,
+                startX: e.clientX,
+                startY: e.clientY,
+                startWidth: element.width || 150,
+                startHeight: element.height || 150,
+                startPosX: element.x,
+                startPosY: element.y
+            };
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const canvas = document.getElementById(state.activeSide + 'Canvas');
+                const rect = canvas.getBoundingClientRect();
+                const element = state[state.activeSide].elements.find(el => el.id === state.selectedElement);
+                
+                if (element) {
+                    let newX = e.clientX - rect.left - dragStartX;
+                    let newY = e.clientY - rect.top - dragStartY;
+                    
+                    // Constrain within canvas
+                    const maxX = state[state.activeSide].width - (element.type === 'text' ? 50 : element.width || 50);
+                    const maxY = state[state.activeSide].height - (element.type === 'text' ? 50 : element.height || 50);
+                    
+                    newX = Math.max(0, Math.min(newX, maxX));
+                    newY = Math.max(0, Math.min(newY, maxY));
+                    
+                    element.x = newX;
+                    element.y = newY;
+                    renderCanvas();
+                }
+            } else if (isResizing && resizeStartData) {
+                const element = state[state.activeSide].elements.find(el => el.id === resizeStartData.id);
+                if (element && element.type !== 'text') {
+                    const deltaX = e.clientX - resizeStartData.startX;
+                    const deltaY = e.clientY - resizeStartData.startY;
+                    
+                    let newWidth = resizeStartData.startWidth;
+                    let newHeight = resizeStartData.startHeight;
+                    let newX = resizeStartData.startPosX;
+                    let newY = resizeStartData.startPosY;
+                    
+                    if (resizeStartData.corner.includes('e')) {
+                        newWidth = Math.max(30, resizeStartData.startWidth + deltaX);
+                    }
+                    if (resizeStartData.corner.includes('s')) {
+                        newHeight = Math.max(30, resizeStartData.startHeight + deltaY);
+                    }
+                    if (resizeStartData.corner.includes('w')) {
+                        newWidth = Math.max(30, resizeStartData.startWidth - deltaX);
+                        newX = resizeStartData.startPosX + deltaX;
+                    }
+                    if (resizeStartData.corner.includes('n')) {
+                        newHeight = Math.max(30, resizeStartData.startHeight - deltaY);
+                        newY = resizeStartData.startPosY + deltaY;
+                    }
+                    
+                    newX = Math.max(0, Math.min(newX, state[state.activeSide].width - newWidth));
+                    newY = Math.max(0, Math.min(newY, state[state.activeSide].height - newHeight));
+                    
+                    element.width = newWidth;
+                    element.height = newHeight;
+                    element.x = newX;
+                    element.y = newY;
+                    renderCanvas();
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging || isResizing) {
+                saveToHistory();
+            }
+            isDragging = false;
+            isResizing = false;
+            resizeStartData = null;
+        });
+
+        // ============ HISTORY MANAGEMENT ============
+        function saveToHistory() {
+            const side = state.activeSide;
+            const currentState = JSON.parse(JSON.stringify(state[side]));
+            
+            state.history[side] = state.history[side].slice(0, state.historyIndex[side] + 1);
+            state.history[side].push(currentState);
+            state.historyIndex[side] = state.history[side].length - 1;
+            
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            const side = state.activeSide;
+            if (state.historyIndex[side] > 0) {
+                state.historyIndex[side]--;
+                state[side] = JSON.parse(JSON.stringify(state.history[side][state.historyIndex[side]]));
+                state.selectedElement = null;
+                updateUI();
+                updateUndoRedoButtons();
+                updateExcelBoundElementsList();
+            }
+        }
+
+        function redo() {
+            const side = state.activeSide;
+            if (state.historyIndex[side] < state.history[side].length - 1) {
+                state.historyIndex[side]++;
+                state[side] = JSON.parse(JSON.stringify(state.history[side][state.historyIndex[side]]));
+                state.selectedElement = null;
+                updateUI();
+                updateUndoRedoButtons();
+                updateExcelBoundElementsList();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            const side = state.activeSide;
+            document.getElementById('undoBtn').disabled = state.historyIndex[side] <= 0;
+            document.getElementById('redoBtn').disabled = state.historyIndex[side] >= state.history[side].length - 1;
+        }
+
+        // ============ PROJECT SAVE/LOAD ============
+        function exportProject() {
+            const projectExport = {
+                version: "1.0.0",
+                exportDate: new Date().toISOString(),
+                projectData: projectData,
+                excelData: excelData,
+                excelColumns: excelColumns,
+                canvasData: {
+                    front: state.front,
+                    back: state.back,
+                    activeSide: state.activeSide
+                },
+                xlsCurrentRow: xlsCurrentRow,
+                xlsBoundElements: Array.from(xlsBoundElements.entries()),
+                imageCache: Array.from(imageCache.entries()),
+                imageLibrary: imageLibrary
+            };
+            
+            const jsonString = JSON.stringify(projectExport, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${projectData.name}-project-${Date.now()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('Project saved successfully!');
+        }
+
+        function importProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.json')) {
+                alert('Please select a JSON file');
+                return;
+            }
+            
+            showLoading('Loading project...');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    
+                    if (!confirm('Importing will replace your current project. Continue?')) {
+                        hideLoading();
+                        return;
+                    }
+                    
+                    // Restore project data
+                    projectData = importData.projectData;
+                    document.getElementById('projectTitle').textContent = projectData.name;
+                    
+                    // Restore Excel data
+                    if (importData.excelData) {
+                        excelData = importData.excelData;
+                        excelColumns = importData.excelColumns || [];
+                        xlsCurrentRow = importData.xlsCurrentRow || 1;
+                        
+                        // Restore bound elements map
+                        xlsBoundElements = new Map(importData.xlsBoundElements || []);
+                        
+                        // Restore image cache
+                        imageCache = new Map(importData.imageCache || []);
+                        
+                        // Restore image library
+                        imageLibrary = importData.imageLibrary || [];
+                        
+                        // Show Excel features
+                        showExcelFeatures();
+                    }
+                    
+                    // Restore canvas data
+                    if (importData.canvasData) {
+                        state.front = importData.canvasData.front || state.front;
+                        state.back = importData.canvasData.back || state.back;
+                        state.activeSide = importData.canvasData.activeSide || 'front';
+                        
+                        // Reset history
+                        state.history.front = [];
+                        state.history.back = [];
+                        state.historyIndex.front = -1;
+                        state.historyIndex.back = -1;
+                        saveToHistory();
+                    }
+                    
+                    // Update UI
+                    switchSide(state.activeSide);
+                    updateUI();
+                    
+                    hideLoading();
+                    alert('Project loaded successfully!');
+                } catch (error) {
+                    console.error('Import error:', error);
+                    hideLoading();
+                    alert('Error importing project file');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // ============ UTILITY FUNCTIONS ============
+        function showLoading(text) {
+            document.getElementById('loadingDetails').textContent = text;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show project setup modal by default
+            document.getElementById('projectSetupModal').style.display = 'flex';
+            
+            // Set up image upload input
+            const imageUpload = document.getElementById('imageUpload');
+            if (imageUpload) {
+                // Already set up in HTML
+            }
+        });
+    </script>
+</body>
+</html> 

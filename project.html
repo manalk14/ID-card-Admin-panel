@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Management | Dashboard Pro</title>
+  <link rel="stylesheet" href="fontawesome-free-7.1.0-web/fontawesome-free-7.1.0-web/css/all.min.css"/>
+  <link rel="stylesheet" href="sidebar.css">
+  <!-- Add JSZip library for creating ZIP files -->
+  <script src="./bootstrap-5.1.3-dist/jszip.min.js"></script>
+  <!-- Add FileSaver.js for saving files -->
+  <script src="./bootstrap-5.1.3-dist/FileSaver.min.js"></script>
+  <style>
+    :root {
+      --primary:#696cff; --primary-dark:#5f61e6; --secondary:#8592a3;
+      --success:#71dd37; --warning:#ffab00; --danger:#ff3e1d;
+      --info:#03c3ec; --dark:#233446; --light:#f5f5f9;
+      --border-color:#d9dee3; --card-bg:#fff; --body-bg:#f5f5f9;
+    }
+
+    body {
+      background-color: var(--body-bg);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      color: #697a8d;
+      margin: 0;
+    }
+
+    /* Main layout */
+    .container {
+      max-width: 1400px;
+      margin-left: 250px;
+      padding: 1.5rem;
+      transition: margin-left .3s;
+    }
+    @media(max-width: 992px) {
+      .container { margin-left: 0; }
+    }
+
+    /* Mobile Toggle */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 2000;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 14px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    @media(max-width: 992px) {
+      .menu-toggle { display: block; }
+    }
+
+    /* Overlay mobile */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.4);
+      backdrop-filter: blur(2px);
+      z-index: 1500;
+    }
+    .overlay.active { display: block; }
+
+    /* Header */
+    .main-header {
+      background: white;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: .625rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(165,163,174,.1);
+    }
+    .main-header h1 {
+      font-size: 1.7rem;
+      color: var(--dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .page-subtitle {
+      color: var(--secondary);
+      margin: 0.5rem 0 0;
+      font-size: 0.875rem;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: .6rem 1.2rem;
+      border: none;
+      border-radius: .4rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(105,108,255,.2);
+    }
+    .btn-outline {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+    .btn-outline:hover {
+      background: rgba(105,108,255,0.05);
+    }
+    
+    /* Filter Buttons */
+    .filter-buttons {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .filter-btn {
+      padding: 0.6rem 1.5rem;
+      border: 1px solid var(--border-color);
+      background: white;
+      color: var(--secondary);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .filter-btn.active:hover {
+      background: var(--primary-dark);
+    }
+    .filter-btn i {
+      font-size: 0.9rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: .625rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 4px rgba(165,163,174,.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(165,163,174,.1);
+    }
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+.icon.total   { background: #ffffff; color: var(--primary); }
+.icon.active  { background: #3e8f00; color: var(--success); }
+.icon.pending { background: #a70000; color: var(--warning); }
+
+    
+    .stat-content h3 {
+      font-size: 1.8rem;
+      margin: 0;
+      color: var(--dark);
+    }
+    .stat-content p {
+      color: var(--secondary);
+      margin: 0.25rem 0 0;
+      font-size: 0.875rem;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: .625rem;
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+    }
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--dark);
+    }
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: .375rem;
+      border: 1px solid var(--border-color);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+    thead {
+      background: #f7f7fb;
+    }
+    tbody tr:hover {
+      background: #f7f7fb;
+    }
+
+    /* User Info */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-success {
+      background: rgba(113,221,55,.15);
+      color: var(--success);
+    }
+    .badge-warning {
+    background: rgb(255, 118, 94);
+    color: #ffffff;
+    }
+    .badge-danger {
+      background:red;
+      color: var(--danger);
+    }
+   
+    /* Name truncation styles */
+    .project-name-container {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: help;
+    }
+
+    @media (max-width: 768px) {
+        .project-name-container {
+            max-width: 120px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .project-name-container {
+            max-width: 100px;
+        }
+    }
+
+    /* For better table responsiveness */
+    .table-responsive td:nth-child(5) { /* Project name column */
+        min-width: 120px;
+        max-width: 150px;
+    }
+
+    .user-name-container {
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: help;
+    }
+
+    @media (max-width: 768px) {
+        .user-name-container {
+            max-width: 100px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .user-name-container {
+            max-width: 80px;
+        }
+    }
+
+    .table-responsive td:nth-child(3) { /* User name column */
+        min-width: 100px;
+        max-width: 120px;
+    }
+
+    /* Action Menu */
+    .action-menu {
+      position: relative;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: .5rem;
+      font-size: 1.2rem;
+      color: var(--secondary);
+      transition: color .2s;
+    }
+    .action-btn:hover {
+      color: var(--primary);
+    }
+    .action-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: .5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+      min-width: 160px;
+      z-index: 100;
+    }
+    .action-dropdown.show {
+      display: block;
+    }
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 1rem;
+      cursor: pointer;
+      transition: background .2s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      
+    }
+
+    .action-item:hover {
+      background: var(--light);
+    }
+    .action-item.view { color: var(--info); }
+    .action-item.edit { color: var(--warning); }
+    .action-item.edit-page { color: var(--info); }
+    .action-item.complete { color: var(--success); }
+    .action-item.delete { color: var(--danger); }
+    .action-item.download { color: var(--primary); }
+
+    /* Pagination - FIXED VERSION */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      margin-top: 1rem;
+    }
+    .pagination-info {
+      font-size: 0.875rem;
+      color: var(--secondary);
+      flex-shrink: 0;
+    }
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .page-btn {
+      padding: .5rem .9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: white;
+      font-size: .8rem;
+      cursor: pointer;
+      transition: .2s;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .page-btn:hover {
+      background: var(--light);
+      border-color: var(--primary);
+    }
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #f5f5f5;
+    }
+    .page-numbers {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+    }
+    .page-number {
+      min-width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: .85rem;
+      background: white;
+      transition: all 0.2s;
+    }
+    .page-number:hover {
+      background: var(--light);
+      border-color: var(--primary);
+    }
+    .page-number.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Search box */
+    .search-box {
+      position: relative;
+      width: 300px;
+    }
+    .search-input {
+      width: 80%;
+      padding: .65rem 1rem .65rem 2.5rem;
+      border: 1px solid var(--dark);
+      border-radius: 10px;
+      font-size: .9rem;
+      color: var(--dark);
+      background: white;
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      font-size: .85rem;
+      color: var(--secondary);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: .75rem;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    }
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      margin: 0;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--secondary);
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close-btn:hover {
+      color: var(--danger);
+    }
+    .modal-body {
+      padding: 1.5rem;
+    }
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid var(--secondary);
+      color: var(--secondary);
+    }
+    .btn-cancel:hover {
+      background: #f7f7fb;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(105,108,255,.1);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    .empty-state p {
+      color: var(--secondary);
+      margin: 0;
+    }
+  
+    
+    /* Download Progress Modal */
+    #downloadProgressModal .progress-container {
+      margin: 1.5rem 0;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: var(--border-color);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      color: var(--secondary);
+    }
+    .download-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--light);
+      border-radius: 8px;
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Notification Styles */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 300px;
+      max-width: 500px;
+      z-index: 10000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      animation: slideIn 0.3s ease;
+    }
+    .notification-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .notification-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .notification-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    .notification button {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- LOAD SIDEBAR FROM EXTERNAL FILE -->
+<div id="sidebar-container"></div>
+
+<!-- Mobile Overlay -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Mobile Toggle Button -->
+<button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <header class="main-header">
+    <div>
+      <h1><i class="fas fa-boxes"></i>Project Management</h1>
+      <p class="page-subtitle">Manage projects, styles, and project assignments</p>
+    </div>
+  </header>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-content">
+        <h3 id="totalProjects">0</h3>
+        <p>Total Projects</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-content">
+        <h3 id="pendingProjects">0</h3>
+        <p>Pending Projects</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-content">
+        <h3 id="completedProjects">0</h3>
+        <p>Completed Projects</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="filter-buttons">
+    <button class="filter-btn active" onclick="fetchProjectsByStatus('pending')" id="filterPending">
+      <i class="fas fa-clock"></i> Pending Projects
+    </button>
+    <button class="filter-btn" onclick="fetchProjectsByStatus('completed')" id="filterCompleted">
+      <i class="fas fa-check-circle"></i> Completed Projects
+    </button>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Project List</h3>
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Search projects..." id="searchInput">
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="projectsTable">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>User Type</th>
+              <th>Name</th>
+              <th>Project Type</th>
+              <th>Project Name</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="7">
+                <div class="spinner" id="loadingSpinner"></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FIXED PAGINATION -->
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">Loading...</div>
+        <div class="pagination-controls">
+          <button class="page-btn" id="prevPage" disabled><i class="fas fa-chevron-left"></i> Prev</button>
+          <div class="page-numbers" id="pageNumbers"></div>
+          <button class="page-btn" id="nextPage" disabled>Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div> <!-- END MAIN CONTENT -->
+
+<!-- View Project Modal -->
+<div class="modal" id="viewProjectModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-info-circle"></i> Project Details</h3>
+      <button class="close-btn" onclick="closeModal('viewProjectModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="projectDetails">
+        <div style="display: flex; flex-direction: column; align-items: center; padding: 2rem;">
+          <div class="spinner"></div>
+          <p style="margin-top: 1rem; color: var(--secondary);">Loading project details...</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('viewProjectModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteConfirmModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+      <button class="close-btn" onclick="closeModal('deleteConfirmModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="deleteConfirmMessage">Are you sure you want to delete this project?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="closeModal('deleteConfirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Download Progress Modal -->
+<div class="modal" id="downloadProgressModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-download"></i> Downloading Project</h3>
+      <button class="close-btn" onclick="closeModal('downloadProgressModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="downloadProgressContent">
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="downloadProgressBar"></div>
+          </div>
+          <div class="progress-text">
+            <span id="downloadStatus">Preparing download...</span>
+            <span id="downloadPercentage">0%</span>
+          </div>
+        </div>
+        <div class="download-stats">
+          <div class="stat-item">
+            <span>Files downloaded:</span>
+            <span id="filesDownloaded">0 / 0</span>
+          </div>
+          <div class="stat-item">
+            <span>Current file:</span>
+            <span id="currentFileName">-</span>
+          </div>
+          <div class="stat-item">
+            <span>Total size:</span>
+            <span id="totalSize">0 MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="cancelDownload()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Function to enforce login
+function enforceLogin() {
+    const appId = localStorage.getItem("app_id");
+    if (!appId) {
+        window.location.replace("login.html");
+    }
+}
+
+// Call it immediately
+enforceLogin();
+
+// Global variables
+let allProjects = [];
+let filteredProjects = [];
+let itemsPerPage = 10;
+let currentPage = 1;
+let deleteProjectId = null;
+let downloadInProgress = false;
+let downloadCanceled = false;
+let currentAction = 'pending';
+
+// Check login status
+function enforceLogin() {
+    const appId = localStorage.getItem("app_id");
+    if (!appId) {
+        window.location.replace("login.html");
+    }
+}
+
+// ========== SIDEBAR FUNCTIONS ==========
+function loadSidebar() {
+    fetch("sidebar.html")
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Sidebar not found');
+            }
+            return res.text();
+        })
+        .then(html => {
+            document.getElementById("sidebar-container").innerHTML = html;
+            
+            // Initialize sidebar after a short delay
+            setTimeout(() => {
+                initializeSidebar();
+            }, 100);
+            
+            // Initialize sidebar toggle
+            const toggleBtn = document.querySelector('.menu-toggle');
+            const overlay = document.getElementById('overlay');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    if (overlay) overlay.classList.toggle('active');
+                });
+            }
+            
+            if (overlay && sidebar) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    this.classList.remove('active');
+                });
+            }
+        })
+        .catch(err => {
+            console.log("Sidebar not found, continuing without it.");
+        });
+}
+
+function initializeSidebar() {
+    const currentPage = window.location.pathname.split('/').pop();
+    console.log("Current page:", currentPage);
+    
+    // Highlight active nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+            item.classList.add('active');
+            console.log("Highlighted nav item:", href);
+        }
+    });
+    
+    // Initialize ALL collapsible sections
+    const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+    console.log("Found collapsible headers:", collapsibleHeaders.length);
+    
+    collapsibleHeaders.forEach((header, index) => {
+        const section = header.closest('.collapsible-section');
+        if (!section) {
+            console.log("No section found for header", index);
+            return;
+        }
+        
+        const content = section.querySelector('.collapsible-content');
+        if (!content) {
+            console.log("No content found for header", index);
+            return;
+        }
+        
+        // Check if this section should be expanded
+        let shouldExpand = false;
+        const links = section.querySelectorAll('a');
+        
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPage) {
+                link.classList.add('active');
+                shouldExpand = true;
+                console.log("Found current page in section", index, "link:", href);
+            }
+        });
+        
+        // Auto-expand if needed
+        if (shouldExpand) {
+            header.classList.add('active');
+            content.classList.add('expanded');
+            console.log("Auto-expanded section", index);
+        }
+        
+        // Clone header to prevent duplicate event listeners
+        const newHeader = header.cloneNode(true);
+        header.parentNode.replaceChild(newHeader, header);
+        
+        // Add toggle click event
+        newHeader.addEventListener('click', function() {
+            console.log("Toggling section", index);
+            this.classList.toggle('active');
+            content.classList.toggle('expanded');
+        });
+        
+        console.log("Initialized section", index);
+    });
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    if (sidebar) {
+        sidebar.classList.toggle("active");
+        if (overlay) overlay.classList.toggle("active");
+    }
+}
+
+// ========== INITIALIZE ==========
+enforceLogin();
+document.addEventListener('DOMContentLoaded', function() {
+    loadSidebar();
+});
+
+// ========== INITIALIZE ==========
+enforceLogin();
+
+// Load sidebar and initialize page
+window.addEventListener('DOMContentLoaded', function() {
+    loadSidebar();
+    
+    // Load pending projects initially (if this function exists on the page)
+    if (typeof fetchProjectsByStatus === 'function') {
+        fetchProjectsByStatus('pending');
+    }
+});
+
+
+// Function to fetch projects by status
+async function fetchProjectsByStatus(action) {
+    try {
+        const app_id = localStorage.getItem('app_id');
+        
+        if (!app_id) {
+            showError('Please login first to access projects.');
+            return;
+        }
+
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        if (action === 'pending') {
+            document.getElementById('filterPending').classList.add('active');
+        } else if (action === 'completed') {
+            document.getElementById('filterCompleted').classList.add('active');
+        }
+        
+        currentAction = action;
+
+        // Show loading state
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="spinner"></div>
+                </td>
+            </tr>
+        `;
+        
+        document.getElementById("paginationInfo").textContent = 'Loading...';
+        document.getElementById("prevPage").disabled = true;
+        document.getElementById("nextPage").disabled = true;
+        document.getElementById("pageNumbers").innerHTML = '';
+
+        // Call API with action parameter
+        const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/projects.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                app_id: app_id,
+                action: action 
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`API Response for ${action}:`, data);
+
+        if (data && data.result === "1" && data.projectdet) {
+            // Process the data
+            filteredProjects = [];
+            
+            if (Array.isArray(data.projectdet)) {
+                filteredProjects = data.projectdet.map((project, index) => {
+                    return {
+                        serialNo: index + 1,
+                        id: project.id || '',
+                        id1: project.id1 || '',
+                        user_type: project.user_type || 'Dealer',
+                        name: project.name || '',
+                        phone: project.phone || '',
+                        address: project.address || '',
+                        project_type: project.project_type || '',
+                        project_name: project.project_name || '',
+                        multiple_side: project.multiple_side || '',
+                        status: action === 'completed' ? 'Completed' : (project.status || 'Pending'),
+                        date: project.date || ''
+                    };
+                });
+                
+                // Update allProjects for search
+                allProjects = [...filteredProjects];
+            }
+            
+            // Update stats
+            updateStats(data);
+            
+            // Render table
+            currentPage = 1;
+            renderTable();
+            setupPagination();
+            
+            if (filteredProjects.length === 0) {
+                showError(`No ${action} projects found`);
+            }
+        } else if (data && data.result === "0") {
+            showError(data.message || `No ${action} projects found`);
+        } else {
+            showError('Invalid data format received from server');
+        }
+    } catch (error) {
+        console.error(`Error fetching ${action} projects:`, error);
+        showError('Error loading projects: ' + error.message);
+    }
+}
+
+// Toggle sidebar function
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    if (sidebar) {
+        sidebar.classList.toggle("active");
+        if (overlay) {
+            overlay.classList.toggle("active");
+        }
+    }
+}
+
+// Render table function
+function renderTable() {
+    const tbody = document.getElementById("tableBody");
+    
+    if (filteredProjects.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <p>No ${currentAction} projects found</p>
+                </td>
+            </tr>
+        `;
+        updatePaginationInfo();
+        setupPagination();
+        return;
+    }
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const current = filteredProjects.slice(start, end);
+
+    tbody.innerHTML = current.map(p => {
+        const userName = p.name || '';
+        const displayUserName = userName.length > 15 ? 
+            userName.substring(0, 15) + '...' : 
+            userName;
+        
+        const projectName = p.project_name || '';
+        const displayProjectName = projectName.length > 15 ? 
+            projectName.substring(0, 15) + '...' : 
+            projectName;
+        
+        return `
+        <tr>
+            <td>${p.serialNo}</td>
+            <td><span class="badge badge-secondary">${p.user_type}</span></td>
+            <td>
+                <div class="user-info">
+                    <div class="user-name-container" title="${userName}">
+                        ${displayUserName}
+                    </div>
+                </div>
+            </td>
+            <td><span class="badge badge-primary">${p.project_type}</span></td>
+            <td>
+                <div class="project-name-container" title="${projectName}">
+                    ${displayProjectName}
+                </div>
+            </td>
+            <td><span class="badge ${getStatusClass(p.status)}">${p.status}</span></td>
+            <td>
+                <div class="action-menu">
+                    <button class="action-btn" onclick="toggleActionMenu(this, '${p.id}${p.id1}')">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="action-dropdown">
+                        <button class="action-item view" onclick="viewProject('${p.id}', '${p.id1}')">
+                            <i class="fas fa-eye"></i> View 
+                        </button>
+                        <button class="action-item edit" onclick="redirectToCropPage('${p.id}', '${p.id1}')">
+                            <i class="fa-solid fa-crop"></i> Crop
+                        </button>
+                        <button class="action-item edit-page" onclick="redirectToPageEdit('${p.id}', '${p.id1}')">
+                            <i class="fas fa-edit"></i> Page Edit
+                        </button>
+                        ${p.status.toLowerCase() === 'pending' ? `
+                            <button class="action-item complete" onclick="markAsCompleted('${p.id}', '${p.id1}', '${p.project_name}')">
+                                <i class="fas fa-check-circle"></i> Complete
+                            </button>
+                        ` : ''}
+                        <button class="action-item download" onclick="downloadProjectImages('${p.id}', '${p.id1}')">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="action-item delete" onclick="confirmDeleteProject('${p.id}', '${p.id1}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        `;
+    }).join("");
+
+    updatePaginationInfo();
+    setupPagination();
+}
+
+// Get status class
+function getStatusClass(status) {
+    if (!status) return "badge-secondary";
+    
+    const statusLower = status.toLowerCase();
+    if (statusLower === "active" || statusLower === "completed") {
+        return "badge-success";
+    } else if (statusLower === "pending") {
+        return "badge-warning";
+    } else {
+        return "badge-secondary";
+    }
+}
+
+// Toggle action menu
+function toggleActionMenu(button, projectId) {
+    const dropdown = button.nextElementSibling;
+    const allDropdowns = document.querySelectorAll('.action-dropdown');
+    
+    allDropdowns.forEach(d => {
+        if (d !== dropdown) d.classList.remove('show');
+    });
+    
+    dropdown.classList.toggle('show');
+    
+    document.addEventListener('click', function closeDropdown(e) {
+        if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('show');
+            document.removeEventListener('click', closeDropdown);
+        }
+    });
+}
+
+// View project details
+async function viewProject(id, id1) {
+    try {
+        const app_id = localStorage.getItem('app_id');
+        
+        if (!app_id) {
+            alert('Please login first');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        document.getElementById('projectDetails').innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 2rem;">
+                <div class="spinner"></div>
+                <p style="margin-top: 1rem; color: var(--secondary);">Loading project details...</p>
+            </div>
+        `;
+
+        openModal('viewProjectModal');
+
+        const requestData = {
+            app_id: app_id,
+            prjno: `${id}${id1}`
+        };
+
+        const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/single-project.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.result === "1") {
+            displayProjectDetails(data, id, id1);
+        } else {
+            const errorMessage = data.message || 'Project not found or no data available';
+            document.getElementById('projectDetails').innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--danger);">${errorMessage}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error fetching single project:', error);
+        document.getElementById('projectDetails').innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                <p style="color: var(--danger);">Error loading project: ${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+// Display project details
+function displayProjectDetails(data, id, id1) {
+    const projectDetails = document.getElementById('projectDetails');
+    
+    const projectName = data.project_name || 'N/A';
+    const dealerName = data.name || 'N/A';
+    const phone = data.phone || 'N/A';
+    const address = data.address || 'No address available';
+    const projectType = data.project_type || 'N/A';
+    const status = data.status || 'N/A';
+    
+    let frontImages = [];
+    let rearImages = [];
+    let frontPath = '';
+    let rearPath = '';
+    
+    if (data.front_images && Array.isArray(data.front_images)) {
+        frontImages = data.front_images;
+    }
+    if (data.front_path) {
+        frontPath = data.front_path;
+    }
+    
+    if (data.rear_images && Array.isArray(data.rear_images)) {
+        rearImages = data.rear_images;
+    }
+    if (data.rear_path) {
+        rearPath = data.rear_path;
+    }
+    
+    projectDetails.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="background: var(--light); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+                <h4 style="margin: 0 0 1rem; color: var(--dark);">Basic Information</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <p style="margin: 0.5rem 0; color: var(--secondary); font-size: 0.875rem;">Project Name</p>
+                        <p style="margin: 0; color: var(--dark); font-weight: 500;">${projectName}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0.5rem 0; color: var(--secondary); font-size: 0.875rem;">Project Type</p>
+                        <p style="margin: 0; color: var(--dark); font-weight: 500;">${projectType}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0.5rem 0; color: var(--secondary); font-size: 0.875rem;">Status</p>
+                        <span class="badge ${getStatusClass(status)}">${status}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: var(--light); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--success);">
+                <h4 style="margin: 0 0 1rem; color: var(--dark);">User Information</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <p style="margin: 0.5rem 0; color: var(--secondary); font-size: 0.875rem;">Name</p>
+                        <p style="margin: 0; color: var(--dark); font-weight: 500;">${dealerName}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0.5rem 0; color: var(--secondary); font-size: 0.875rem;">Phone</p>
+                        <p style="margin: 0; color: var(--dark); font-weight: 500;">${phone}</p>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <p style="margin: 0.5rem 0; color: var(--secondary); font-size: 0.875rem;">Address</p>
+                    <p style="margin: 0; color: var(--dark);">${address}</p>
+                </div>
+            </div>
+            
+            ${(frontImages.length > 0 || rearImages.length > 0) ? `
+                <div style="margin-top: 1.5rem;">
+                    <p style="margin: 0 0 0.5rem; color: var(--secondary); font-size: 0.875rem;">Image Preview</p>
+                    <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.5rem 0;">
+                        ${[...frontImages, ...rearImages].slice(0, 4).map((img, index) => {
+                            let fullUrl = '';
+                            if (img.startsWith('http://') || img.startsWith('https://')) {
+                                fullUrl = img;
+                            } else if (index < frontImages.length && frontPath) {
+                                fullUrl = frontPath + img;
+                            } else if (rearPath) {
+                                fullUrl = rearPath + img;
+                            } else {
+                                fullUrl = img;
+                            }
+                            
+                            return `
+                                <div style="flex: 0 0 auto; width: 100px; height: 100px; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden;">
+                                    <img src="${fullUrl}" 
+                                         alt="Preview ${index + 1}" 
+                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODU5MmEzIj5JbWFnZTwvdGV4dD48L3N2Zz4='">
+                                </div>
+                            `;
+                        }).join('')}
+                        ${(frontImages.length + rearImages.length) > 4 ? `
+                            <div style="flex: 0 0 auto; width: 100px; height: 100px; border: 1px solid var(--border-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: var(--light);">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; color: var(--secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.75rem; color: var(--secondary);">
+                                        +${(frontImages.length + rearImages.length) - 4} more
+                                    </p>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                <button class="btn btn-primary" onclick="redirectToCropPage('${id}', '${id1}')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; font-size: 0.9rem;">
+                    <i class="fa-solid fa-crop"></i> Crop Images
+                </button>
+                <button class="btn btn-info" onclick="redirectToPageEdit('${id}', '${id1}')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; font-size: 0.9rem; background: var(--info); border: 1px solid var(--info); color: white;">
+                    <i class="fas fa-edit"></i> Page Edit
+                </button>
+                ${status.toLowerCase() === 'pending' ? `
+                    <button class="btn btn-success" onclick="markAsCompleted('${id}', '${id1}', '${projectName}')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; font-size: 0.9rem;">
+                        <i class="fas fa-check-circle"></i> Mark as Completed
+                    </button>
+                ` : ''}
+                <button class="btn btn-outline" onclick="downloadProjectImages('${id}', '${id1}')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; font-size: 0.9rem;">
+                    <i class="fas fa-download"></i> Download All Images
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Function to mark project as completed - FIXED VERSION
+async function markAsCompleted(id, id1, projectName) {
+    if (!confirm(`Mark project "${projectName}" as completed?`)) {
+        return;
+    }
+
+    try {
+        const app_id = localStorage.getItem('app_id');
+        
+        if (!app_id) {
+            alert('Please login first');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Show loading state
+        showNotification('Marking project as completed...', 'info');
+
+        // CORRECT API ENDPOINT - Using the same endpoint as delete
+        const requestData = {
+            app_id: app_id,
+            prjno: `${id}${id1}`,
+            action: 'completed'
+        };
+
+        console.log('Sending complete request to action API:', requestData);
+
+        // Use the action API endpoint
+        const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/action/projects.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        console.log('Update response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+            console.log('Parsed response:', data);
+        } catch (e) {
+            console.error('Failed to parse JSON:', e);
+            // If not JSON, try to extract success message
+            if (responseText.includes('success') || responseText.includes('Success') || responseText.includes('updated')) {
+                data = { result: "1", message: "Project updated successfully" };
+            } else {
+                throw new Error('Invalid response format from server');
+            }
+        }
+
+        // Check for success in various response formats
+        if (data && (data.result === "1" || data.success === true || data.status === "success" || 
+            (data.message && (data.message.toLowerCase().includes('success') || 
+                             data.message.toLowerCase().includes('updated'))))) {
+            
+            // Remove the project from current view
+            const projectIndex = filteredProjects.findIndex(p => `${p.id}${p.id1}` === `${id}${id1}`);
+            if (projectIndex !== -1) {
+                filteredProjects.splice(projectIndex, 1);
+                
+                // Update serial numbers
+                filteredProjects.forEach((p, idx) => {
+                    p.serialNo = idx + 1;
+                });
+                
+                // Re-render the table
+                renderTable();
+                
+                // Refresh the stats by fetching current status
+                setTimeout(() => {
+                    fetchProjectsByStatus(currentAction);
+                }, 500);
+                
+                showNotification('Project marked as completed successfully!', 'success');
+                
+                // Close modal if open
+                closeModal('viewProjectModal');
+                
+                // Refresh the complete projects count
+                updateProjectCounts();
+            }
+        } else {
+            const errorMsg = data?.message || 'Failed to update project status';
+            throw new Error(errorMsg);
+        }
+    } catch (error) {
+        console.error('Error completing project:', error);
+        showNotification('Error: ' + error.message, 'error');
+    }
+}
+
+// Function to update project counts
+async function updateProjectCounts() {
+    try {
+        const app_id = localStorage.getItem('app_id');
+        if (!app_id) return;
+        
+        // Fetch updated counts
+        const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/projects.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                app_id: app_id,
+                action: 'pending' 
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            updateStats(data);
+        }
+    } catch (error) {
+        console.error('Error updating counts:', error);
+    }
+}
+
+// Redirect to crop page
+function redirectToCropPage(id, id1) {
+    const app_id = localStorage.getItem('app_id');
+    
+    if (!app_id) {
+        alert('Please login first');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    closeModal('viewProjectModal');
+    window.location.href = `crop.html?app_id=${app_id}&prjno=${id}${id1}`;
+}
+
+// Redirect to page edit
+function redirectToPageEdit(id, id1) {
+    const app_id = localStorage.getItem('app_id');
+    
+    if (!app_id) {
+        alert('Please login first');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // Close any open modal
+    closeModal('viewProjectModal');
+    
+    // Redirect to page_edit.html with prjno parameter
+    window.location.href = `page_edit.html?app_id=${app_id}&prjno=${id}${id1}`;
+}
+
+// Download project images
+async function downloadProjectImages(id, id1) {
+    if (downloadInProgress) {
+        alert('A download is already in progress. Please wait.');
+        return;
+    }
+
+    try {
+        const app_id = localStorage.getItem('app_id');
+        
+        if (!app_id) {
+            alert('Please login first');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const project = getProjectById(`${id}${id1}`);
+        if (!project) {
+            alert('Project not found');
+            return;
+        }
+
+        downloadInProgress = true;
+        downloadCanceled = false;
+        openModal('downloadProgressModal');
+        
+        document.getElementById('downloadStatus').textContent = 'Fetching project details...';
+        document.getElementById('downloadPercentage').textContent = '0%';
+        document.getElementById('downloadProgressBar').style.width = '0%';
+        document.getElementById('filesDownloaded').textContent = '0 / 0';
+        document.getElementById('currentFileName').textContent = '-';
+        document.getElementById('totalSize').textContent = '0 MB';
+
+        const requestData = {
+            app_id: app_id,
+            prjno: `${id}${id1}`
+        };
+
+        const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/single-project.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.result === "1") {
+            const imageUrls = [];
+            const imageNames = [];
+            
+            if (data.front_images && Array.isArray(data.front_images)) {
+                const frontPath = data.front_path || '';
+                data.front_images.forEach(img => {
+                    let fullUrl = img;
+                    if (!img.startsWith('http://') && !img.startsWith('https://') && frontPath) {
+                        fullUrl = frontPath + img;
+                    }
+                    imageUrls.push(fullUrl);
+                    imageNames.push(`Front_${img}`);
+                });
+            }
+            
+            if (data.rear_images && Array.isArray(data.rear_images)) {
+                const rearPath = data.rear_path || '';
+                data.rear_images.forEach(img => {
+                    let fullUrl = img;
+                    if (!img.startsWith('http://') && !img.startsWith('https://') && rearPath) {
+                        fullUrl = rearPath + img;
+                    }
+                    imageUrls.push(fullUrl);
+                    imageNames.push(`Rear_${img}`);
+                });
+            }
+            
+            if (imageUrls.length === 0) {
+                document.getElementById('downloadStatus').textContent = 'No images found to download';
+                downloadInProgress = false;
+                setTimeout(() => closeModal('downloadProgressModal'), 2000);
+                return;
+            }
+            
+            document.getElementById('downloadStatus').textContent = `Downloading ${imageUrls.length} images...`;
+            document.getElementById('filesDownloaded').textContent = `0 / ${imageUrls.length}`;
+            
+            await createAndDownloadZip(imageUrls, imageNames, project.project_name);
+            
+        } else {
+            throw new Error(data.message || 'Failed to fetch project details');
+        }
+    } catch (error) {
+        console.error('Error downloading project:', error);
+        if (!downloadCanceled) {
+            document.getElementById('downloadStatus').textContent = `Error: ${error.message}`;
+            setTimeout(() => {
+                closeModal('downloadProgressModal');
+                downloadInProgress = false;
+            }, 3000);
+        }
+    }
+}
+
+// Create and download ZIP
+async function createAndDownloadZip(imageUrls, imageNames, projectName) {
+    try {
+        const zip = new JSZip();
+        let completedDownloads = 0;
+        let totalSize = 0;
+        
+        const safeProjectName = projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const imgFolder = zip.folder('images');
+        
+        for (let i = 0; i < imageUrls.length; i++) {
+            if (downloadCanceled) {
+                throw new Error('Download canceled by user');
+            }
+            
+            const url = imageUrls[i];
+            const name = imageNames[i] || `image_${i + 1}.jpg`;
+            
+            document.getElementById('currentFileName').textContent = name;
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                    mode: 'cors',
+                    credentials: 'same-origin'
+                }).catch(err => {
+                    if (err.name === 'AbortError') {
+                        throw new Error('Timeout while downloading image');
+                    }
+                    throw err;
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to download: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                imgFolder.file(name, blob);
+                
+                completedDownloads++;
+                totalSize += blob.size;
+                
+                const progress = Math.round((completedDownloads / imageUrls.length) * 100);
+                document.getElementById('downloadProgressBar').style.width = `${progress}%`;
+                document.getElementById('downloadPercentage').textContent = `${progress}%`;
+                document.getElementById('downloadStatus').textContent = `Downloading ${completedDownloads} of ${imageUrls.length} images`;
+                document.getElementById('filesDownloaded').textContent = `${completedDownloads} / ${imageUrls.length}`;
+                document.getElementById('totalSize').textContent = `${(totalSize / (1024 * 1024)).toFixed(2)} MB`;
+                
+            } catch (error) {
+                console.warn(`Failed to download image ${name}:`, error);
+            }
+        }
+        
+        document.getElementById('downloadStatus').textContent = 'Creating ZIP file...';
+        
+        const content = await zip.generateAsync({ type: 'blob' }, metadata => {
+            const progress = Math.round((metadata.percent || 0));
+            document.getElementById('downloadProgressBar').style.width = `${progress}%`;
+            document.getElementById('downloadPercentage').textContent = `${progress}%`;
+        });
+        
+        const zipFileName = `${safeProjectName}_images_${new Date().toISOString().slice(0, 10)}.zip`;
+        saveAs(content, zipFileName);
+        
+        document.getElementById('downloadStatus').textContent = 'Download complete!';
+        document.getElementById('downloadProgressBar').style.width = '100%';
+        document.getElementById('downloadPercentage').textContent = '100%';
+        
+        setTimeout(() => {
+            closeModal('downloadProgressModal');
+            downloadInProgress = false;
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error creating ZIP:', error);
+        if (!downloadCanceled) {
+            document.getElementById('downloadStatus').textContent = `Error: ${error.message}`;
+            setTimeout(() => {
+                closeModal('downloadProgressModal');
+                downloadInProgress = false;
+            }, 3000);
+        }
+    }
+}
+
+// Cancel download
+function cancelDownload() {
+    if (downloadInProgress) {
+        downloadCanceled = true;
+        downloadInProgress = false;
+        document.getElementById('downloadStatus').textContent = 'Download canceled';
+        setTimeout(() => {
+            closeModal('downloadProgressModal');
+        }, 1000);
+    }
+}
+
+// Confirm delete project
+function confirmDeleteProject(id, id1) {
+    const project = getProjectById(`${id}${id1}`);
+    if (project) {
+        deleteProjectId = `${id}${id1}`;
+        document.getElementById('deleteConfirmMessage').textContent = 
+            `Are you sure you want to delete project "${project.project_name}"? This action cannot be undone.`;
+        openModal('deleteConfirmModal');
+    }
+}
+
+// Perform delete using the new API - FIXED VERSION
+async function performDeleteProject(projectId) {
+    try {
+        const project = getProjectById(projectId);
+        if (!project) {
+            alert('Project not found');
+            return;
+        }
+
+        const app_id = localStorage.getItem('app_id');
+        
+        // Use the action API for deletion
+        const deleteData = {
+            app_id: app_id,
+            prjno: projectId,
+            action: 'delete'
+        };
+
+        console.log('Sending delete request:', deleteData);
+
+        const response = await fetch('https://www.coremicron.co.in/skynetwork/admin/action/projects.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(deleteData)
+        });
+
+        console.log('Delete response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const responseText = await response.text();
+        console.log('Delete raw response:', responseText);
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse JSON:', e);
+            // If not JSON, check for success message
+            if (responseText.includes('success') || responseText.includes('deleted') || responseText.includes('Success')) {
+                data = { result: "1", message: "Project deleted successfully" };
+            } else {
+                throw new Error('Invalid response format from server');
+            }
+        }
+        
+        if (data && (data.result === "1" || data.success === true || 
+            (data.message && data.message.toLowerCase().includes('success')))) {
+            
+            // Remove from filteredProjects
+            const index = filteredProjects.findIndex(p => `${p.id}${p.id1}` === projectId);
+            if (index !== -1) {
+                filteredProjects.splice(index, 1);
+                
+                // Update serial numbers
+                filteredProjects.forEach((p, idx) => {
+                    p.serialNo = idx + 1;
+                });
+                
+                // Re-render table
+                renderTable();
+                
+                // Refresh stats
+                updateProjectCounts();
+                
+                showNotification(`Project "${project.project_name}" deleted successfully`, 'success');
+                
+                // If no projects left, refresh the list
+                if (filteredProjects.length === 0) {
+                    setTimeout(() => {
+                        fetchProjectsByStatus(currentAction);
+                    }, 500);
+                }
+            }
+        } else {
+            const errorMsg = data?.message || 'Failed to delete project';
+            throw new Error(errorMsg);
+        }
+    } catch (error) {
+        console.error('Error deleting project:', error);
+        showNotification('Error deleting project: ' + error.message, 'error');
+    }
+}
+
+// Set up delete button listener
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    if (deleteProjectId) {
+        performDeleteProject(deleteProjectId);
+        closeModal('deleteConfirmModal');
+    }
+});
+
+// Search functionality
+document.getElementById("searchInput")?.addEventListener("input", e => {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+        fetchProjectsByStatus(currentAction);
+    } else {
+        const searchResults = filteredProjects.filter(p => 
+            (p.name && p.name.toLowerCase().includes(searchTerm)) || 
+            (p.project_type && p.project_type.toLowerCase().includes(searchTerm)) ||
+            (p.project_name && p.project_name.toLowerCase().includes(searchTerm)) ||
+            (p.user_type && p.user_type.toLowerCase().includes(searchTerm)) ||
+            (p.status && p.status.toLowerCase().includes(searchTerm))
+        );
+        
+        filteredProjects = searchResults;
+        currentPage = 1;
+        renderTable();
+        setupPagination();
+    }
+});
+
+// Update stats
+function updateStats(data) {
+    if (data) {
+        document.getElementById("totalProjects").innerText = data.ttl_projects || '0';
+        document.getElementById("pendingProjects").innerText = data.pending_projects || '0';
+        document.getElementById("completedProjects").innerText = data.completed_projects|| '0';
+    } else {
+        document.getElementById("totalProjects").innerText = '0';
+        document.getElementById("pendingProjects").innerText = '0';
+        document.getElementById("completedProjects").innerText = '0';
+    }
+}
+
+// Setup pagination
+function setupPagination() {
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    const pageNumbers = document.getElementById("pageNumbers");
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+
+    pageNumbers.innerHTML = '';
+    
+    prevBtn.disabled = currentPage === 1 || filteredProjects.length === 0;
+    nextBtn.disabled = currentPage === totalPages || totalPages === 0 || filteredProjects.length === 0;
+
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    if (startPage > 1) {
+        const firstPageBtn = document.createElement("div");
+        firstPageBtn.className = `page-number ${1 === currentPage ? "active" : ""}`;
+        firstPageBtn.textContent = 1;
+        firstPageBtn.onclick = () => {
+            currentPage = 1;
+            renderTable();
+        };
+        pageNumbers.appendChild(firstPageBtn);
+        
+        if (startPage > 2) {
+            const ellipsis = document.createElement("div");
+            ellipsis.className = "page-number";
+            ellipsis.textContent = "...";
+            ellipsis.style.cursor = "default";
+            ellipsis.style.background = "transparent";
+            ellipsis.style.border = "none";
+            pageNumbers.appendChild(ellipsis);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement("div");
+        pageBtn.className = `page-number ${i === currentPage ? "active" : ""}`;
+        pageBtn.textContent = i;
+        pageBtn.onclick = () => {
+            currentPage = i;
+            renderTable();
+        };
+        pageNumbers.appendChild(pageBtn);
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement("div");
+            ellipsis.className = "page-number";
+            ellipsis.textContent = "...";
+            ellipsis.style.cursor = "default";
+            ellipsis.style.background = "transparent";
+            ellipsis.style.border = "none";
+            pageNumbers.appendChild(ellipsis);
+        }
+        
+        const lastPageBtn = document.createElement("div");
+        lastPageBtn.className = `page-number ${totalPages === currentPage ? "active" : ""}`;
+        lastPageBtn.textContent = totalPages;
+        lastPageBtn.onclick = () => {
+            currentPage = totalPages;
+            renderTable();
+        };
+        pageNumbers.appendChild(lastPageBtn);
+    }
+}
+
+// Update pagination info
+function updatePaginationInfo() {
+    if (filteredProjects.length === 0) {
+        const actionText = currentAction === 'pending' ? 'pending' : 'completed';
+        document.getElementById("paginationInfo").textContent = `No ${actionText} projects found`;
+        return;
+    }
+    
+    const start = filteredProjects.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+    const end = Math.min(currentPage * itemsPerPage, filteredProjects.length);
+    const total = filteredProjects.length;
+    const actionText = currentAction === 'pending' ? 'pending' : 'completed';
+    document.getElementById("paginationInfo").textContent = 
+        `Showing ${start} to ${end} of ${total} ${actionText} projects`;
+}
+
+// Open modal
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+}
+
+// Close modal
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.remove('active');
+    }
+});
+
+// Get project by ID
+function getProjectById(id) {
+    return filteredProjects.find(p => `${p.id}${p.id1}` === id);
+}
+
+// Function to show notifications
+function showNotification(message, type = 'info') {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Show error
+function showError(message) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="empty-state">
+                <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i>
+                <p>${message}</p>
+                ${!localStorage.getItem('app_id') ? `
+                    <button class="btn btn-primary" onclick="window.location.href='login.html'" style="margin-top: 1rem;">
+                        <i class="fas fa-sign-in-alt"></i> Go to Login
+                    </button>
+                ` : ''}
+            </td>
+        </tr>
+    `;
+    
+    document.getElementById("paginationInfo").textContent = message;
+    document.getElementById("prevPage").disabled = true;
+    document.getElementById("nextPage").disabled = true;
+    document.getElementById("pageNumbers").innerHTML = '';
+}
+
+// Initialize pagination event listeners
+document.getElementById("prevPage").addEventListener("click", function() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+    }
+});
+
+document.getElementById("nextPage").addEventListener("click", function() {
+    const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+    }
+});
+
+</script>
+
+</body>
+</html>

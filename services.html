@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Services | Dashboard</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="./bootstrap-5.1.3-dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="fontawesome-free-7.1.0-web/fontawesome-free-7.1.0-web/css/all.min.css">
+    <!-- External Sidebar CSS -->
+    <link rel="stylesheet" href="sidebar.css">
+    <style>
+        :root {
+            --primary:#696cff; --primary-dark:#5f61e6; --secondary:#8592a3;
+            --success:#71dd37; --warning:#ffab00; --danger:#ff3e1d;
+            --info:#03c3ec; --dark:#233446; --light:#f5f5f9;
+            --border-color:#d9dee3; --card-bg:#fff; --body-bg:#f5f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            color: #696969;
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            padding: 20px;
+            margin-left:240px;
+            background-color: var(--body-bg);
+        }
+
+        @media(max-width: 992px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+        }
+
+        /* Mobile Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 2000;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        @media(max-width: 992px) {
+            .menu-toggle { 
+                display: block; 
+            }
+        }
+
+        /* Overlay mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.4);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+        }
+        
+        .overlay.active { 
+            display: block; 
+        }
+
+        /* Header */
+        .main-header {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: .625rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(165,163,174,.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        @media(max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+        
+        .main-header h1 {
+            font-size: 1.7rem;
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: .6rem 1.2rem;
+            border-radius: .4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(105,108,255,.2);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-outline-custom {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+            padding: .6rem 1.2rem;
+            border-radius: .4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline-custom:hover {
+            background: rgba(105,108,255,0.05);
+            transform: translateY(-1px);
+        }
+
+        /* Card */
+        .custom-card {
+            background: white;
+            border-radius: .625rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .custom-card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+        }
+        
+        @media(max-width: 576px) {
+            .custom-card-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+        
+        .custom-card-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+        
+        .custom-card-body {
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        /* Table */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        @media(max-width: 768px) {
+            .table-custom {
+                min-width: 100%;
+                font-size: 0.875rem;
+            }
+        }
+        
+        .table-custom th {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            background: #f7f7fb;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .table-custom td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: middle;
+        }
+        
+        @media(max-width: 576px) {
+            .table-custom th, .table-custom td {
+                padding: 0.75rem;
+            }
+        }
+        
+        .table-custom tbody tr {
+            transition: background-color 0.2s;
+        }
+        
+        .table-custom tbody tr:hover {
+            background: #f7f7fb;
+        }
+
+        /* Description styling */
+        .description-container {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: help;
+        }
+        
+        @media (max-width: 768px) {
+            .description-container {
+                max-width: 150px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .description-container {
+                max-width: 120px;
+            }
+        }
+
+        /* Image column styling */
+        .image-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(105,108,255,0.1);
+            border-radius: 1rem;
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Badges */
+        .badge-custom {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-success-custom {
+            background: rgba(113,221,55,.15);
+            color: var(--success);
+        }
+    
+        .badge-danger-custom {
+            background: rgba(255,62,29,.1);
+            color: var(--danger);
+        }
+        
+        .badge-warning-custom {
+            background: rgba(255,171,0,.1);
+            color: var(--warning);
+        }
+        
+        .badge-info-custom {
+            background: rgba(3,195,236,.1);
+            color: var(--info);
+        }
+
+        /* Action Menu */
+        .action-menu {
+            position: relative;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: .5rem;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            transition: color .2s;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary);
+        }
+        
+        .action-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: .5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,.1);
+            min-width: 140px;
+            z-index: 100;
+        }
+        
+        @media(max-width: 576px) {
+            .action-dropdown {
+                min-width: 120px;
+                font-size: 0.875rem;
+            }
+        }
+        
+        .action-dropdown.show {
+            display: block;
+        }
+        
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .75rem 1rem;
+            cursor: pointer;
+            transition: background .2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        
+        .action-item:hover {
+            background: var(--light);
+        }
+        
+        .action-item.view { color: var(--info); }
+        .action-item.edit { color: var(--warning); }
+        .action-item.delete { color: var(--danger); }
+
+        /* Modal Styles */
+        .modal-custom {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-custom.active {
+            display: flex;
+        }
+        
+        .modal-content-custom {
+            background: white;
+            border-radius: .75rem;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,.15);
+        }
+        
+        @media(max-width: 768px) {
+            .modal-custom {
+                padding: 10px;
+            }
+            
+            .modal-content-custom {
+                max-height: 95vh;
+                max-width: 95%;
+            }
+        }
+        
+        .modal-header-custom {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .modal-header-custom h3 {
+            margin: 0;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .close-btn-custom {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        
+        .close-btn-custom:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body-custom {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        @media(max-width: 576px) {
+            .modal-body-custom {
+                padding: 1rem;
+            }
+        }
+        
+        .form-group-custom {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label-custom {
+            display: block;
+            margin-bottom: .5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .form-control-custom {
+            width: 100%;
+            padding: .75rem 1rem;
+            border-radius: .5rem;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            transition: border-color .2s;
+        }
+        
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(105,108,255,.1);
+        }
+        
+        .form-control-custom.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(255, 62, 29, 0.1);
+        }
+        
+        .textarea-custom {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .file-upload-area-custom {
+            border: 2px dashed var(--border-color);
+            border-radius: .5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all .3s;
+        }
+        
+        .file-upload-area-custom:hover {
+            border-color: var(--primary);
+            background: rgba(105,108,255,.02);
+        }
+        
+        .file-upload-area-custom.dragover {
+            border-color: var(--primary);
+            background: rgba(105,108,255,.05);
+        }
+        
+        .file-upload-area-custom.error {
+            border-color: var(--danger);
+            border-style: solid;
+        }
+        
+        .upload-icon-custom {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text-custom {
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-hint-custom {
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+        
+        .file-item-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--light);
+            border-radius: .375rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-info-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .file-remove-custom {
+            color: var(--danger);
+            cursor: pointer;
+            padding: 0.25rem;
+            background: none;
+            border: none;
+        }
+        
+        .modal-footer-custom {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+        
+        @media(max-width: 576px) {
+            .modal-footer-custom {
+                flex-direction: column;
+            }
+            
+            .modal-footer-custom .btn {
+                width: 100%;
+            }
+        }
+        
+        .btn-cancel-custom {
+            background: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            padding: .6rem 1.2rem;
+            border-radius: .4rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-cancel-custom:hover {
+            background: #f7f7fb;
+        }
+
+        /* Image Preview */
+        .image-preview-container-custom {
+            margin-top: 1rem;
+        }
+        
+        .image-preview-custom {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            border: 1px solid var(--border-color);
+            border-radius: .5rem;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        
+        .image-preview-custom img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .image-preview-custom p {
+            margin: 0;
+            padding: 0.75rem;
+            text-align: center;
+            color: var(--secondary);
+            border-top: 1px solid var(--border-color);
+            background: white;
+        }
+
+        /* Alert Messages */
+        .alert-custom {
+            padding: 1rem;
+            border-radius: .5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .alert-success-custom {
+            background: rgba(113,221,55,.1);
+            border-left: 3px solid var(--success);
+            color: var(--success);
+        }
+        
+        .alert-danger-custom {
+            background: rgba(255,62,29,.1);
+            border-left: 3px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .alert-warning-custom {
+            background: rgba(255,171,0,.1);
+            border-left: 3px solid var(--warning);
+            color: var(--warning);
+        }
+        
+        .alert-info-custom {
+            background: rgba(3,195,236,.1);
+            border-left: 3px solid var(--info);
+            color: var(--info);
+        }
+        
+        .alert-icon-custom {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .alert-content-custom {
+            flex: 1;
+        }
+        
+        .alert-content-custom h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .alert-content-custom p {
+            margin: 0;
+            font-size: 0.75rem;
+        }
+
+        /* Loader */
+        .loader-custom {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state-custom {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--secondary);
+        }
+        
+        .empty-state-custom i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border-color);
+        }
+        
+        .empty-state-custom h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark);
+        }
+        
+        .empty-state-custom p {
+            margin: 0;
+        }
+
+        /* Refresh Button */
+        .btn-refresh-custom {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--secondary);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-refresh-custom:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        /* Pagination */
+        .pagination-container {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Fix for bottom scroll */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* REDESIGNED VIEW MODAL STYLES */
+        .view-service-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-icon-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .service-header-info {
+            flex: 1;
+        }
+        
+        .service-header-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+        
+        .service-id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--light);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        .service-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-card {
+            background: var(--light);
+            border-radius: .75rem;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .detail-card h5 {
+            margin: 0 0 0.75rem 0;
+            color: var(--dark);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-card .value {
+            font-size: 1rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        
+        .description-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: .75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .description-card h5 {
+            margin: 0 0 1rem 0;
+            color: var(--dark);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .description-content {
+            color: var(--dark);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .image-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: .75rem;
+            padding: 1.5rem;
+        }
+        
+        .image-card h5 {
+            margin: 0 0 1rem 0;
+            color: var(--dark);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .image-preview-large {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: .5rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+        }
+        
+        .image-preview-large img {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .no-image-placeholder {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--secondary);
+        }
+        
+        .no-image-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border-color);
+        }
+        
+        /* REDESIGNED EDIT MODAL STYLES */
+        .edit-service-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            border-radius: 0.5rem 0.5rem 0 0;
+            transition: all 0.2s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            background: rgba(105,108,255,0.05);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: var(--light);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .current-image-section {
+            background: var(--light);
+            border-radius: .75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .current-image-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .current-image-preview {
+            width: 150px;
+            height: 150px;
+            border: 1px solid var(--border-color);
+            border-radius: .5rem;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .current-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .current-image-info {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .current-image-info h5 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark);
+        }
+        
+        .current-image-info p {
+            margin: 0 0 1rem 0;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+        
+        .form-section {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: .75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-section h5 {
+            margin: 0 0 1rem 0;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .char-counter {
+            display: block;
+            text-align: right;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+        
+        .char-counter.warning {
+            color: var(--warning);
+        }
+        
+        .char-counter.danger {
+            color: var(--danger);
+        }
+        
+        /* Status Toggle */
+        .status-toggle {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .toggle-label {
+            font-weight: 500;
+            color: var(--dark);
+            min-width: 100px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Enhanced form validation */
+        .error-message {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .service-details-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .view-service-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .service-header-info {
+                text-align: center;
+            }
+            
+            .current-image-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .current-image-info {
+                min-width: auto;
+            }
+            
+            .edit-service-tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                justify-content: center;
+                border-radius: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Container (dynamic load) -->
+    <div id="sidebar-container"></div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="mainContainer">
+        <header class="main-header">
+            <h1><i class="fas fa-cogs"></i> Manage Services</h1>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn-refresh-custom" id="refreshBtn" title="Refresh Services">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn-primary-custom" id="newServiceBtn">
+                    <i class="fas fa-plus"></i> New Service
+                </button>
+            </div>
+        </header>
+
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <div class="custom-card">
+            <div class="custom-card-header">
+                <h3>Services List</h3>
+                <span id="lastUpdated" class="text-muted small"></span>
+            </div>
+            <div class="custom-card-body">
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Image</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="serviceBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading services...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Container -->
+                <div class="pagination-container d-flex justify-content-between align-items-center flex-wrap" id="paginationContainer" style="display: none;">
+                    <div class="text-muted small mb-2 mb-md-0" id="paginationInfo">
+                        Showing 0 to 0 of 0 entries
+                    </div>
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small">Show</span>
+                            <select class="form-select form-select-sm w-auto" id="pageSizeSelect">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span class="small">entries</span>
+                        </div>
+                        <div class="pagination-buttons d-flex gap-1" id="paginationButtons">
+                            <!-- Pagination buttons will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div class="modal-custom" id="addServiceModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3><i class="fas fa-plus"></i> Create New Service</h3>
+                <button class="close-btn-custom" onclick="closeModal('addServiceModal')">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <form id="addServiceForm">
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">Service Title *</label>
+                        <input type="text" class="form-control-custom" id="serviceTitle" placeholder="Enter service title" required>
+                        <div class="error-message" id="serviceTitleError"></div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">Description *</label>
+                        <textarea class="form-control-custom textarea-custom" id="serviceDescription" placeholder="Enter service description" rows="4" required></textarea>
+                        <small class="text-muted">Maximum 500 characters</small>
+                        <div class="char-counter" id="descCounter">0/500</div>
+                        <div class="error-message" id="serviceDescriptionError"></div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">Service Image *</label>
+                        <div class="file-upload-area-custom" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                            <div class="upload-icon-custom">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text-custom">Click or drag an image to upload</div>
+                            <div class="upload-hint-custom">Only image files are allowed (JPG, PNG, etc.)</div>
+                            <input type="file" id="fileInput" style="display: none;" accept="image/*">
+                        </div>
+                        <div id="fileList"></div>
+                        <div class="image-preview-container-custom" id="imagePreview" style="display: none;">
+                            <div class="image-preview-custom">
+                                <img id="previewImage" src="" alt="Preview">
+                                <p>Image Preview</p>
+                            </div>
+                        </div>
+                        <div class="error-message" id="fileInputError"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-cancel-custom" onclick="closeModal('addServiceModal')">Cancel</button>
+                <button class="btn-primary-custom" onclick="saveService()" id="saveServiceBtn">
+                    <i class="fas fa-save"></i> Create Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Service Modal -->
+    <div class="modal-custom" id="viewServiceModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3><i class="fas fa-eye"></i> Service Details</h3>
+                <button class="close-btn-custom" onclick="closeModal('viewServiceModal')">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <div id="serviceDetails">
+                    <!-- Service details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-cancel-custom" onclick="closeModal('viewServiceModal')">Close</button>
+                <button class="btn-primary-custom" onclick="editServiceFromView()" id="editFromViewBtn">
+                    <i class="fas fa-edit"></i> Edit Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Service Modal -->
+    <div class="modal-custom" id="editServiceModal">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3><i class="fas fa-edit"></i> Edit Service</h3>
+                <button class="close-btn-custom" onclick="closeModal('editServiceModal')">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <!-- Tabs Navigation -->
+                <div class="edit-service-tabs">
+                    <button class="tab-btn active" onclick="switchEditTab('basicTab')">
+                        <i class="fas fa-info-circle"></i> Basic Info
+                    </button>
+                    <button class="tab-btn" onclick="switchEditTab('imageTab')">
+                        <i class="fas fa-image"></i> Image
+                    </button>
+                </div>
+                
+                <form id="editServiceForm">
+                    <input type="hidden" id="editServiceId">
+                    
+                    <!-- Basic Info Tab -->
+                    <div id="basicTab" class="tab-content active">
+                        <div class="form-section">
+                            <h5>Service Title</h5>
+                            <div class="form-group-custom">
+                                <input type="text" class="form-control-custom" id="editServiceTitle" placeholder="Enter service title" required>
+                                <div class="error-message" id="editServiceTitleError"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h5>Description</h5>
+                            <div class="form-group-custom">
+                                <textarea class="form-control-custom textarea-custom" id="editServiceDescription" 
+                                          placeholder="Enter service description" rows="5" required></textarea>
+                                <div class="char-counter" id="editDescCounter">0/500</div>
+                                <div class="error-message" id="editServiceDescriptionError"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Image Tab -->
+                    <div id="imageTab" class="tab-content">
+                        <div class="current-image-section">
+                            <h5><i class="fas fa-image"></i> Current Image</h5>
+                            <div class="current-image-container">
+                                <div class="current-image-preview" id="currentImagePreview">
+                                    <!-- Current image will be loaded here -->
+                                </div>
+                                <div class="current-image-info">
+                                    <h5>Current Service Image</h5>
+                                    <p>This is the image currently associated with your service. You can update it below.</p>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn-outline-custom btn-sm" onclick="viewCurrentImage()">
+                                            <i class="fas fa-expand"></i> View Full
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h5><i class="fas fa-upload"></i> Update Image</h5>
+                            <div class="file-upload-area-custom" id="editFileUploadArea" onclick="document.getElementById('editFileInput').click()">
+                                <div class="upload-icon-custom">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="upload-text-custom">Click or drag to upload new image</div>
+                                <div class="upload-hint-custom">Leave empty to keep current image</div>
+                                <input type="file" id="editFileInput" style="display: none;" accept="image/*">
+                            </div>
+                            <div id="editFileList"></div>
+                            <div class="image-preview-container-custom" id="editImagePreview" style="display: none;">
+                                <div class="image-preview-custom">
+                                    <img id="editPreviewImage" src="" alt="New Image Preview">
+                                    <p>New Image Preview</p>
+                                </div>
+                            </div>
+                            <div class="error-message" id="editFileInputError"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-cancel-custom" onclick="closeModal('editServiceModal')">Cancel</button>
+                <button class="btn-primary-custom" onclick="updateService()" id="updateServiceBtn">
+                    <i class="fas fa-save"></i> Update Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Image Full View Modal -->
+    <div class="modal-custom" id="currentImageViewModal">
+        <div class="modal-content-custom" style="max-width: 800px;">
+            <div class="modal-header-custom">
+                <h3><i class="fas fa-expand"></i> Current Image Preview</h3>
+                <button class="close-btn-custom" onclick="closeModal('currentImageViewModal')">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <div class="text-center" id="currentImageFullView">
+                    <!-- Full size image will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-primary-custom" onclick="closeModal('currentImageViewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== PAGINATION CONFIGURATION ==========
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalServices = 0;
+        let paginatedServices = [];
+        let currentViewService = null;
+
+        // ========== API CONFIGURATION ==========
+        const API_URL = 'https://www.coremicron.co.in/skynetwork/admin/services.php';
+        const ACTION_API_URL = 'https://www.coremicron.co.in/skynetwork/admin/action/services.php';
+        let allServices = [];
+        let currentEditService = null;
+        let uploadedFile = null;
+        let editUploadedFile = null;
+
+        // ========== DEBUG LOGGING ==========
+        function logFunctionCall(funcName, ...args) {
+            console.log(`=== ${funcName} called ===`, ...args);
+        }
+
+        // ========== BASE64 IMAGE PROCESSING ==========
+        function getImageUrlFromBase64(base64Data) {
+            console.log('getImageUrlFromBase64 called with:', base64Data ? base64Data.substring(0, 50) + '...' : 'null');
+            
+            if (!base64Data) return null;
+            
+            // If it's already a data URL, return as is
+            if (base64Data.startsWith('data:image/')) {
+                console.log('Already a data URL');
+                return base64Data;
+            }
+            
+            // If it's a base64 string without prefix, add appropriate prefix
+            if (base64Data.startsWith('/9j/') || base64Data.startsWith('iVBORw0KGgo')) {
+                console.log('Detected base64 image data');
+                if (base64Data.startsWith('/9j/')) {
+                    return `data:image/jpeg;base64,${base64Data}`;
+                } else if (base64Data.startsWith('iVBORw0KGgo')) {
+                    return `data:image/png;base64,${base64Data}`;
+                }
+            }
+            
+            // If it's a pure base64 string (might be missing prefix)
+            if (base64Data.length > 100 && /^[A-Za-z0-9+/=]+$/.test(base64Data)) {
+                console.log('Pure base64 string, adding generic prefix');
+                return `data:image/jpeg;base64,${base64Data}`;
+            }
+            
+            console.log('Unknown image format, returning as is');
+            return base64Data;
+        }
+
+        // ========== MODAL TAB FUNCTIONS ==========
+        function switchEditTab(tabId) {
+            logFunctionCall('switchEditTab', tabId);
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // ========== SIDEBAR & MODAL FUNCTIONS ==========
+        
+        // Check login status
+function enforceLogin() {
+    const appId = localStorage.getItem("app_id");
+    if (!appId) {
+        window.location.replace("login.html");
+    }
+}
+// ========== SIDEBAR FUNCTIONS ==========
+function loadSidebar() {
+    fetch("sidebar.html")
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById("sidebar-container").innerHTML = html;
+            
+            // Initialize sidebar after a short delay
+            setTimeout(() => {
+                initializeSidebar();
+            }, 100);
+        })
+        .catch(err => {
+            console.error("Error loading sidebar:", err);
+        });
+}
+
+function initializeSidebar() {
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    // 1. Highlight all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.getAttribute('href') === currentPage) {
+            item.classList.add('active');
+        }
+    });
+    
+    // 2. Initialize ALL collapsible sections
+    const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+    
+    collapsibleHeaders.forEach(header => {
+        const section = header.closest('.collapsible-section');
+        if (!section) return;
+        
+        const content = section.querySelector('.collapsible-content');
+        if (!content) return;
+        
+        // Check if this section should be expanded
+        let shouldExpand = false;
+        const links = section.querySelectorAll('a');
+        
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+                shouldExpand = true;
+            }
+        });
+        
+        // Auto-expand if needed
+        if (shouldExpand) {
+            header.classList.add('active');
+            content.classList.add('expanded');
+        }
+        
+        // Clone header to prevent duplicate event listeners
+        const newHeader = header.cloneNode(true);
+        header.parentNode.replaceChild(newHeader, header);
+        
+        // Add toggle click event
+        newHeader.addEventListener('click', function() {
+            this.classList.toggle('active');
+            content.classList.toggle('expanded');
+        });
+    });
+    
+    // 3. Initialize mobile sidebar toggle
+    const toggleBtn = document.querySelector('.menu-toggle');
+    const overlay = document.getElementById('overlay');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+        });
+    }
+    
+    if (overlay && sidebar) {
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            this.classList.remove('active');
+        });
+    }
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    if (sidebar) {
+        sidebar.classList.toggle("active");
+        if (overlay) overlay.classList.toggle("active");
+    }
+}
+
+// ========== INITIALIZE ==========
+enforceLogin();
+document.addEventListener('DOMContentLoaded', function() {
+    loadSidebar();
+});
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar-container");
+            const overlay = document.getElementById("overlay");
+            if (sidebar) {
+                sidebar.classList.toggle("active");
+                overlay.classList.toggle("active");
+            }
+        }
+
+        function openModal(modalId) {
+            logFunctionCall('openModal', modalId);
+            document.getElementById(modalId).classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal(modalId) {
+            logFunctionCall('closeModal', modalId);
+            document.getElementById(modalId).classList.remove('active');
+            document.body.classList.remove('modal-open');
+            
+            // Reset forms when closing modals
+            if (modalId === 'editServiceModal') {
+                resetEditForm();
+            }
+            if (modalId === 'addServiceModal') {
+                resetAddForm();
+            }
+        }
+
+        // Reset add form
+        function resetAddForm() {
+            logFunctionCall('resetAddForm');
+            document.getElementById('addServiceForm').reset();
+            uploadedFile = null;
+            document.getElementById('fileList').innerHTML = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('previewImage').src = '';
+            document.getElementById('descCounter').textContent = '0/500';
+            clearErrors();
+        }
+
+        // Reset edit form
+        function resetEditForm() {
+            logFunctionCall('resetEditForm');
+            document.getElementById('editServiceForm').reset();
+            editUploadedFile = null;
+            document.getElementById('editFileList').innerHTML = '';
+            document.getElementById('editImagePreview').style.display = 'none';
+            document.getElementById('editPreviewImage').src = '';
+            currentEditService = null;
+            document.getElementById('editDescCounter').textContent = '0/500';
+            clearEditErrors();
+            
+            // Reset tabs to first
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector('.tab-btn').classList.add('active');
+            document.getElementById('basicTab').classList.add('active');
+        }
+
+        // ========== VALIDATION FUNCTIONS ==========
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+            document.querySelectorAll('.form-control-custom').forEach(el => {
+                el.classList.remove('error');
+            });
+            document.querySelectorAll('.file-upload-area-custom').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+
+        function clearEditErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+            document.querySelectorAll('.form-control-custom').forEach(el => {
+                el.classList.remove('error');
+            });
+            document.querySelectorAll('.file-upload-area-custom').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + 'Error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.classList.add('error');
+                }
+            }
+        }
+
+        // ========== ALERT FUNCTIONS ==========
+        
+        function showAlert(type, title, message) {
+            logFunctionCall('showAlert', type, title, message);
+            
+            const alertContainer = document.getElementById('alertContainer');
+            const alertTypes = {
+                'success': { icon: 'check-circle', color: 'success' },
+                'error': { icon: 'exclamation-circle', color: 'danger' },
+                'warning': { icon: 'exclamation-triangle', color: 'warning' },
+                'info': { icon: 'info-circle', color: 'info' }
+            };
+            
+            const alert = document.createElement('div');
+            alert.className = `alert-custom alert-${alertTypes[type].color}-custom`;
+            alert.innerHTML = `
+                <div class="alert-icon-custom">
+                    <i class="fas fa-${alertTypes[type].icon}"></i>
+                </div>
+                <div class="alert-content-custom">
+                    <h4>${title}</h4>
+                    <p>${message}</p>
+                </div>
+                <button type="button" class="close-btn-custom" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            while (alertContainer.firstChild) {
+                alertContainer.removeChild(alertContainer.firstChild);
+            }
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // ========== PAGINATION FUNCTIONS ==========
+        
+        function updatePagination() {
+            logFunctionCall('updatePagination', { totalServices, pageSize, currentPage });
+            
+            totalServices = allServices.length;
+            const totalPages = Math.ceil(totalServices / pageSize);
+            
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalServices);
+            
+            paginatedServices = allServices.slice(startIndex, endIndex);
+            
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${startIndex + 1} to ${endIndex} of ${totalServices} entries`;
+            
+            generatePaginationButtons(totalPages);
+            
+            document.getElementById('paginationContainer').style.display = 
+                totalServices > 0 ? 'flex' : 'none';
+            
+            return paginatedServices;
+        }
+        
+        function generatePaginationButtons(totalPages) {
+            const paginationButtons = document.getElementById('paginationButtons');
+            let buttonsHTML = '';
+            
+            buttonsHTML += `
+                <button class="btn btn-sm btn-outline-secondary ${currentPage === 1 ? 'disabled' : ''}" 
+                        onclick="changePage(${currentPage - 1})" 
+                        ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+            
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            if (startPage > 1) {
+                buttonsHTML += `
+                    <button class="btn btn-sm btn-outline-secondary" onclick="changePage(1)">1</button>
+                    ${startPage > 2 ? '<span class="px-2">...</span>' : ''}
+                `;
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                buttonsHTML += `
+                    <button class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}" 
+                            onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            if (endPage < totalPages) {
+                buttonsHTML += `
+                    ${endPage < totalPages - 1 ? '<span class="px-2">...</span>' : ''}
+                    <button class="btn btn-sm btn-outline-secondary" onclick="changePage(${totalPages})">
+                        ${totalPages}
+                    </button>
+                `;
+            }
+            
+            buttonsHTML += `
+                <button class="btn btn-sm btn-outline-secondary ${currentPage === totalPages ? 'disabled' : ''}" 
+                        onclick="changePage(${currentPage + 1})" 
+                        ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            paginationButtons.innerHTML = buttonsHTML;
+        }
+        
+        function changePage(page) {
+            logFunctionCall('changePage', page);
+            const totalPages = Math.ceil(totalServices / pageSize);
+            
+            if (page < 1 || page > totalPages || page === currentPage) {
+                return;
+            }
+            
+            currentPage = page;
+            renderTable();
+        }
+        
+        function changePageSize(newSize) {
+            logFunctionCall('changePageSize', newSize);
+            pageSize = parseInt(newSize);
+            currentPage = 1;
+            renderTable();
+        }
+
+        // ========== FILE UPLOAD HANDLING ==========
+        
+        // Character counter for description
+        document.getElementById('serviceDescription').addEventListener('input', function() {
+            const length = this.value.length;
+            const counter = document.getElementById('descCounter');
+            counter.textContent = `${length}/500`;
+            
+            if (length > 450) {
+                counter.classList.add('warning');
+                counter.classList.remove('danger');
+            } else if (length > 490) {
+                counter.classList.remove('warning');
+                counter.classList.add('danger');
+            } else {
+                counter.classList.remove('warning', 'danger');
+            }
+        });
+
+        document.getElementById('editServiceDescription').addEventListener('input', function() {
+            const length = this.value.length;
+            const counter = document.getElementById('editDescCounter');
+            counter.textContent = `${length}/500`;
+            
+            if (length > 450) {
+                counter.classList.add('warning');
+                counter.classList.remove('danger');
+            } else if (length > 490) {
+                counter.classList.remove('warning');
+                counter.classList.add('danger');
+            } else {
+                counter.classList.remove('warning', 'danger');
+            }
+        });
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, function(e) {
+                preventDefaults(e);
+                // Remove error class when user interacts
+                document.getElementById('fileInput').classList.remove('error');
+                document.getElementById('fileInputError').classList.remove('show');
+                fileUploadArea.classList.remove('error');
+            }, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            fileUploadArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            fileUploadArea.classList.remove('dragover');
+        }
+
+        fileUploadArea.addEventListener('drop', function(e) {
+            handleDrop(e);
+            // Remove error class when file is dropped
+            document.getElementById('fileInput').classList.remove('error');
+            document.getElementById('fileInputError').classList.remove('show');
+            fileUploadArea.classList.remove('error');
+        });
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            logFunctionCall('handleFiles', files.length);
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    uploadedFile = file;
+                    updateFileList();
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('previewImage').src = e.target.result;
+                        document.getElementById('imagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showAlert('warning', 'Invalid File', 'Only image files are allowed.');
+                }
+            }
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            if (!uploadedFile) {
+                fileList.innerHTML = '';
+                return;
+            }
+
+            fileList.innerHTML = '<h4 class="mb-2">Selected File:</h4>' +
+                `<div class="file-item-custom">
+                    <div class="file-info-custom">
+                        <i class="fas fa-file-image text-success"></i>
+                        <span>${uploadedFile.name} (${formatFileSize(uploadedFile.size)})</span>
+                    </div>
+                    <div class="file-remove-custom" onclick="removeFile()">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>`;
+        }
+
+        function removeFile() {
+            logFunctionCall('removeFile');
+            uploadedFile = null;
+            updateFileList();
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        // Edit file upload
+        document.getElementById('editFileInput').addEventListener('change', handleEditFileSelect);
+        
+        const editFileUploadArea = document.getElementById('editFileUploadArea');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            editFileUploadArea.addEventListener(eventName, function(e) {
+                preventDefaults(e);
+                // Remove error class when user interacts
+                document.getElementById('editFileInput').classList.remove('error');
+                document.getElementById('editFileInputError').classList.remove('show');
+                editFileUploadArea.classList.remove('error');
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            editFileUploadArea.addEventListener(eventName, highlightEdit, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            editFileUploadArea.addEventListener(eventName, unhighlightEdit, false);
+        });
+
+        function highlightEdit() {
+            editFileUploadArea.classList.add('dragover');
+        }
+
+        function unhighlightEdit() {
+            editFileUploadArea.classList.remove('dragover');
+        }
+
+        editFileUploadArea.addEventListener('drop', handleEditDrop, false);
+
+        function handleEditDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleEditFiles(files);
+        }
+
+        function handleEditFileSelect(e) {
+            const files = e.target.files;
+            handleEditFiles(files);
+        }
+
+        function handleEditFiles(files) {
+            logFunctionCall('handleEditFiles', files.length);
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    editUploadedFile = file;
+                    updateEditFileList();
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('editPreviewImage').src = e.target.result;
+                        document.getElementById('editImagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showAlert('warning', 'Invalid File', 'Only image files are allowed.');
+                }
+            }
+        }
+
+        function updateEditFileList() {
+            const fileList = document.getElementById('editFileList');
+            if (!editUploadedFile) {
+                fileList.innerHTML = '';
+                return;
+            }
+
+            fileList.innerHTML = '<h4 class="mb-2">New File to Upload:</h4>' +
+                `<div class="file-item-custom">
+                    <div class="file-info-custom">
+                        <i class="fas fa-file-image text-success"></i>
+                        <span>${editUploadedFile.name} (${formatFileSize(editUploadedFile.size)})</span>
+                    </div>
+                    <div class="file-remove-custom" onclick="removeEditFile()">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>`;
+        }
+
+        function removeEditFile() {
+            logFunctionCall('removeEditFile');
+            editUploadedFile = null;
+            updateEditFileList();
+            document.getElementById('editImagePreview').style.display = 'none';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // ========== BASE64 CONVERSION ==========
+        function fileToBase64(file) {
+            logFunctionCall('fileToBase64', file.name, file.size);
+            
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    console.log('✅ [Base64] File read completed');
+                    
+                    // Get the data URL
+                    const dataURL = e.target.result;
+                    
+                    // Extract base64 string
+                    const base64 = dataURL.split(',')[1];
+                    
+                    console.log('📋 [Base64] File Details:');
+                    console.log('   ├─ Original file name:', file.name);
+                    console.log('   ├─ File size:', file.size, 'bytes');
+                    console.log('   ├─ File type:', file.type);
+                    console.log('   ├─ Data URL length:', dataURL.length, 'chars');
+                    console.log('   ├─ Base64 length:', base64.length, 'chars');
+                    console.log('   ├─ Base64 first 50 chars:', base64.substring(0, 50));
+                    console.log('   └─ Base64 last 50 chars:', base64.substring(base64.length - 50));
+                    
+                    resolve(base64);
+                };
+                
+                reader.onerror = function(error) {
+                    console.error('❌ [Base64] Error reading file:', error);
+                    reject(error);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ========== ACTION MENU FUNCTIONS ==========
+        
+        function toggleActionMenu(button, serviceId) {
+            const dropdown = button.nextElementSibling;
+            const allDropdowns = document.querySelectorAll('.action-dropdown');
+            
+            allDropdowns.forEach(d => {
+                if (d !== dropdown) d.classList.remove('show');
+            });
+            
+            dropdown.classList.toggle('show');
+            
+            document.addEventListener('click', function closeDropdown(e) {
+                if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    document.removeEventListener('click', closeDropdown);
+                }
+            });
+        }
+
+        // ========== SERVICE FUNCTIONS ==========
+        
+        // Fetch services from API
+        async function fetchServices() {
+            logFunctionCall('fetchServices');
+            
+            const appId = localStorage.getItem('app_id');
+            
+            if (!appId) {
+                showAlert('error', 'Session Error', 'Application ID not found. Please login again.');
+                return [];
+            }
+            
+            try {
+                console.log('Fetching services with app_id:', appId);
+                
+                const requestData = {
+                    app_id: appId
+                };
+                
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+             
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const responseText = await response.text();
+                
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    
+                } catch (parseError) {
+                    
+                    throw new Error('Invalid JSON response from server');
+                }
+                
+                if (data.success === false) {
+                    showAlert('error', 'API Error', data.message || 'Failed to fetch services');
+                    return [];
+                }
+                
+                // Handle different response formats
+                const services = data.services || data.data || data || [];
+                const servicesArray = Array.isArray(services) ? services : [];
+                
+                
+                return servicesArray;
+                
+            } catch (error) {
+                
+                showAlert('error', 'Connection Error', 'Failed to fetch services. Please check your connection.');
+                return [];
+            }
+        }
+
+        // ========== SAVE SERVICE (CREATE) ==========
+        async function saveService() {
+            logFunctionCall('saveService');
+            
+            // Get form values
+            const title = document.getElementById('serviceTitle').value.trim();
+            const description = document.getElementById('serviceDescription').value.trim();
+            const appId = localStorage.getItem('app_id');
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validation
+            let isValid = true;
+            
+            if (!title) {
+                showError('serviceTitle', 'Service title is required');
+                isValid = false;
+            } else if (title.length > 100) {
+                showError('serviceTitle', 'Title cannot exceed 100 characters');
+                isValid = false;
+            }
+            
+            if (!description) {
+                showError('serviceDescription', 'Description is required');
+                isValid = false;
+            } else if (description.length > 500) {
+                showError('serviceDescription', 'Description cannot exceed 500 characters');
+                isValid = false;
+            }
+            
+            if (!uploadedFile) {
+                showError('fileInput', 'Service image is required');
+                isValid = false;
+            } else {
+                // Validate file size (max 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (uploadedFile.size > maxSize) {
+                    showError('fileInput', 'Image size should not exceed 5MB');
+                    isValid = false;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(uploadedFile.type)) {
+                    showError('fileInput', 'Only JPG, PNG, GIF, and WebP images are allowed');
+                    isValid = false;
+                }
+            }
+            
+            if (!appId) {
+                showAlert('error', 'Session Error', 'Please login again.');
+                return;
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            try {
+                const saveBtn = document.getElementById('saveServiceBtn');
+                const originalText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="loader-custom"></span> Creating...';
+                saveBtn.disabled = true;
+                
+               
+                const base64Image = await fileToBase64(uploadedFile);
+                
+                if (!base64Image) {
+                    throw new Error('Failed to convert image to base64');
+                }
+                
+                // Prepare request data
+                const requestData = {
+                    app_id: appId,
+                    title: title,
+                    description: description,
+                    image: base64Image,
+                    action: "insert"
+                };
+                
+                
+                
+                // Call API
+                
+                const response = await fetch(ACTION_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+               
+                
+                let responseText;
+                try {
+                    responseText = await response.text();
+                    
+                } catch (textError) {
+                    
+                    throw new Error('Failed to read server response');
+                }
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                  
+                } catch (parseError) {
+                    
+                    // Try to extract success message from text
+                    if (responseText.toLowerCase().includes('success') || 
+                        responseText.toLowerCase().includes('inserted') ||
+                        responseText.includes('true')) {
+                        data = { success: true, message: 'Service created successfully' };
+                    } else {
+                        data = { success: false, message: responseText || 'Invalid response from server' };
+                    }
+                }
+                
+                // ALWAYS CLOSE THE MODAL FIRST
+                closeModal('addServiceModal');
+                
+                if (data.success === true || data.result === "1" || data.status === 'success' || 
+                    (data.message && data.message.toLowerCase().includes('success'))) {
+                    
+                    showAlert('success', 'Success', data.message || 'Service created successfully');
+                    
+                    // REFRESH THE SERVICES LIST - JUST LIKE DEALER MANAGEMENT
+                    loadServices();
+                    
+                } else {
+                    showAlert('error', 'Creation Failed', 
+                        data.message || data.error || 'Failed to create service. Please try again.');
+                }
+                
+            } catch (error) {
+                
+                // Close modal even on error
+                closeModal('addServiceModal');
+                showAlert('error', 'Error', 
+                    error.message || 'An error occurred while creating the service. Please try again.');
+            } finally {
+                // Reset button state
+                const saveBtn = document.getElementById('saveServiceBtn');
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Create Service';
+                saveBtn.disabled = false;
+            }
+        }
+
+        // ========== VIEW SERVICE ==========
+        function viewService(serviceId, globalSerialNumber) {
+            logFunctionCall('viewService', { serviceId, globalSerialNumber });
+            
+            const service = allServices.find(s => s.id == serviceId || s.service_id == serviceId);
+            
+            if (!service) {
+                showAlert('error', 'Not Found', 'Service not found');
+                return;
+            }
+            
+         
+            currentViewService = service;
+            
+            const serviceIdValue = service.id || service.service_id || 'N/A';
+            const title = service.title || service.name || 'Unnamed Service';
+            const description = service.description || service.desc || 'No description available';
+            const status = service.status === '1' ? 'Active' : (service.status === '0' ? 'Inactive' : (service.status || 'Unknown'));
+            const statusClass = service.status === '1' ? 'badge-success-custom' : 'badge-warning-custom';
+            
+            // Format created date
+            const createdDate = service.created_at || service.date || service.created_date || 'N/A';
+            let formattedDate = 'N/A';
+            let fullDate = 'N/A';
+            
+            try {
+                const dateObj = new Date(createdDate);
+                if (!isNaN(dateObj.getTime())) {
+                    formattedDate = dateObj.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    fullDate = dateObj.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+            } catch (e) {
+           
+            }
+            
+            // Get image URL
+            const imageUrl = service.image ? getImageUrlFromBase64(service.image) : null;
+            
+            // Build the service details HTML
+            let serviceDetailsHTML = `
+                <div class="view-service-header">
+                    <div class="service-icon-circle">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="service-header-info">
+                        <h3>${title}</h3>
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <span class="badge-custom ${statusClass}">${status}</span>
+                           
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="service-details-grid">
+                    <div class="detail-card">
+                        <h5><i class="fas fa-heading"></i> Title</h5>
+                        <div class="value">${title}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h5><i class="fas fa-calendar"></i> Created Date</h5>
+                        <div class="value">
+                            ${formattedDate}
+                            ${fullDate !== 'N/A' ? `<br><small class="text-muted">${fullDate}</small>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h5><i class="fas fa-toggle-on"></i> Status</h5>
+                        <div class="value">
+                            <span class="badge-custom ${statusClass}">${status}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h5><i class="fas fa-image"></i> Image</h5>
+                        <div class="value">
+                            ${imageUrl ? 
+                                '<span class="image-badge"><i class="fas fa-check-circle"></i> Available</span>' : 
+                                '<span class="text-muted"><i class="fas fa-times-circle"></i> Not Available</span>'
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description-card">
+                    <h5><i class="fas fa-align-left"></i> Description</h5>
+                    <div class="description-content">${description}</div>
+                </div>
+            `;
+            
+            if (imageUrl) {
+                serviceDetailsHTML += `
+                    <div class="image-card">
+                        <h5><i class="fas fa-image"></i> Service Image</h5>
+                        <div class="image-preview-large">
+                            <img src="${imageUrl}" alt="${title}" onerror="console.error('Image failed to load'); this.src='#'; this.onerror=null; this.parentElement.innerHTML='<div class=\"no-image-placeholder\"><i class=\"fas fa-image\"></i><p>Image failed to load</p></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('serviceDetails').innerHTML = serviceDetailsHTML;
+            
+            // Store service ID for edit button
+            document.getElementById('editFromViewBtn').setAttribute('data-service-id', serviceId);
+            
+            openModal('viewServiceModal');
+        }
+
+        // Edit from view modal
+        function editServiceFromView() {
+            const serviceId = document.getElementById('editFromViewBtn').getAttribute('data-service-id');
+            closeModal('viewServiceModal');
+            setTimeout(() => {
+                editService(serviceId, 0);
+            }, 300);
+        }
+
+        // ========== EDIT SERVICE ==========
+        function editService(serviceId, globalSerialNumber) {
+            logFunctionCall('editService', { serviceId, globalSerialNumber });
+            
+            const service = allServices.find(s => s.id == serviceId || s.service_id == serviceId);
+            
+            if (!service) {
+                showAlert('error', 'Not Found', 'Service not found');
+                return;
+            }
+            
+            
+            currentEditService = service;
+            
+            try {
+                const serviceIdValue = service.id || service.service_id || '';
+                document.getElementById('editServiceId').value = serviceIdValue;
+                
+                const serviceTitle = service.title || service.name || '';
+                document.getElementById('editServiceTitle').value = serviceTitle;
+                
+                const serviceDescription = service.description || service.desc || '';
+                document.getElementById('editServiceDescription').value = serviceDescription;
+                document.getElementById('editDescCounter').textContent = `${serviceDescription.length}/500`;
+                
+                // Display current image if exists
+                const currentImagePreview = document.getElementById('currentImagePreview');
+                if (service.image) {
+                    const imageUrl = getImageUrlFromBase64(service.image);
+                   
+                    currentImagePreview.innerHTML = `
+                        <img src="${imageUrl}" alt="Current Service Image" 
+                             onerror="console.error('Current image failed to load'); this.src='#'; this.onerror=null; this.parentElement.innerHTML='<div class=\"no-image-placeholder\"><i class=\"fas fa-image\"></i><p>Image failed to load</p></div>
+                    `;
+                } else {
+                    currentImagePreview.innerHTML = `
+                        <div class="no-image-placeholder" style="padding: 1rem;">
+                            <i class="fas fa-image"></i>
+                            <p>No Image</p>
+                        </div>
+                    `;
+                }
+                
+                editUploadedFile = null;
+                updateEditFileList();
+                document.getElementById('editImagePreview').style.display = 'none';
+                
+                clearEditErrors();
+                openModal('editServiceModal');
+                
+            } catch (error) {
+                
+                showAlert('error', 'Error', 'Failed to load service data.');
+            }
+        }
+
+        // View current image in full screen
+        function viewCurrentImage() {
+            if (!currentEditService || !currentEditService.image) {
+                showAlert('warning', 'No Image', 'No image available to view');
+                return;
+            }
+            
+            const imageUrl = getImageUrlFromBase64(currentEditService.image);
+            const title = currentEditService.title || currentEditService.name || 'Service Image';
+            
+            document.getElementById('currentImageFullView').innerHTML = `
+                <div class="image-preview-large" style="max-width: 100%;">
+                    <img src="${imageUrl}" alt="${title}" 
+                         style="max-height: 60vh;"
+                         onerror="console.error('Full image failed to load'); this.src='#'; this.onerror=null; this.parentElement.innerHTML='<div class=\"no-image-placeholder\"><i class=\"fas fa-image\"></i><p>Image failed to load</p></div>
+                </div>
+                <div class="mt-3">
+                    <h5>${title}</h5>
+                    <p class="text-muted">Current service image</p>
+                </div>
+            `;
+            
+            openModal('currentImageViewModal');
+        }
+
+        // ========== UPDATE SERVICE ==========
+        async function updateService() {
+            logFunctionCall('updateService');
+            
+            // Get form values
+            const serviceId = document.getElementById('editServiceId').value;
+            const title = document.getElementById('editServiceTitle').value.trim();
+            const description = document.getElementById('editServiceDescription').value.trim();
+            const appId = localStorage.getItem('app_id');
+            
+            // Clear previous errors
+            clearEditErrors();
+            
+            // Validation
+            let isValid = true;
+            
+            if (!serviceId) {
+                showAlert('error', 'Error', 'Service ID not found');
+                return;
+            }
+            
+            if (!title) {
+                showError('editServiceTitle', 'Service title is required');
+                isValid = false;
+            } else if (title.length > 100) {
+                showError('editServiceTitle', 'Title cannot exceed 100 characters');
+                isValid = false;
+            }
+            
+            if (!description) {
+                showError('editServiceDescription', 'Description is required');
+                isValid = false;
+            } else if (description.length > 500) {
+                showError('editServiceDescription', 'Description cannot exceed 500 characters');
+                isValid = false;
+            }
+            
+            if (!appId) {
+                showAlert('error', 'Session Error', 'Please login again.');
+                return;
+            }
+            
+            if (editUploadedFile) {
+                // Validate new image if provided
+                const maxSize = 5 * 1024 * 1024;
+                if (editUploadedFile.size > maxSize) {
+                    showError('editFileInput', 'Image size should not exceed 5MB');
+                    isValid = false;
+                }
+                
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(editUploadedFile.type)) {
+                    showError('editFileInput', 'Only JPG, PNG, GIF, and WebP images are allowed');
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            try {
+                const updateBtn = document.getElementById('updateServiceBtn');
+                const originalText = updateBtn.innerHTML;
+                updateBtn.innerHTML = '<span class="loader-custom"></span> Updating...';
+                updateBtn.disabled = true;
+                
+                // Prepare data for API
+                const requestData = {
+                    app_id: appId,
+                    serid: serviceId,
+                    title: title,
+                    description: description,
+                    action: "update"
+                };
+                
+                // Handle image
+                if (editUploadedFile) {
+                    console.log('🔄 [Update] Converting new image to base64...');
+                    const base64Image = await fileToBase64(editUploadedFile);
+                    if (base64Image) {
+                        requestData.image = base64Image;
+                        console.log('[Update] Image converted successfully');
+                    }
+                } else if (currentEditService && currentEditService.image) {
+                    // Keep existing image
+                    requestData.image = currentEditService.image;
+                    console.log('📤 [Update] Keeping existing image');
+                }
+                
+                console.log(' [API] Making UPDATE request...');
+                const response = await fetch(ACTION_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('📥 [API RESPONSE] Status:', response.status);
+                
+                const responseText = await response.text();
+                console.log('📥 [API RESPONSE] Raw response:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    console.log(' [API RESPONSE] Parsed JSON:', data);
+                } catch (parseError) {
+                    console.error(' [API RESPONSE] JSON parse error:', parseError);
+                    if (responseText.toLowerCase().includes('success') || 
+                        responseText.toLowerCase().includes('updated')) {
+                        data = { success: true, message: 'Service updated successfully' };
+                    } else {
+                        data = { success: false, message: responseText };
+                    }
+                }
+                
+                // ALWAYS CLOSE THE MODAL FIRST
+                closeModal('editServiceModal');
+                
+                // Show success/error message
+                if (data.success === true || data.result === "1" || data.status === 'success') {
+                    showAlert('success', 'Success', data.message || 'Service updated successfully');
+                    
+                    // REFRESH THE SERVICES LIST - EXACTLY LIKE DEALER MANAGEMENT
+                    loadServices();
+                    
+                } else {
+                    showAlert('error', 'Update Failed', 
+                        data.message || data.error || 'Failed to update service');
+                }
+                
+            } catch (error) {
+                console.error('[Update Error] Details:', error);
+                // Close modal even on error
+                closeModal('editServiceModal');
+                showAlert('error', 'Error', 
+                    error.message || 'An error occurred while updating the service');
+            } finally {
+                const updateBtn = document.getElementById('updateServiceBtn');
+                updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Service';
+                updateBtn.disabled = false;
+            }
+        }
+
+        // ========== DELETE SERVICE ==========
+        async function deleteService(serviceId, globalSerialNumber) {
+            logFunctionCall('deleteService', { serviceId, globalSerialNumber });
+            
+            const service = allServices.find(s => s.id == serviceId || s.service_id == serviceId);
+            const serviceName = service ? (service.title || service.name) : 'this service';
+            
+            if (!confirm(`Are you sure you want to delete "${serviceName}"? This action cannot be undone.`)) {
+                return;
+            }
+            
+            const appId = localStorage.getItem('app_id');
+            if (!appId) {
+                showAlert('error', 'Session Error', 'Application ID not found');
+                return;
+            }
+            
+            try {
+                showAlert('info', 'Deleting', `Deleting "${serviceName}"...`);
+                
+                const requestData = {
+                    app_id: appId,
+                    serid: serviceId,
+                    action: "delete"
+                };
+                
+                // ========== LOG API DELETE REQUEST DATA ==========
+                console.log('📤 ========== API DELETE REQUEST ==========');
+                console.log('📤 API URL:', ACTION_API_URL);
+                console.log('📤 Request Method: POST');
+                console.log('📤 Content-Type: application/json');
+                console.log('📤 Request Data (JSON):');
+                console.log(JSON.stringify(requestData, null, 2));
+                console.log('📤 Request Data Structure:');
+                console.log('├─ app_id:', appId);
+                console.log('├─ serid:', serviceId);
+                console.log('└─ action: "delete"');
+                console.log('📤 ========================================');
+                
+                console.log('Sending delete request to:', ACTION_API_URL);
+                
+                const response = await fetch(ACTION_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('📥 [API RESPONSE] Delete response status:', response.status);
+                
+                const responseText = await response.text();
+                console.log('📥 [API RESPONSE] Delete raw response:', responseText);
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('✅ [API RESPONSE] Delete parsed JSON:', data);
+                } catch (parseError) {
+                    console.error('❌ [API RESPONSE] JSON parse error:', parseError);
+                    // Try to extract success from text
+                    if (responseText.toLowerCase().includes('success') || responseText.toLowerCase().includes('deleted')) {
+                        data = { success: true, message: 'Service deleted successfully' };
+                    } else {
+                        data = { success: false, message: 'Invalid response from server' };
+                    }
+                }
+                
+                if (data.success === true || data.result === "1" || data.status === 'success' || 
+                    (data.message && data.message.toLowerCase().includes('success'))) {
+                    showAlert('success', 'Deleted', data.message || `Service "${serviceName}" deleted successfully`);
+                    // REFRESH THE SERVICES LIST - EXACTLY LIKE DEALER MANAGEMENT
+                    loadServices();
+                } else {
+                    showAlert('error', 'Delete Failed', data.message || data.error || 'Failed to delete service. Please try again.');
+                }
+                
+            } catch (error) {
+                console.error('❌ [Delete Error] Details:', error);
+                showAlert('error', 'Connection Error', 
+                    error.message || 'Failed to delete service. Please check your connection and try again.');
+            }
+        }
+
+        // ========== RENDER TABLE ==========
+        function renderTable() {
+            logFunctionCall('renderTable', { allServices: allServices.length, currentPage, pageSize });
+            
+            const serviceBody = document.getElementById('serviceBody');
+            
+            const currentServices = updatePagination();
+            
+            if (currentServices.length === 0) {
+                serviceBody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state-custom">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No Services Found</h4>
+                                <p>Create your first service to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const startSerial = (currentPage - 1) * pageSize + 1;
+            
+            serviceBody.innerHTML = currentServices.map((service, index) => {
+                const globalSerialNumber = startSerial + index;
+                const serviceId = service.id || service.service_id || 'N/A';
+                
+                const title = service.title || service.name || 'Unnamed Service';
+                const description = service.description || service.desc || 'No description';
+                const displayDescription = description.length > 40 ? 
+                    description.substring(0, 40) + '...' : 
+                    description;
+                
+                // Check if image exists
+                const hasImage = !!service.image;
+                
+                const createdDate = service.created_at || service.date || service.created_date || 'N/A';
+                let formattedDate = 'N/A';
+                
+                try {
+                    const dateObj = new Date(createdDate);
+                    if (!isNaN(dateObj.getTime())) {
+                        formattedDate = dateObj.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    console.error('Date parse error:', e);
+                }
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="serial-badge-custom">
+                                ${globalSerialNumber}
+                            </div>
+                        </td>
+                        <td>
+                            <h6>${title}</h6>
+                        </td>
+                        <td>
+                            <div class="description-container" title="${description.replace(/"/g, '&quot;')}">
+                                ${displayDescription}
+                            </div>
+                        </td>
+                        <td>
+                            ${hasImage ? 
+                                '<span class="image-badge"><i class="fas fa-image"></i> Image</span>' : 
+                                '<span class="text-muted">No Image</span>'
+                            }
+                        </td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <div class="action-menu">
+                                <button class="action-btn" onclick="toggleActionMenu(this, '${serviceId}')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="action-dropdown">
+                                    <button class="action-item view" onclick="viewService('${serviceId}', ${globalSerialNumber})">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="action-item edit" onclick="editService('${serviceId}', ${globalSerialNumber})">
+                                        <i class="fas fa-edit"></i> Edit Service
+                                    </button>
+                                    <button class="action-item delete" onclick="deleteService('${serviceId}', ${globalSerialNumber})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            updateLastUpdated();
+        }
+
+        // ========== LOAD SERVICES ==========
+        async function loadServices() {
+            logFunctionCall('loadServices');
+            
+            const serviceBody = document.getElementById('serviceBody');
+            
+            serviceBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin"></i> Loading services...
+                    </td>
+                </tr>
+            `;
+            
+            document.getElementById('paginationContainer').style.display = 'none';
+            
+            try {
+                allServices = await fetchServices();
+                console.log('✅ [Load Services] Loaded:', allServices.length, 'services');
+                currentPage = 1;
+                renderTable();
+                
+            } catch (error) {
+                console.error('❌ [Load Error] Details:', error);
+                serviceBody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state-custom">
+                                <i class="fas fa-exclamation-triangle text-danger"></i>
+                                <h4>Failed to Load Services</h4>
+                                <p>Click the refresh button to try again</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const formattedTime = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            document.getElementById('lastUpdated').textContent = `Last updated: ${formattedTime}`;
+        }
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log('=== DOM Content Loaded ===');
+            console.log('=== Service Management System Initializing ===');
+            
+            const appId = localStorage.getItem('app_id');
+            console.log('🔑 App ID from localStorage:', appId);
+            
+            if (!appId) {
+                showAlert('error', 'Session Error', 'Application ID not found. Please login again.');
+                // You might want to redirect to login page here
+                // window.location.href = 'login.html';
+            }
+            
+            loadServices();
+            
+            document.getElementById("newServiceBtn").addEventListener("click", function() {
+                const appId = localStorage.getItem('app_id');
+                if (!appId) {
+                    showAlert('error', 'Session Error', 'Please login first to add services.');
+                    return;
+                }
+                openModal('addServiceModal');
+            });
+            
+            document.getElementById("refreshBtn").addEventListener("click", function() {
+                const icon = this.querySelector('i');
+                icon.classList.add('fa-spin');
+                
+                loadServices().finally(() => {
+                    setTimeout(() => {
+                        icon.classList.remove('fa-spin');
+                    }, 500);
+                });
+            });
+            
+            document.getElementById("pageSizeSelect").addEventListener("change", function(e) {
+                changePageSize(e.target.value);
+            });
+            
+            window.addEventListener('resize', function() {
+                document.querySelectorAll('.action-dropdown.show').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            });
+            
+            // Close modals on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-custom.active').forEach(modal => {
+                        modal.classList.remove('active');
+                        document.body.classList.remove('modal-open');
+                    });
+                }
+            });
+            
+            // Close modal when clicking outside
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal-custom')) {
+                    event.target.classList.remove('active');
+                    document.body.classList.remove('modal-open');
+                }
+            });
+            
+            console.log('✅ === Initialization Complete ===');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,3958 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional ID Card Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  
+<style>
+      * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+       /* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-container {
+    background: linear-gradient(135deg, #1e293b 0%, #374151 100%);
+    border-radius: 24px;
+    padding: 32px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    margin: 40px auto;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Custom scrollbar for modal */
+.modal-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.modal-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.modal-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-overlay.active .modal-container {
+    transform: translateY(0);
+}
+
+/* For Firefox */
+.modal-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 32px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #1e293b 0%, #374151 100%);
+    z-index: 1;
+    padding-bottom: 10px;
+}
+
+.modal-title {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.modal-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #a78bfa;
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+}
+
+.form-input.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 6px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(135deg, #1e293b 0%, #374151 100%);
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn.save {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.modal-btn.save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+}
+
+.modal-btn.save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.modal-btn.cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.required-indicator {
+    color: #ef4444;
+    margin-left: 4px;
+}
+
+.form-requirements {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+}
+
+.requirements-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.requirement-item {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.requirement-item:before {
+    content: "•";
+    color: #a78bfa;
+}
+
+/* Radio button styles for export modal */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.radio-option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #a78bfa;
+}
+
+.radio-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.radio-option.selected {
+    background: rgba(167, 139, 250, 0.2);
+    border: 1px solid rgba(167, 139, 250, 0.5);
+}
+
+/* Responsive adjustments for mobile */
+@media (max-height: 700px) {
+    .modal-container {
+        max-height: 90vh;
+        margin: 20px auto;
+    }
+    
+    .modal-overlay {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-container {
+        padding: 24px;
+        width: 95%;
+        max-width: 95%;
+    }
+    
+    .modal-header {
+        margin-bottom: 24px;
+    }
+    
+    .modal-title {
+        font-size: 24px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .modal-btn {
+        width: 100%;
+    }
+}
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            min-width: 320px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            overflow-y: auto;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .sidebar h1 {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .side-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .side-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .side-btn.active {
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            color: white;
+            box-shadow: 0 8px 20px rgba(167, 139, 250, 0.4);
+        }
+
+        .side-btn:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .side-btn:not(.active):hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .orientation-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .orientation-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .orientation-btn.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .orientation-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .add-btn {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-btn:hover {
+            box-shadow: 0 8px 20px rgba(167, 139, 250, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .file-upload-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .file-upload-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 48px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select option {
+            background: #1e293b;
+            color: white;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+
+        /* Main Canvas Area - REORGANIZED */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            overflow: hidden;
+            height: 100vh;
+            min-width: 0;
+        }
+
+        .canvas-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1000px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .undo-redo-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .undo-redo-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .undo-redo-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .side-indicator {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .zoom-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .zoom-level {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Canvas content area - UPDATED LAYOUT */
+        .canvas-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            flex: 1;
+            width: 100%;
+            padding: 5px;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .canvas-wrapper {
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 400px;
+        }
+
+        .canvas {
+            position: relative;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Vertical canvas specific */
+        .canvas.vertical-canvas {
+            max-height: 700px;
+            margin: 10px auto;
+        }
+
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+        }
+
+        .canvas-element.selected {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .canvas-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #3b82f6;
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .resize-handle.nw {
+            top: -6px;
+            left: -6px;
+            cursor: nw-resize;
+        }
+
+        .resize-handle.ne {
+            top: -6px;
+            right: -6px;
+            cursor: ne-resize;
+        }
+
+        .resize-handle.sw {
+            bottom: -6px;
+            left: -6px;
+            cursor: sw-resize;
+        }
+
+        .resize-handle.se {
+            bottom: -6px;
+            right: -6px;
+            cursor: se-resize;
+        }
+
+        /* Download controls section - MOVED OUTSIDE canvas area */
+        .download-controls-section {
+            width: 70%;
+            max-width: 1000px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Quality Selector - MOVED OUTSIDE */
+        .quality-selector {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .quality-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quality-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-radius: 12px;
+        }
+
+        .quality-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .quality-value {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* Download Options - MOVED OUTSIDE */
+        .download-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .download-option-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .download-option-btn.both {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .download-option-btn.front {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .download-option-btn.back {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .download-option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .range-value {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            width: 320px;
+            min-width: 320px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .panel h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .property-group {
+            margin-bottom: 16px;
+        }
+
+        .property-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+        }
+
+        .style-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .style-btn {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .style-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .style-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .action-btn.duplicate {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .layer-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .layer-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .layer-item.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .layer-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .layer-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .layer-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .layer-type {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: capitalize;
+        }
+
+        .layer-delete {
+            padding: 6px;
+            background: rgba(239, 68, 68, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .layer-delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Canvas Size Section */
+        .section label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 6px;
+        }
+
+        .section input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        /* Remove number arrows */
+        .section input[type="number"]::-webkit-inner-spin-button,
+        .section input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .section input[type="number"]:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+        }
+
+        /* Apply Size Button */
+        .size-apply-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+        }
+
+        .size-apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(167, 139, 250, 0.45);
+        }
+
+        .size-apply-btn:active {
+            transform: scale(0.97);
+        }
+
+        .mt-5 {
+            margin-top: 20px;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: #10b981;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .loading-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Size Warning */
+        .size-warning {
+            color: #fbbf24;
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        /* New Features Styles */
+        .advanced-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .advanced-btn {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 11px;
+            flex: 1;
+        }
+
+        .advanced-btn.active {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+
+        .advanced-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            min-width: 80px;
+        }
+
+        /* Radio button styles for export modal */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .radio-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #a78bfa;
+        }
+
+        .radio-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .radio-option.selected {
+            background: rgba(167, 139, 250, 0.2);
+            border: 1px solid rgba(167, 139, 250, 0.5);
+        }
+
+        /* Vertical orientation adjustments */
+        .vertical-orientation .canvas-content-wrapper {
+            max-height: calc(100vh - 280px) !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 800px) {
+            .canvas-header {
+                margin-bottom: 8px;
+                padding: 8px 12px;
+            }
+
+            .canvas-content-wrapper {
+                padding: 5px;
+            }
+
+            .download-controls-section {
+                padding: 10px;
+                margin-top: 8px;
+            }
+
+            .download-option-btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+            
+            .canvas-wrapper {
+                min-height: 350px;
+            }
+            
+            .vertical-orientation .canvas-content-wrapper {
+                max-height: calc(100vh - 250px) !important;
+            }
+        }
+
+        @media (max-width: 1400px) {
+
+            .sidebar,
+            .right-panel {
+                width: 280px;
+                min-width: 280px;
+            }
+
+            .canvas-header {
+                max-width: 800px;
+            }
+
+            .download-controls-section {
+                max-width: 800px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .app-container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .sidebar,
+            .right-panel {
+                width: 100%;
+                min-width: 100%;
+                height: auto;
+                max-height: 400px;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .right-panel {
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+         .backbtn {
+    background-color: #4f46e5; /* Indigo */
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.backbtn:hover {
+    background-color: #4338ca;
+    transform: translateY(-2px);
+}
+
+.backbtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+            .canvas-container {
+                height: auto;
+                min-height: 70vh;
+            }
+            
+            .canvas-header {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+            
+            .undo-redo-btn, .side-indicator, .zoom-controls {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .zoom-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+            
+            .download-options {
+                gap: 8px;
+            }
+            
+            .download-option-btn {
+                padding: 10px 15px;
+                font-size: 12px;
+                min-width: 100px;
+            }
+        }
+</style>
+</head>
+
+<body>
+    <!-- Modal Overlay - User Info Modal -->
+    <div class="modal-overlay" id="userInfoModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">User Information</h2>
+                <p class="modal-subtitle">Please provide your details before downloading</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Full Name <span class="required-indicator">*</span></label>
+                <input type="text" class="form-input" id="fullNameInput" placeholder="Enter your full name">
+                <div class="error-message" id="nameError">Full name is required (minimum 3 characters)</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone Number <span class="required-indicator">*</span></label>
+                <input type="text" class="form-input" id="phoneInput" placeholder="Enter your phone number">
+                <div class="error-message" id="phoneError">Valid phone number is required (10-15 digits)</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Address <span class="required-indicator">*</span></label>
+                <input type="text" class="form-input" id="addressInput" placeholder="Enter your full address">
+                <div class="error-message" id="addressError">Address is required (minimum 10 characters)</div>
+            </div>
+
+            <div class="form-requirements">
+                <div class="requirements-title">Requirements:</div>
+                <div class="requirement-item">Full Name: Minimum 3 characters</div>
+                <div class="requirement-item">Phone: 10-15 digits only</div>
+                <div class="requirement-item">Address: Minimum 10 characters</div>
+                <div class="requirement-item">All fields are required</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeUserModal()">Cancel</button>
+                <button class="modal-btn save" id="saveBtn" onclick="saveUserInfo()" disabled>Save & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Export Elements Modal -->
+    <div class="modal-overlay" id="exportElementsModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">Export Elements</h2>
+                <p class="modal-subtitle">Configure export settings and send to API</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Template Name <span class="required-indicator">*</span></label>
+                <input type="text" class="form-input" id="templateNameInput" placeholder="Enter template name">
+                <div class="error-message" id="templateNameError">Template name is required</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Service <span class="required-indicator">*</span></label>
+                <select class="form-input" id="serviceSelect">
+                    <option value="">Select a service</option>
+                    <option value="ID Card">ID Card</option>
+                    <option value="Momentos">Momentos</option>
+                    <option value="Lanyard">Lanyard</option>
+                    <option value="Certificates">Certificates</option>
+                </select>
+                <div class="error-message" id="serviceError">Please select a service</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Access Type <span class="required-indicator">*</span></label>
+                <div class="radio-group" id="accessTypeGroup">
+                    <label class="radio-option" onclick="selectRadio(this)">
+                        <input type="radio" name="accessType" value="all">
+                        <span class="radio-label">All</span>
+                    </label>
+                    <label class="radio-option" onclick="selectRadio(this)">
+                        <input type="radio" name="accessType" value="dealer">
+                        <span class="radio-label">Dealer</span>
+                    </label>
+                </div>
+                <div class="error-message" id="accessTypeError">Please select an access type</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Export Type <span class="required-indicator">*</span></label>
+                <div class="radio-group">
+                    <label class="radio-option" onclick="selectExportType(this)">
+                        <input type="radio" name="exportType" value="both" checked>
+                        <span class="radio-label">Both Sides</span>
+                    </label>
+                    <label class="radio-option" onclick="selectExportType(this)">
+                        <input type="radio" name="exportType" value="front">
+                        <span class="radio-label">Front Only</span>
+                    </label>
+                    <label class="radio-option" onclick="selectExportType(this)">
+                        <input type="radio" name="exportType" value="back">
+                        <span class="radio-label">Back Only</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-requirements">
+                <div class="requirements-title">Export Information:</div>
+                <div class="requirement-item">Template Name: Used to identify your template</div>
+                <div class="requirement-item">Service: The category for this template</div>
+                <div class="requirement-item">Access Type: Determines who can access this template</div>
+                <div class="requirement-item">Data will be sent to API and downloaded locally</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeExportElementsModal()">Cancel</button>
+                <button class="modal-btn save" id="exportElementsBtn" onclick="handleExportClick(event)">Export & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing</div>
+        <div class="loading-details" id="loadingDetails">Please wait...</div>
+    </div>
+
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <h1>ID Card Editor</h1>
+
+            <!-- Side Toggle -->
+            <div class="side-toggle">
+                <button class="side-btn active" id="frontSideBtn" onclick="switchSide('front')">Front</button>
+                <button class="side-btn" id="backSideBtn" onclick="switchSide('back')">Back</button>
+            </div>
+
+            <!-- Zoom Controls -->
+            <div class="section">
+                <div class="section-label">🔍 Canvas Zoom</div>
+                <div class="zoom-controls" style="justify-content: center;">
+                    <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
+                </div>
+            </div>
+
+            <!-- Border Radius Style -->
+            <div class="section">
+                <div class="section-label">⭕ Border Radius</div>
+                <input type="range" min="0" max="40" value="20" id="radiusRange" oninput="updateRadius(this.value)">
+                <div class="range-value">
+                    <span id="radiusValue">20</span> px
+                </div>
+            </div>
+
+            <!-- Orientation Toggle -->
+            <div class="section mt-5">
+                <div class="section-label">📐 Card Orientation</div>
+                <div class="orientation-toggle">
+                    <button class="orientation-btn active" id="horizontalBtn" onclick="setOrientation('horizontal')">
+                        🗓️ Horizontal
+                    </button>
+                    <button class="orientation-btn" id="verticalBtn" onclick="setOrientation('vertical')">
+                        📱 Vertical
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Size Section -->
+            <div class="section">
+                <div class="section-label">📏 Canvas Size</div>
+                <div class="input-group">
+                    <input type="number" id="canvasWidth" value="700" min="100" max="10000">
+                    <input type="number" id="canvasHeight" value="450" min="100" max="10000">
+                </div>
+                <button class="size-apply-btn" onclick="applyCanvasSize()">Apply Size</button>
+                <div class="size-warning" id="sizeWarning">Large sizes will increase file size significantly</div>
+            </div>
+
+            <!-- Add Text -->
+            <div class="section">
+                <div class="section-label">📝 Add Text</div>
+                <div class="input-group">
+                    <input type="text" id="textInput" placeholder="Enter text..."
+                        onkeypress="if(event.key==='Enter')addCustomText()">
+                    <button class="add-btn" onclick="addCustomText()">+</button>
+                </div>
+            </div>
+
+            <!-- Add Image -->
+            <div class="section">
+                <div class="section-label">🖼️ Add Image</div>
+                <label class="file-upload-btn">
+                    Upload Image
+                    <input type="file" accept="image/*" onchange="addImage(event)" style="display: none;">
+                </label>
+            </div>
+
+            <!-- QR Code -->
+            <div class="section">
+                <div class="section-label">📱 QR Code</div>
+                <div class="input-group">
+                    <input type="text" id="qrInput" placeholder="QR data..."
+                        onkeypress="if(event.key==='Enter')addQRCode()">
+                    <button class="add-btn" onclick="addQRCode()">+</button>
+                </div>
+            </div>
+
+            <!-- Barcode -->
+            <div class="section">
+                <div class="section-label">⬜ Barcode</div>
+                <div class="input-group">
+                    <input type="text" id="barcodeInput" placeholder="Barcode data..."
+                        onkeypress="if(event.key==='Enter')addBarcode()">
+                    <button class="add-btn" onclick="addBarcode()">+</button>
+                </div>
+            </div>
+
+            <!-- Canvas Background -->
+            <div class="section">
+                <div class="section-label">🎨 Canvas Background</div>
+                <input type="color" id="bgColorInput" value="#ffffff" onchange="changeCanvasBackground()">
+            </div>
+
+            <!-- JSON Operations - MODIFIED SECTION -->
+            <div class="section">
+                <div class="section-label">🔄 Export Elements</div>
+                <div class="input-group">
+                    <button class="add-btn" onclick="showExportElementsModal()" style="width: 100%; margin: 4px;">Export Elements</button>
+                </div>
+            </div>
+
+            <!-- Background Image -->
+            <div class="section">
+                <div class="section-label">Background Image</div>
+                <label class="file-upload-btn">
+                    Upload Background
+                    <input type="file" accept="image/*" onchange="addBackgroundImage(event)" style="display: none;">
+                </label>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-container">
+            <!-- Canvas Header -->
+            <div class="canvas-header">
+                <button class="undo-redo-btn" id="undoBtn" onclick="undo()" disabled>↶ Undo</button>
+                <button class="undo-redo-btn" id="redoBtn" onclick="redo()" disabled>↷ Redo</button>
+                <div class="side-indicator" id="sideIndicator">📄 Front Side</div>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoomOutBtn" onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" id="zoomInBtn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
+                </div>
+            </div>
+
+            <!-- Canvas Content Area -->
+            <div class="canvas-content-wrapper">
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <div id="frontCanvas" class="canvas"></div>
+                    <div id="backCanvas" class="canvas hidden"></div>
+                </div>
+            </div>
+
+            <!-- Download Controls Section -->
+            <div class="download-controls-section">
+                <!-- Quality Selector -->
+                <div class="quality-selector">
+                    <div class="quality-label">🎯 Download Quality</div>
+                    <div class="quality-slider-container">
+                        <input type="range" min="1" max="20" value="4" class="quality-slider" id="qualitySlider"
+                            oninput="updateQualityValue()">
+                        <span class="quality-value" id="qualityValue">4x</span>
+                    </div>
+                    <div class="range-value">
+                        <span id="estimatedSize">Estimated: ~2 MB</span>
+                    </div>
+                </div>
+
+                <!-- Download Options -->
+                <div class="download-options">
+                    <button class="download-option-btn both" onclick="showDownloadModal('both')">⬇ Both Sides (ZIP)</button>
+                    <button class="download-option-btn front" onclick="showDownloadModal('front')">⬇ Front Only</button>
+                    <button class="download-option-btn back" onclick="showDownloadModal('back')">⬇ Back Only</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+           <button class="backbtn" onclick="goBack()">Back</button>
+
+            <!-- Toolbar -->
+            <div class="panel" id="toolbarPanel">
+                <h3>Element Properties</h3>
+                <div id="noSelection" class="empty-state">
+                    Select an element to edit its properties
+                </div>
+                <div id="elementProperties" class="hidden"></div>
+            </div>
+
+            <!-- Layers -->
+            <div class="panel">
+                <h3>Layers (<span id="layerCount">0</span>)</h3>
+                <div id="layersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+        function goBack() {
+            window.location.href = "template.html";
+        }
+        
+        // Variables for modal functionality
+        let currentDownloadMode = null;
+        let userInfo = {
+            fullName: '',
+            phone: '',
+            address: ''
+        };
+
+        // Export data
+        let exportData = {
+            accessType: '',
+            templateName: '',
+            service: '',
+            exportType: 'both'
+        };
+
+        // API endpoint - FIXED: Use CORS proxy
+        const API_ENDPOINT = `http://192.168.20.103:80/skynetwork/admin/action/templates.php`;
+
+        // Fixed Zoom functionality
+        let zoomLevel = 1;
+        const minZoom = 0.25;
+        const maxZoom = 3;
+        const zoomStep = 0.25;
+
+        // Quality settings
+        let downloadQuality = 4; // Default 4x scale
+
+        // State Management
+        let state = {
+            front: {
+                elements: [],
+                background: '#ffffff',
+                backgroundImage: null,
+                width: 700,
+                height: 450
+            },
+            back: {
+                elements: [],
+                background: '#ffffff',
+                backgroundImage: null,
+                width: 700,
+                height: 450
+            },
+            activeSide: 'front',
+            selectedElement: null,
+            orientation: 'horizontal', // 'horizontal' or 'vertical'
+            history: {
+                front: [],
+                back: []
+            },
+            historyIndex: {
+                front: -1,
+                back: -1
+            }
+        };
+
+        let isDragging = false;
+        let isResizing = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let resizeStartData = null;
+
+        // FLAG TO PREVENT DOUBLE EXECUTION
+        let isExporting = false;
+
+        // Function to get app_id from localStorage
+        function getAppId() {
+            try {
+                // Try to get app_id from localStorage
+                const appId = localStorage.getItem('app_id');
+                if (appId) {
+                    return appId;
+                }
+                
+                // If not found, check if user info exists and use phone number as app_id
+                const savedUserInfo = localStorage.getItem('idCardUserInfo');
+                if (savedUserInfo) {
+                    const userInfo = JSON.parse(savedUserInfo);
+                    if (userInfo.phone) {
+                        // Save phone as app_id for future use
+                        localStorage.setItem('app_id', userInfo.phone);
+                        return userInfo.phone;
+                    }
+                }
+                
+                // If still not found, generate a random app_id
+                const randomAppId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('app_id', randomAppId);
+                return randomAppId;
+                
+            } catch (e) {
+                console.error('Error getting app_id:', e);
+                // Generate a fallback app_id
+                return 'app_' + Date.now();
+            }
+        }
+
+        // Modal functions for user info
+        function showDownloadModal(mode) {
+            currentDownloadMode = mode;
+            loadSavedUserInfo();
+            document.getElementById('userInfoModal').classList.add('active');
+            validateForm();
+        }
+
+        function closeUserModal() {
+            document.getElementById('userInfoModal').classList.remove('active');
+            clearErrors();
+            resetForm();
+        }
+
+        // NEW: Export Elements Modal functions
+        function showExportElementsModal() {
+            loadSavedExportData();
+            document.getElementById('exportElementsModal').classList.add('active');
+            validateExportForm();
+        }
+
+        function closeExportElementsModal() {
+            document.getElementById('exportElementsModal').classList.remove('active');
+            clearExportErrors();
+            // Reset export flag when modal closes
+            isExporting = false;
+            const exportBtn = document.getElementById('exportElementsBtn');
+            exportBtn.disabled = false;
+            exportBtn.textContent = 'Export & Download';
+        }
+
+        function selectRadio(radioElement) {
+            // Remove selected class from all radio options
+            const allRadios = document.querySelectorAll('#accessTypeGroup .radio-option');
+            allRadios.forEach(radio => {
+                radio.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            radioElement.classList.add('selected');
+            const radioInput = radioElement.querySelector('input[type="radio"]');
+            radioInput.checked = true;
+            
+            validateExportForm();
+        }
+
+        function selectExportType(radioElement) {
+            // Remove selected class from all export type options
+            const allExportTypes = document.querySelectorAll('input[name="exportType"]').forEach(input => {
+                input.parentElement.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            radioElement.classList.add('selected');
+            
+            validateExportForm();
+        }
+
+        function loadSavedExportData() {
+            const savedData = localStorage.getItem('idCardExportData');
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    // Set template name
+                    if (parsedData.templateName) {
+                        document.getElementById('templateNameInput').value = parsedData.templateName;
+                    }
+                    
+                    // Set service
+                    if (parsedData.service) {
+                        document.getElementById('serviceSelect').value = parsedData.service;
+                    }
+                    
+                    // Set access type
+                    if (parsedData.accessType) {
+                        const radios = document.querySelectorAll('input[name="accessType"]');
+                        radios.forEach(radio => {
+                            if (radio.value === parsedData.accessType) {
+                                radio.checked = true;
+                                radio.parentElement.classList.add('selected');
+                            }
+                        });
+                    }
+                    
+                    // Set export type
+                    if (parsedData.exportType) {
+                        const exportRadios = document.querySelectorAll('input[name="exportType"]');
+                        exportRadios.forEach(radio => {
+                            if (radio.value === parsedData.exportType) {
+                                radio.checked = true;
+                                radio.parentElement.classList.add('selected');
+                            }
+                        });
+                    }
+                    
+                    validateExportForm();
+                } catch (e) {
+                    console.error('Error loading saved export data:', e);
+                }
+            }
+        }
+
+        function saveExportDataToLocalStorage() {
+            try {
+                localStorage.setItem('idCardExportData', JSON.stringify(exportData));
+                console.log('Export data saved to localStorage');
+            } catch (e) {
+                console.error('Error saving export data:', e);
+            }
+        }
+
+        // Validation for export form
+        function validateExportForm() {
+            const templateName = document.getElementById('templateNameInput').value.trim();
+            const service = document.getElementById('serviceSelect').value;
+            const accessType = document.querySelector('input[name="accessType"]:checked');
+            const exportType = document.querySelector('input[name="exportType"]:checked');
+            
+            let isValid = true;
+
+            // Validate template name
+            const templateNameError = document.getElementById('templateNameError');
+            const templateNameInput = document.getElementById('templateNameInput');
+            if (!templateName) {
+                templateNameError.classList.add('show');
+                templateNameInput.classList.add('error');
+                isValid = false;
+            } else {
+                templateNameError.classList.remove('show');
+                templateNameInput.classList.remove('error');
+            }
+
+            // Validate service
+            const serviceError = document.getElementById('serviceError');
+            const serviceSelect = document.getElementById('serviceSelect');
+            if (!service) {
+                serviceError.classList.add('show');
+                serviceSelect.classList.add('error');
+                isValid = false;
+            } else {
+                serviceError.classList.remove('show');
+                serviceSelect.classList.remove('error');
+            }
+
+            // Validate access type
+            const accessTypeError = document.getElementById('accessTypeError');
+            if (!accessType) {
+                accessTypeError.classList.add('show');
+                isValid = false;
+            } else {
+                accessTypeError.classList.remove('show');
+            }
+
+            // Enable/disable export button
+            const exportBtn = document.getElementById('exportElementsBtn');
+            exportBtn.disabled = !isValid || isExporting;
+
+            return isValid;
+        }
+
+        function clearExportErrors() {
+            document.querySelectorAll('#exportElementsModal .error-message').forEach(el => {
+                el.classList.remove('show');
+            });
+            document.querySelectorAll('#exportElementsModal .form-input').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+
+        // FIXED: Handle export click with double execution prevention
+        function handleExportClick(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // Prevent double execution
+            if (isExporting) {
+                console.log('Already exporting, please wait...');
+                return;
+            }
+            
+            // Validate form
+            if (!validateExportForm()) {
+                return;
+            }
+            
+            exportElementsToAPI();
+        }
+
+        // Main function to export elements to API and download JSON - FIXED
+        async function exportElementsToAPI() {
+            // Prevent double execution
+            if (isExporting) {
+                console.log('Already exporting, please wait...');
+                return;
+            }
+            
+            if (!validateExportForm()) {
+                return;
+            }
+
+            // Set flag to prevent double execution
+            isExporting = true;
+            const exportBtn = document.getElementById('exportElementsBtn');
+            exportBtn.disabled = true;
+            exportBtn.textContent = 'Exporting...';
+
+            // Get export data from form
+            const accessType = document.querySelector('input[name="accessType"]:checked');
+            const exportType = document.querySelector('input[name="exportType"]:checked');
+            
+            exportData = {
+                accessType: accessType ? accessType.value : '',
+                templateName: document.getElementById('templateNameInput').value.trim(),
+                service: document.getElementById('serviceSelect').value,
+                exportType: exportType ? exportType.value : 'both'
+            };
+
+            // Save export data to localStorage
+            saveExportDataToLocalStorage();
+
+            // Get app_id from localStorage
+            const app_id = getAppId();
+            console.log('Using App ID from localStorage:', app_id);
+
+            // Show loading
+            showLoading();
+            updateLoadingText('Preparing export data...');
+
+            try {
+                // Prepare canvas images
+                updateLoadingText('Capturing canvas images...');
+                
+                // Temporarily set state for capturing
+                const originalSide = state.activeSide;
+                const originalZoom = zoomLevel;
+                zoomLevel = 1;
+                updateZoomDisplay();
+                
+                // Capture front side image if needed
+                let frontImageBase64 = '';
+                let backImageBase64 = '';
+                
+                if (exportData.exportType === 'both' || exportData.exportType === 'front') {
+                    updateLoadingText('Processing front side...');
+                    state.activeSide = 'front';
+                    state.selectedElement = null;
+                    renderCanvas();
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    const frontCanvas = document.getElementById('frontCanvas');
+                    const frontImage = await html2canvas(frontCanvas, {
+                        backgroundColor: null,
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        imageTimeout: 0
+                    });
+                    frontImageBase64 = frontImage.toDataURL('image/png', 0.8);
+                }
+                
+                if (exportData.exportType === 'both' || exportData.exportType === 'back') {
+                    updateLoadingText('Processing back side...');
+                    state.activeSide = 'back';
+                    state.selectedElement = null;
+                    renderCanvas();
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    const backCanvas = document.getElementById('backCanvas');
+                    const backImage = await html2canvas(backCanvas, {
+                        backgroundColor: null,
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        imageTimeout: 0
+                    });
+                    backImageBase64 = backImage.toDataURL('image/png', 0.8);
+                }
+                
+                // Restore original state
+                state.activeSide = originalSide;
+                zoomLevel = originalZoom;
+                updateZoomDisplay();
+                renderCanvas();
+                
+                // Prepare elements data based on export type
+                let elementsData = {};
+                
+                if (exportData.exportType === 'both') {
+                    elementsData = {
+                        front: state.front.elements,
+                        back: state.back.elements
+                    };
+                } else if (exportData.exportType === 'front') {
+                    elementsData = {
+                        front: state.front.elements
+                    };
+                } else if (exportData.exportType === 'back') {
+                    elementsData = {
+                        back: state.back.elements
+                    };
+                }
+
+                // Prepare the final payload in your exact format
+                const finalPayload = {
+                    app_id: app_id,
+                    action: "insert",
+                    exportData: exportData,
+                    elements: elementsData,
+                    canvasSize: {
+                        width: state.front.width,
+                        height: state.front.height
+                    }
+                };
+
+                console.log('Final Payload:', finalPayload);
+
+                // Send to API with retry logic
+                updateLoadingText('Sending data to API...');
+                
+                // Send to API (SINGLE REQUEST ONLY)
+updateLoadingText('Sending data to API...');
+
+let success = false;
+let result = null;
+
+try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    console.count('API POST SENT'); // ✅ debug – should log ONCE
+
+    const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalPayload),
+        signal: controller.signal,
+        mode: 'cors'
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+        throw new Error(`API request failed with status: ${response.status}`);
+    }
+
+    result = await response.json();
+    console.log('API Response:', result);
+
+    success = true;
+
+} catch (apiError) {
+    console.error('API Error:', apiError);
+}
+
+
+                // Always download JSON file locally, regardless of API success
+                updateLoadingText('Downloading JSON file...');
+                
+                // Prepare complete payload for local download
+                const localPayload = {
+                    ...finalPayload,
+                    version: "1.0.0",
+                    exportDate: new Date().toISOString(),
+                    sentToAPI: success,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Add API response if available
+                if (result) {
+                    localPayload.apiResponse = result;
+                }
+
+                // Add template images to payload
+                if (frontImageBase64) {
+                    localPayload.templateFrontImage = frontImageBase64;
+                }
+                if (backImageBase64) {
+                    localPayload.templateBackImage = backImageBase64;
+                }
+
+                // Download JSON file
+                downloadJSONFile(localPayload);
+                
+                // Also create a zip file with images and JSON
+                // await downloadExportAsZip(localPayload, frontImageBase64, backImageBase64);
+
+                // Close modal
+                closeExportElementsModal();
+                
+                if (success) {
+                    // Show success message
+                    alert(`✅ Template "${exportData.templateName}" exported successfully!\n\n✅ Data sent to API\n✅ JSON file downloaded locally`);
+                } else {
+                    // Show warning message
+                    alert(`⚠️ Template "${exportData.templateName}" saved locally.\n\nAPI Error: ${apiError?.message || 'Connection failed'}\n\nJSON file has been downloaded locally.`);
+                }
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                
+                // Prepare fallback local payload
+                updateLoadingText('Error occurred, downloading locally...');
+                
+                // Get elements data for local download
+                let elementsData = {};
+                if (exportData.exportType === 'both') {
+                    elementsData = {
+                        front: state.front.elements,
+                        back: state.back.elements
+                    };
+                } else if (exportData.exportType === 'front') {
+                    elementsData = {
+                        front: state.front.elements
+                    };
+                } else if (exportData.exportType === 'back') {
+                    elementsData = {
+                        back: state.back.elements
+                    };
+                }
+                
+                // Prepare local payload
+                const localPayload = {
+                    app_id: app_id || 'local_' + Date.now(),
+                    action: "insert",
+                    exportData: exportData,
+                    elements: elementsData,
+                    canvasSize: {
+                        width: state.front.width,
+                        height: state.front.height
+                    },
+                    version: "1.0.0",
+                    exportDate: new Date().toISOString(),
+                    sentToAPI: false,
+                    apiError: error.message,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Add template images to payload if they exist
+                if (frontImageBase64) {
+                    localPayload.templateFrontImage = frontImageBase64;
+                }
+                if (backImageBase64) {
+                    localPayload.templateBackImage = backImageBase64;
+                }
+
+                downloadJSONFile(localPayload);
+                await downloadExportAsZip(localPayload, frontImageBase64, backImageBase64);
+                
+                closeExportElementsModal();
+                alert(`⚠️ Template "${exportData.templateName}" saved locally.\n\nError: ${error.message}\n\nJSON file has been downloaded locally.`);
+            } finally {
+                hideLoading();
+                // Reset export flag
+                isExporting = false;
+            }
+        }
+
+        // New function to download everything as ZIP
+        async function downloadExportAsZip(payload, frontImageBase64, backImageBase64) {
+            updateLoadingText('Creating complete export package...');
+            
+            const zip = new JSZip();
+            
+            // Add JSON data
+            const jsonString = JSON.stringify(payload, null, 2);
+            zip.file("template-data.json", jsonString);
+            
+            // Add images if they exist
+            if (frontImageBase64) {
+                const frontBase64 = frontImageBase64.split(',')[1];
+                zip.file("template-front.png", frontBase64, { base64: true });
+            }
+            
+            if (backImageBase64) {
+                const backBase64 = backImageBase64.split(',')[1];
+                zip.file("template-back.png", backBase64, { base64: true });
+            }
+            
+            // Add readme file
+            const readme = `Template Export Package
+=====================
+
+Template: ${exportData.templateName}
+Service: ${exportData.service}
+Access Type: ${exportData.accessType}
+Export Type: ${exportData.exportType}
+Export Date: ${new Date().toISOString()}
+App ID: ${payload.app_id}
+
+Files included:
+1. template-data.json - Complete template data in API format
+2. template-front.png - Front side preview (if applicable)
+3. template-back.png - Back side preview (if applicable)
+
+API Endpoint: ${API_ENDPOINT}
+API Format Sent:
+---------------
+${JSON.stringify({
+    app_id: payload.app_id,
+    action: "insert",
+    exportData: payload.exportData,
+    elements: payload.elements,
+    canvasSize: payload.canvasSize
+}, null, 2)}`;
+            
+            zip.file("README.txt", readme);
+            
+            updateLoadingText('Finalizing ZIP download...');
+            const content = await zip.generateAsync({
+                type: "blob",
+                compression: "STORE",
+                compressionOptions: { level: 0 }
+            });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `template-${exportData.templateName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${Date.now()}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Enhanced downloadJSONFile function
+        function downloadJSONFile(data) {
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `template-${exportData.templateName || 'template'}-${Date.now()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('JSON file downloaded with app_id:', data.app_id);
+        }
+
+        // Update UI function
+        function updateUI() {
+            renderCanvas();
+            renderLayers();
+            renderToolbar();
+            updateUndoRedoButtons();
+            updateEstimatedSize();
+        }
+
+        // Update zoom display
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+            document.getElementById('canvasWrapper').style.transform = `scale(${zoomLevel})`;
+
+            // Disable buttons at limits
+            document.getElementById('zoomOutBtn').disabled = zoomLevel <= minZoom;
+            document.getElementById('zoomInBtn').disabled = zoomLevel >= maxZoom;
+        }
+
+        // Update quality value display
+        function updateQualityValue() {
+            downloadQuality = parseInt(document.getElementById('qualitySlider').value);
+            document.getElementById('qualityValue').textContent = downloadQuality + 'x';
+            updateEstimatedSize();
+        }
+
+        // Update estimated file size
+        function updateEstimatedSize() {
+            const side = state.activeSide;
+            const canvasState = state[side];
+            const baseSize = (canvasState.width * canvasState.height) / 1000000; // MP
+            const scaledSize = baseSize * (downloadQuality * downloadQuality);
+            const estimatedSizeMB = Math.min(scaledSize * 0.5, 1024); // Conservative estimate
+            const estimatedSizeGB = estimatedSizeMB / 1024;
+
+            let sizeText;
+            if (estimatedSizeGB >= 1) {
+                sizeText = `Estimated: ~${estimatedSizeGB.toFixed(1)} GB`;
+            } else {
+                sizeText = `Estimated: ~${Math.round(estimatedSizeMB)} MB`;
+            }
+
+            document.getElementById('estimatedSize').textContent = sizeText;
+
+            // Show warning for large sizes
+            const warning = document.getElementById('sizeWarning');
+            if (scaledSize > 100) {
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        // Zoom in
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel = Math.min(maxZoom, zoomLevel + zoomStep);
+                updateZoomDisplay();
+            }
+        }
+
+        // Zoom out
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel = Math.max(minZoom, zoomLevel - zoomStep);
+                updateZoomDisplay();
+            }
+        }
+
+        // Reset zoom
+        function resetZoom() {
+            zoomLevel = 1;
+            updateZoomDisplay();
+        }
+
+        // Canvas border radius
+        function updateRadius(value) {
+            document.querySelectorAll('.canvas').forEach(canvas => {
+                canvas.style.borderRadius = value + 'px';
+            });
+            document.getElementById('radiusValue').innerText = value;
+        }
+
+        // Initialize
+        function init() {
+            // Add input event listeners for real-time validation
+            document.getElementById('fullNameInput').addEventListener('input', validateForm);
+            document.getElementById('phoneInput').addEventListener('input', validateForm);
+            document.getElementById('addressInput').addEventListener('input', validateForm);
+
+            // Initialize export modal event listeners
+            initExportModal();
+
+            // Allow pressing Enter to save in modal
+            document.getElementById('userInfoModal').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && !document.getElementById('saveBtn').disabled) {
+                    saveUserInfo();
+                }
+            });
+
+            // Add orientation class to body
+            updateOrientationClass();
+
+            // Get app_id from localStorage on init
+            const appId = getAppId();
+            console.log('App ID on init:', appId);
+
+            saveToHistory();
+            updateUI();
+            updateZoomDisplay();
+            updateQualityValue();
+
+            // Click outside elements to deselect
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('canvas')) {
+                    state.selectedElement = null;
+                    updateUI();
+                }
+            });
+
+            // Update size estimate when canvas size changes
+            document.getElementById('canvasWidth').addEventListener('input', updateEstimatedSize);
+            document.getElementById('canvasHeight').addEventListener('input', updateEstimatedSize);
+
+            // Adjust canvas area for orientation
+            adjustCanvasAreaForOrientation();
+            
+            // Prevent form submission
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                });
+            });
+        }
+
+        // NEW FUNCTION: Update orientation class on body
+        function updateOrientationClass() {
+            if (state.orientation === 'vertical') {
+                document.body.classList.add('vertical-orientation');
+            } else {
+                document.body.classList.remove('vertical-orientation');
+            }
+        }
+
+        // NEW FUNCTION: Adjust canvas area layout based on orientation
+        function adjustCanvasAreaForOrientation() {
+            const canvasContentWrapper = document.querySelector('.canvas-content-wrapper');
+            
+            if (state.orientation === 'vertical') {
+                // For vertical orientation, make canvas area scrollable
+                canvasContentWrapper.style.maxHeight = 'calc(100vh - 280px)';
+                canvasContentWrapper.style.overflowY = 'auto';
+            } else {
+                // Reset for horizontal
+                canvasContentWrapper.style.maxHeight = '';
+                canvasContentWrapper.style.overflowY = '';
+            }
+        }
+
+        // Orientation Management - FIXED VERTICAL/HORIZONTAL
+        function setOrientation(orientation) {
+            state.orientation = orientation;
+
+            // Update UI buttons
+            document.getElementById('horizontalBtn').classList.toggle('active', orientation === 'horizontal');
+            document.getElementById('verticalBtn').classList.toggle('active', orientation === 'vertical');
+
+            // Update orientation class
+            updateOrientationClass();
+
+            // Update size based on orientation
+            if (orientation === 'vertical') {
+                setCanvasSize(450, 700);
+            } else {
+                setCanvasSize(700, 450);
+            }
+
+            // Adjust canvas area layout
+            adjustCanvasAreaForOrientation();
+        }
+
+        // Unified canvas size function
+        function setCanvasSize(width, height) {
+            // Update both sides
+            ['front', 'back'].forEach(side => {
+                state[side].width = width;
+                state[side].height = height;
+            });
+
+            // Update manual input fields
+            document.getElementById('canvasWidth').value = width;
+            document.getElementById('canvasHeight').value = height;
+
+            saveToHistory();
+            updateUI();
+            updateEstimatedSize();
+        }
+
+        // Apply manual size
+        function applyCanvasSize() {
+            let w = parseInt(document.getElementById("canvasWidth").value);
+            let h = parseInt(document.getElementById("canvasHeight").value);
+
+            if (w <= 0 || h <= 0 || isNaN(w) || isNaN(h)) {
+                alert("Please enter valid width and height (greater than 0)");
+                return;
+            }
+
+            if (w > 10000 || h > 10000) {
+                if (!confirm("Sizes above 10000px may cause performance issues. Continue?")) {
+                    return;
+                }
+            }
+
+            setCanvasSize(w, h);
+        }
+
+        // History Management - FIXED FOR BOTH SIDES
+        function saveToHistory() {
+            const side = state.activeSide;
+            const currentState = JSON.parse(JSON.stringify(state[side]));
+
+            state.history[side] = state.history[side].slice(0, state.historyIndex[side] + 1);
+            state.history[side].push(currentState);
+            state.historyIndex[side] = state.history[side].length - 1;
+
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            const side = state.activeSide;
+            if (state.historyIndex[side] > 0) {
+                state.historyIndex[side]--;
+                state[side] = JSON.parse(JSON.stringify(state.history[side][state.historyIndex[side]]));
+                state.selectedElement = null;
+                updateUI();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function redo() {
+            const side = state.activeSide;
+            if (state.historyIndex[side] < state.history[side].length - 1) {
+                state.historyIndex[side]++;
+                state[side] = JSON.parse(JSON.stringify(state.history[side][state.historyIndex[side]]));
+                state.selectedElement = null;
+                updateUI();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            const side = state.activeSide;
+            document.getElementById('undoBtn').disabled = state.historyIndex[side] <= 0;
+            document.getElementById('redoBtn').disabled = state.historyIndex[side] >= state.history[side].length - 1;
+        }
+
+        // Side Management
+        function switchSide(side) {
+            state.activeSide = side;
+            state.selectedElement = null;
+
+            // Update UI
+            document.getElementById('frontSideBtn').classList.toggle('active', side === 'front');
+            document.getElementById('backSideBtn').classList.toggle('active', side === 'back');
+            document.getElementById('frontCanvas').classList.toggle('hidden', side !== 'front');
+            document.getElementById('backCanvas').classList.toggle('hidden', side !== 'back');
+            document.getElementById('sideIndicator').textContent = side === 'front' ? '📄 Front Side' : '📄 Back Side';
+
+            updateUI();
+            updateUndoRedoButtons();
+        }
+
+        // Add Elements - Updated with new features
+        function addText(text) {
+            if (!text) return;
+            const element = {
+                id: Date.now().toString(),
+                type: 'text',
+                content: text,
+                x: 50,
+                y: 50,
+                fontSize: 24,
+                color: '#333333',
+                fontWeight: 'normal',
+                fontStyle: 'normal',
+                textTransform: 'none',
+                textAlign: 'left',
+                textShadow: '',
+                opacity: 1,
+                width: 250,
+                rotation: 0,
+
+                // NEW TEXT FEATURES
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: 'normal',
+                lineHeight: 'normal',
+                textDecoration: 'none',
+                textBackgroundColor: 'transparent',
+                textBorderWidth: 0,
+                textBorderColor: '#000000',
+                textBorderRadius: 0,
+                textPadding: 5,
+                textShadowColor: '#000000',
+                textShadowBlur: 0,
+                textShadowX: 0,
+                textShadowY: 0,
+                textGradient: false,
+                gradientStart: '#3b82f6',
+                gradientEnd: '#ec4899',
+                gradientAngle: 90,
+                textStrokeWidth: 0,
+                textStrokeColor: '#000000',
+                textEffect: 'none',
+                textOverflow: 'visible'
+            };
+            state[state.activeSide].elements.push(element);
+            state.selectedElement = element.id;
+            saveToHistory();
+            updateUI();
+        }
+
+        function addCustomText() {
+            const input = document.getElementById('textInput');
+            if (input.value.trim()) {
+                addText(input.value);
+                input.value = '';
+            }
+        }
+
+        function addImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                event.target.value = '';
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) { // Increased to 50MB for high quality
+                alert('Image size should be less than 50MB');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const element = {
+                    id: Date.now().toString(),
+                    type: 'image',
+                    content: e.target.result,
+                    x: 50,
+                    y: 50,
+                    width: 140,
+                    height: 160,
+                    borderRadius: 0,
+                    borderWidth: 0,
+                    borderColor: '#000000',
+                    filter: 'none',
+                    boxShadow: false,
+                    opacity: 1,
+                    rotation: 0,
+
+                    // NEW IMAGE FEATURES
+                    imageFilter: 'none',
+                    brightness: 100,
+                    contrast: 100,
+                    saturate: 100,
+                    hueRotate: 0,
+                    blur: 0,
+                    sepia: 0,
+                    invert: 0,
+                    grayscale: 0,
+                    opacityFilter: 100,
+                    dropShadow: false,
+                    shadowColor: '#000000',
+                    shadowBlur: 10,
+                    shadowX: 0,
+                    shadowY: 0,
+                    blendMode: 'normal',
+                    imageOverlay: false,
+                    overlayColor: 'rgba(0,0,0,0.5)',
+                    imageMask: 'none',
+                    maskColor: '#000000',
+                    imageReflection: false,
+                    reflectionOpacity: 30,
+                    reflectionDistance: 10,
+                    imageTilt: 0,
+                    imageZoom: 100
+                };
+                state[state.activeSide].elements.push(element);
+                state.selectedElement = element.id;
+                saveToHistory();
+                updateUI();
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function addQRCode() {
+            const input = document.getElementById('qrInput');
+            if (!input.value.trim()) return;
+
+            QRCode.toDataURL(input.value, { width: 150 }, (err, url) => {
+                if (err) {
+                    console.error("QR Generation Error:", err);
+                    alert("Error generating QR code");
+                    return;
+                }
+
+                const element = {
+                    id: Date.now().toString(),
+                    type: 'image',
+                    content: url,
+                    x: 50,
+                    y: 50,
+                    width: 150,
+                    height: 150,
+                    borderRadius: 0,
+                    borderWidth: 0,
+                    borderColor: '#000000',
+                    filter: 'none',
+                    boxShadow: false,
+                    opacity: 1,
+                    rotation: 0,
+
+                    // QR Code specific features
+                    qrColor: '#000000',
+                    qrBackground: '#ffffff',
+                    qrMargin: 4,
+                    qrSize: 150
+                };
+
+                state[state.activeSide].elements.push(element);
+                state.selectedElement = element.id;
+                saveToHistory();
+                updateUI();
+            });
+
+            input.value = '';
+        }
+
+        function addBarcode() {
+            const input = document.getElementById('barcodeInput');
+            if (!input.value.trim()) return;
+
+            const canvas = document.createElement('canvas');
+
+            try {
+                JsBarcode(canvas, input.value, {
+                    format: "CODE128",
+                    width: 2,
+                    height: 80,
+                    displayValue: true
+                });
+
+                const element = {
+                    id: Date.now().toString(),
+                    type: 'image',
+                    content: canvas.toDataURL(),
+                    x: 50,
+                    y: 50,
+                    width: 200,
+                    height: 100,
+                    borderRadius: 0,
+                    borderWidth: 0,
+                    borderColor: '#000000',
+                    filter: 'none',
+                    boxShadow: false,
+                    opacity: 1,
+                    rotation: 0,
+
+                    // Barcode specific features
+                    barcodeColor: '#000000',
+                    barcodeBackground: '#ffffff',
+                    barcodeWidth: 2,
+                    barcodeHeight: 80,
+                    showText: true,
+                    textColor: '#000000',
+                    textSize: 14
+                };
+
+                state[state.activeSide].elements.push(element);
+                state.selectedElement = element.id;
+                saveToHistory();
+                updateUI();
+            } catch (err) {
+                console.error("Barcode Error:", err);
+                alert("Invalid barcode data");
+            }
+
+            input.value = '';
+        }
+
+        // Canvas Settings
+        function changeCanvasBackground() {
+            const color = document.getElementById('bgColorInput').value;
+            state[state.activeSide].background = color;
+            state[state.activeSide].backgroundImage = null;
+            saveToHistory();
+            updateUI();
+        }
+
+        // Canvas background color update from toolbar
+        function updateCanvasBackground(color) {
+            state[state.activeSide].background = color;
+            state[state.activeSide].backgroundImage = null;
+            document.getElementById('bgColorInput').value = color;
+            saveToHistory();
+            updateUI();
+        }
+
+        // Remove background image
+        function removeBackgroundImage() {
+            state[state.activeSide].backgroundImage = null;
+            state[state.activeSide].background = '#ffffff';
+            document.getElementById('bgColorInput').value = '#ffffff';
+            saveToHistory();
+            updateUI();
+        }
+
+        function addBackgroundImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                event.target.value = '';
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) { // Increased to 50MB
+                alert('Image size should be less than 50MB');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state[state.activeSide].backgroundImage = e.target.result;
+                // Clear background color when using image
+                state[state.activeSide].background = 'transparent';
+                document.getElementById('bgColorInput').value = '#ffffff';
+                saveToHistory();
+                updateUI();
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        // Element Management
+        function updateElement(id, updates) {
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            if (element) {
+                Object.assign(element, updates);
+                saveToHistory();
+                updateUI();
+            }
+        }
+
+        function deleteElement(id) {
+            state[state.activeSide].elements = state[state.activeSide].elements.filter(el => el.id !== id);
+            if (state.selectedElement === id) {
+                state.selectedElement = null;
+            }
+            saveToHistory();
+            updateUI();
+        }
+
+        function duplicateElement(id) {
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            if (element) {
+                const newElement = JSON.parse(JSON.stringify(element));
+                newElement.id = Date.now().toString();
+                newElement.x += 20;
+                newElement.y += 20;
+                state[state.activeSide].elements.push(newElement);
+                state.selectedElement = newElement.id;
+                saveToHistory();
+                updateUI();
+            }
+        }
+
+        // Render Functions - Updated with new features
+        function renderCanvas() {
+            const side = state.activeSide;
+            const canvas = document.getElementById(side + 'Canvas');
+            const canvasState = state[side];
+
+            canvas.style.width = canvasState.width + 'px';
+            canvas.style.height = canvasState.height + 'px';
+
+            // Add vertical canvas class
+            if (state.orientation === 'vertical') {
+                canvas.classList.add('vertical-canvas');
+            } else {
+                canvas.classList.remove('vertical-canvas');
+            }
+
+            if (canvasState.backgroundImage) {
+                canvas.style.backgroundImage = `url(${canvasState.backgroundImage})`;
+                canvas.style.backgroundSize = 'cover';
+                canvas.style.backgroundPosition = 'center';
+                canvas.style.backgroundRepeat = 'no-repeat';
+                canvas.style.backgroundColor = 'transparent';
+            } else {
+                canvas.style.backgroundImage = 'none';
+                canvas.style.backgroundColor = canvasState.background;
+            }
+
+            canvas.innerHTML = '';
+
+            canvasState.elements.forEach(element => {
+                const div = document.createElement('div');
+                div.className = 'canvas-element' + (state.selectedElement === element.id ? ' selected' : '');
+                div.style.left = element.x + 'px';
+                div.style.top = element.y + 'px';
+                div.style.opacity = element.opacity || 1;
+                div.style.transform = `rotate(${element.rotation || 0}deg)`;
+                div.style.zIndex = state[state.activeSide].elements.indexOf(element);
+                div.dataset.id = element.id;
+
+                if (element.type === 'text') {
+                    // Apply text styles
+                    div.style.fontSize = element.fontSize + 'px';
+                    div.style.color = element.color;
+                    div.style.fontWeight = element.fontWeight;
+                    div.style.fontStyle = element.fontStyle;
+                    div.style.textTransform = element.textTransform;
+                    div.style.textAlign = element.textAlign;
+                    div.style.fontFamily = element.fontFamily || "'Inter', sans-serif";
+                    div.style.letterSpacing = element.letterSpacing || 'normal';
+                    div.style.lineHeight = element.lineHeight || 'normal';
+                    div.style.textDecoration = element.textDecoration || 'none';
+                    div.style.whiteSpace = 'pre-wrap';
+                    div.style.width = element.width + 'px';
+                    div.style.minWidth = '100px';
+                    div.style.padding = (element.textPadding || 5) + 'px';
+
+                    // Apply text background
+                    if (element.textBackgroundColor !== 'transparent') {
+                        div.style.backgroundColor = element.textBackgroundColor;
+                        div.style.borderRadius = (element.textBorderRadius || 0) + 'px';
+                        if (element.textBorderWidth > 0) {
+                            div.style.border = `${element.textBorderWidth}px solid ${element.textBorderColor}`;
+                        }
+                    }
+
+                    // Apply text shadow
+                    if (element.textShadow && element.textShadow !== 'none') {
+                        const shadowX = element.textShadowX || 0;
+                        const shadowY = element.textShadowY || 0;
+                        const shadowBlur = element.textShadowBlur || 0;
+                        const shadowColor = element.textShadowColor || '#000000';
+                        div.style.textShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px ${shadowColor}`;
+                    }
+
+                    // Apply gradient text
+                    if (element.textGradient) {
+                        const gradientAngle = element.gradientAngle || 90;
+                        div.style.background = `linear-gradient(${gradientAngle}deg, ${element.gradientStart}, ${element.gradientEnd})`;
+                        div.style.webkitBackgroundClip = 'text';
+                        div.style.webkitTextFillColor = 'transparent';
+                        div.style.backgroundClip = 'text';
+                    }
+
+                    // Apply text stroke
+                    if (element.textStrokeWidth > 0) {
+                        div.style.webkitTextStroke = `${element.textStrokeWidth}px ${element.textStrokeColor}`;
+                        div.style.textStroke = `${element.textStrokeWidth}px ${element.textStrokeColor}`;
+                    }
+
+                    // Apply text effects
+                    if (element.textEffect === 'outline') {
+                        div.style.textShadow = `-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000`;
+                    } else if (element.textEffect === 'glow') {
+                        div.style.textShadow = `0 0 10px ${element.color}, 0 0 20px ${element.color}`;
+                    } else if (element.textEffect === 'neon') {
+                        div.style.textShadow = `0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff00de`;
+                    }
+
+                    div.textContent = element.content;
+                }
+                else if (element.type === 'image') {
+                    div.style.width = element.width + 'px';
+                    div.style.height = element.height + 'px';
+                    const img = document.createElement('img');
+                    img.src = element.content;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    img.style.borderRadius = (element.borderRadius || 0) + 'px';
+                    img.style.border = `${element.borderWidth || 0}px solid ${element.borderColor || '#000'}`;
+
+                    // Apply image filters
+                    let filterString = '';
+                    if (element.brightness !== 100) filterString += `brightness(${element.brightness}%) `;
+                    if (element.contrast !== 100) filterString += `contrast(${element.contrast}%) `;
+                    if (element.saturate !== 100) filterString += `saturate(${element.saturate}%) `;
+                    if (element.hueRotate !== 0) filterString += `hue-rotate(${element.hueRotate}deg) `;
+                    if (element.blur !== 0) filterString += `blur(${element.blur}px) `;
+                    if (element.sepia !== 0) filterString += `sepia(${element.sepia}%) `;
+                    if (element.invert !== 0) filterString += `invert(${element.invert}%) `;
+                    if (element.grayscale !== 0) filterString += `grayscale(${element.grayscale}%) `;
+                    if (element.opacityFilter !== 100) filterString += `opacity(${element.opacityFilter}%) `;
+
+                    img.style.filter = filterString.trim() || 'none';
+
+                    // Apply box shadow
+                    if (element.boxShadow || element.dropShadow) {
+                        const shadowColor = element.shadowColor || '#000000';
+                        const shadowBlur = element.shadowBlur || 10;
+                        const shadowX = element.shadowX || 0;
+                        const shadowY = element.shadowY || 0;
+                        img.style.boxShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px ${shadowColor}`;
+                    } else {
+                        img.style.boxShadow = 'none';
+                    }
+
+                    // Apply blend mode
+                    if (element.blendMode !== 'normal') {
+                        img.style.mixBlendMode = element.blendMode;
+                    }
+
+                    // Apply overlay
+                    if (element.imageOverlay) {
+                        const overlayDiv = document.createElement('div');
+                        overlayDiv.style.position = 'absolute';
+                        overlayDiv.style.top = '0';
+                        overlayDiv.style.left = '0';
+                        overlayDiv.style.width = '100%';
+                        overlayDiv.style.height = '100%';
+                        overlayDiv.style.backgroundColor = element.overlayColor || 'rgba(0,0,0,0.5)';
+                        overlayDiv.style.borderRadius = (element.borderRadius || 0) + 'px';
+                        div.appendChild(overlayDiv);
+                    }
+
+                    // Apply mask
+                    if (element.imageMask !== 'none') {
+                        if (element.imageMask === 'circle') {
+                            img.style.borderRadius = '50%';
+                        } else if (element.imageMask === 'triangle') {
+                            div.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+                        } else if (element.imageMask === 'star') {
+                            div.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                        }
+                    }
+
+                    // Apply tilt
+                    if (element.imageTilt !== 0) {
+                        img.style.transform = `perspective(1000px) rotateX(${element.imageTilt}deg) rotateY(${element.imageTilt}deg)`;
+                    }
+
+                    // Apply zoom
+                    if (element.imageZoom !== 100) {
+                        img.style.transform += ` scale(${element.imageZoom / 100})`;
+                    }
+
+                    div.appendChild(img);
+                }
+
+                div.addEventListener('mousedown', (e) => onElementMouseDown(e, element.id));
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    state.selectedElement = element.id;
+                    updateUI();
+                });
+
+                // Add resize handles for selected elements (except text)
+                if (state.selectedElement === element.id && element.type !== 'text') {
+                    ['nw', 'ne', 'sw', 'se'].forEach(corner => {
+                        const handle = document.createElement('div');
+                        handle.className = 'resize-handle ' + corner;
+                        handle.addEventListener('mousedown', (e) => onResizeMouseDown(e, element.id, corner));
+                        div.appendChild(handle);
+                    });
+                }
+
+                canvas.appendChild(div);
+            });
+        }
+
+        function renderLayers() {
+            const layersList = document.getElementById('layersList');
+            const elements = state[state.activeSide].elements;
+
+            document.getElementById('layerCount').textContent = elements.length;
+
+            if (elements.length === 0) {
+                layersList.innerHTML = '<div class="empty-state">No elements yet. Add some from the sidebar!</div>';
+                return;
+            }
+
+            layersList.innerHTML = '';
+            // Show in reverse order (top layers first)
+            [...elements].reverse().forEach(element => {
+                const div = document.createElement('div');
+                div.className = 'layer-item' + (state.selectedElement === element.id ? ' selected' : '');
+                div.onclick = () => {
+                    state.selectedElement = element.id;
+                    updateUI();
+                };
+
+                const icon = getElementIcon(element.type);
+                const name = getElementLabel(element);
+
+                div.innerHTML = `
+                    <span class="layer-icon">${icon}</span>
+                    <div class="layer-info">
+                        <div class="layer-name">${name}</div>
+                        <div class="layer-type">${element.type}</div>
+                    </div>
+                    <button class="layer-delete" onclick="event.stopPropagation(); deleteElement('${element.id}')">🗑️</button>
+                `;
+
+                layersList.appendChild(div);
+            });
+        }
+
+        function renderToolbar() {
+            const noSelection = document.getElementById('noSelection');
+            const properties = document.getElementById('elementProperties');
+
+            const element = state[state.activeSide].elements.find(el => el.id === state.selectedElement);
+
+            if (!element) {
+                noSelection.classList.add('hidden');
+                properties.classList.remove('hidden');
+
+                // Canvas background properties (when no element is selected)
+                let html = `
+                    <div class="property-group">
+                        <div class="property-label">Canvas Background Color</div>
+                        <input type="color" id="toolbarBgColor" value="${state[state.activeSide].background}" 
+                            onchange="updateCanvasBackground(this.value)" style="width:100%">
+                    </div>
+                `;
+
+                if (state[state.activeSide].backgroundImage) {
+                    html += `
+                        <div class="property-group">
+                            <div class="property-label">Background Image</div>
+                            <button class="action-btn delete" style="width:100%; margin-bottom:0;" 
+                                onclick="removeBackgroundImage()">
+                                🗑️ Remove Background Image
+                            </button>
+                        </div>
+                    `;
+                }
+
+                properties.innerHTML = html;
+                return;
+            }
+
+            noSelection.classList.add('hidden');
+            properties.classList.remove('hidden');
+
+            let html = '';
+
+            // Text Properties - Enhanced with new features
+            if (element.type === 'text') {
+                html += `
+                    <div class="property-group">
+                        <div class="property-label">Content</div>
+                        <input type="text" value="${element.content}" 
+                            onchange="updateElement('${element.id}', {content: this.value})"
+                            style="width:100%;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:white;">
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Font Family</div>
+                        <select onchange="updateElement('${element.id}', {fontFamily: this.value})" style="width:100%">
+                            <option value="'Inter', sans-serif" ${element.fontFamily === "'Inter', sans-serif" ? 'selected' : ''}>Inter</option>
+                            <option value="'Roboto', sans-serif" ${element.fontFamily === "'Roboto', sans-serif" ? 'selected' : ''}>Roboto</option>
+                            <option value="'Poppins', sans-serif" ${element.fontFamily === "'Poppins', sans-serif" ? 'selected' : ''}>Poppins</option>
+                            <option value="'Montserrat', sans-serif" ${element.fontFamily === "'Montserrat', sans-serif" ? 'selected' : ''}>Montserrat</option>
+                            <option value="'Open Sans', sans-serif" ${element.fontFamily === "'Open Sans', sans-serif" ? 'selected' : ''}>Open Sans</option>
+                            <option value="Arial, sans-serif" ${element.fontFamily === "Arial, sans-serif" ? 'selected' : ''}>Arial</option>
+                            <option value="'Times New Roman', serif" ${element.fontFamily === "'Times New Roman', serif" ? 'selected' : ''}>Times New Roman</option>
+                            <option value="'Courier New', monospace" ${element.fontFamily === "'Courier New', monospace" ? 'selected' : ''}>Courier New</option>
+                        </select>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Font Size</div>
+                        <input type="range" min="12" max="120" value="${element.fontSize}" 
+                            oninput="updateElement('${element.id}', {fontSize: parseInt(this.value)})">
+                        <div class="range-value">${element.fontSize}px</div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Color</div>
+                        <input type="color" value="${element.color}" 
+                            onchange="updateElement('${element.id}', {color: this.value})">
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Style</div>
+                        <div class="style-buttons">
+                            <button class="style-btn ${element.fontWeight === 'bold' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {fontWeight: '${element.fontWeight === 'bold' ? 'normal' : 'bold'}'})">
+                                <strong>B</strong>
+                            </button>
+                            <button class="style-btn ${element.fontStyle === 'italic' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {fontStyle: '${element.fontStyle === 'italic' ? 'normal' : 'italic'}'})">
+                                <em>I</em>
+                            </button>
+                            <button class="style-btn ${element.textTransform === 'uppercase' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textTransform: '${element.textTransform === 'uppercase' ? 'none' : 'uppercase'}'})">
+                                Aa
+                            </button>
+                            <button class="style-btn ${element.textDecoration === 'underline' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textDecoration: '${element.textDecoration === 'underline' ? 'none' : 'underline'}'})">
+                                U̲
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Align</div>
+                        <div class="style-buttons">
+                            <button class="style-btn ${element.textAlign === 'left' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textAlign: 'left'})">←</button>
+                            <button class="style-btn ${element.textAlign === 'center' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textAlign: 'center'})">↔</button>
+                            <button class="style-btn ${element.textAlign === 'right' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textAlign: 'right'})">→</button>
+                            <button class="style-btn ${element.textAlign === 'justify' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textAlign: 'justify'})">⎸⎹</button>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Letter Spacing</div>
+                        <input type="range" min="0" max="20" value="${parseInt(element.letterSpacing) || 0}" 
+                            oninput="updateElement('${element.id}', {letterSpacing: this.value + 'px'})">
+                        <div class="range-value">${parseInt(element.letterSpacing) || 0}px</div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Line Height</div>
+                        <input type="range" min="100" max="200" value="${parseInt(element.lineHeight) || 100}" 
+                            oninput="updateElement('${element.id}', {lineHeight: this.value + '%'})">
+                        <div class="range-value">${parseInt(element.lineHeight) || 100}%</div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Background</div>
+                        <div class="color-picker-group">
+                            <span class="color-label">Color:</span>
+                            <input type="color" value="${element.textBackgroundColor || 'transparent'}" 
+                                onchange="updateElement('${element.id}', {textBackgroundColor: this.value})" style="flex:1;">
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Border</div>
+                        <input type="range" min="0" max="10" value="${element.textBorderWidth || 0}" 
+                            oninput="updateElement('${element.id}', {textBorderWidth: parseInt(this.value)})">
+                        <div class="range-value">${element.textBorderWidth || 0}px</div>
+                        <div class="color-picker-group" style="margin-top:5px;">
+                            <span class="color-label">Border Color:</span>
+                            <input type="color" value="${element.textBorderColor || '#000000'}" 
+                                onchange="updateElement('${element.id}', {textBorderColor: this.value})" style="flex:1;">
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Effects</div>
+                        <div class="advanced-buttons">
+                            <button class="advanced-btn ${element.textGradient ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textGradient: ${!element.textGradient}})">
+                                Gradient
+                            </button>
+                            <button class="advanced-btn ${element.textStrokeWidth > 0 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textStrokeWidth: ${element.textStrokeWidth > 0 ? 0 : 2}})">
+                                Outline
+                            </button>
+                            <button class="advanced-btn ${element.textEffect === 'glow' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textEffect: '${element.textEffect === 'glow' ? 'none' : 'glow'}'})">
+                                Glow
+                            </button>
+                            <button class="advanced-btn ${element.textEffect === 'neon' ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textEffect: '${element.textEffect === 'neon' ? 'none' : 'neon'}'})">
+                                Neon
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${element.textGradient ? `
+                    <div class="property-group">
+                        <div class="property-label">Gradient Colors</div>
+                        <div class="color-picker-group">
+                            <span class="color-label">Start:</span>
+                            <input type="color" value="${element.gradientStart || '#3b82f6'}" 
+                                onchange="updateElement('${element.id}', {gradientStart: this.value})" style="flex:1;">
+                        </div>
+                        <div class="color-picker-group" style="margin-top:5px;">
+                            <span class="color-label">End:</span>
+                            <input type="color" value="${element.gradientEnd || '#ec4899'}" 
+                                onchange="updateElement('${element.id}', {gradientEnd: this.value})" style="flex:1;">
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="property-group">
+                        <div class="property-label">Text Shadow</div>
+                        <div class="advanced-buttons">
+                            <button class="advanced-btn ${element.textShadow ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {textShadow: ${!element.textShadow}})">
+                                ${element.textShadow ? 'Remove Shadow' : 'Add Shadow'}
+                            </button>
+                        </div>
+                        ${element.textShadow ? `
+                        <div style="margin-top:8px;">
+                            <input type="range" min="0" max="20" value="${element.textShadowX || 0}" 
+                                oninput="updateElement('${element.id}', {textShadowX: parseInt(this.value)})">
+                            <div class="range-value">X: ${element.textShadowX || 0}px</div>
+                            
+                            <input type="range" min="0" max="20" value="${element.textShadowY || 0}" 
+                                oninput="updateElement('${element.id}', {textShadowY: parseInt(this.value)})">
+                            <div class="range-value">Y: ${element.textShadowY || 0}px</div>
+                            
+                            <input type="range" min="0" max="20" value="${element.textShadowBlur || 0}" 
+                                oninput="updateElement('${element.id}', {textShadowBlur: parseInt(this.value)})">
+                            <div class="range-value">Blur: ${element.textShadowBlur || 0}px</div>
+                            
+                            <div class="color-picker-group" style="margin-top:5px;">
+                                <span class="color-label">Color:</span>
+                                <input type="color" value="${element.textShadowColor || '#000000'}" 
+                                    onchange="updateElement('${element.id}', {textShadowColor: this.value})" style="flex:1;">
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // Image Properties (for image, QR, barcode) - Enhanced with new features
+            if (element.type === 'image') {
+                html += `
+                    <div class="property-group">
+                        <div class="property-label">Image Shape</div>
+                        <div class="style-buttons">
+                            <button class="style-btn ${element.borderRadius >= 999 ? 'active' : ''}"
+                                onclick="updateElement('${element.id}', {borderRadius: 999})">
+                                ⭕ Circle
+                            </button>
+                            <button class="style-btn ${element.borderRadius < 999 && element.borderRadius > 0 ? 'active' : ''}"
+                                onclick="updateElement('${element.id}', {borderRadius: 10})">
+                                🔲 Rounded
+                            </button>
+                            <button class="style-btn ${element.borderRadius === 0 ? 'active' : ''}"
+                                onclick="updateElement('${element.id}', {borderRadius: 0})">
+                                ⬛ Square
+                            </button>
+                            <button class="advanced-btn ${element.imageMask === 'triangle' ? 'active' : ''}"
+                                onclick="updateElement('${element.id}', {imageMask: '${element.imageMask === 'triangle' ? 'none' : 'triangle'}'})">
+                                △ Triangle
+                            </button>
+                            <button class="advanced-btn ${element.imageMask === 'star' ? 'active' : ''}"
+                                onclick="updateElement('${element.id}', {imageMask: '${element.imageMask === 'star' ? 'none' : 'star'}'})">
+                                ⭐ Star
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Border</div>
+                        <input type="range" min="0" max="20" value="${element.borderWidth || 0}"
+                            oninput="updateElement('${element.id}', {borderWidth: parseInt(this.value)})">
+                        <div class="range-value">${element.borderWidth || 0}px</div>
+                        <div class="color-picker-group" style="margin-top:5px;">
+                            <span class="color-label">Color:</span>
+                            <input type="color" value="${element.borderColor || '#000000'}"
+                                onchange="updateElement('${element.id}', {borderColor: this.value})" style="flex:1;">
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Shadow</div>
+                        <div class="advanced-buttons">
+                            <button class="advanced-btn ${element.boxShadow || element.dropShadow ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {dropShadow: ${!element.dropShadow}, boxShadow: ${!element.boxShadow}})">
+                                ${element.boxShadow || element.dropShadow ? 'Remove Shadow' : 'Add Shadow'}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Image Filters</div>
+                        <div class="advanced-buttons">
+                            <button class="advanced-btn ${element.brightness !== 100 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {brightness: ${element.brightness !== 100 ? 100 : 150}})">
+                                Brightness
+                            </button>
+                            <button class="advanced-btn ${element.contrast !== 100 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {contrast: ${element.contrast !== 100 ? 100 : 150}})">
+                                Contrast
+                            </button>
+                            <button class="advanced-btn ${element.saturate !== 100 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {saturate: ${element.saturate !== 100 ? 100 : 150}})">
+                                Saturation
+                            </button>
+                            <button class="advanced-btn ${element.grayscale !== 0 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {grayscale: ${element.grayscale !== 0 ? 0 : 100}})">
+                                Grayscale
+                            </button>
+                            <button class="advanced-btn ${element.sepia !== 0 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {sepia: ${element.sepia !== 0 ? 0 : 100}})">
+                                Sepia
+                            </button>
+                            <button class="advanced-btn ${element.blur !== 0 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {blur: ${element.blur !== 0 ? 0 : 5}})">
+                                Blur
+                            </button>
+                            <button class="advanced-btn ${element.hueRotate !== 0 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {hueRotate: ${element.hueRotate !== 0 ? 0 : 180}})">
+                                Hue
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="property-group">
+                        <div class="property-label">Overlay Effects</div>
+                        <div class="advanced-buttons">
+                            <button class="advanced-btn ${element.imageOverlay ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {imageOverlay: ${!element.imageOverlay}})">
+                                ${element.imageOverlay ? 'Remove Overlay' : 'Add Overlay'}
+                            </button>
+                            <button class="advanced-btn ${element.imageTilt !== 0 ? 'active' : ''}" 
+                                onclick="updateElement('${element.id}', {imageTilt: ${element.imageTilt !== 0 ? 0 : 15}})">
+                                Tilt
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${element.imageOverlay ? `
+                    <div class="property-group">
+                        <div class="property-label">Overlay Color</div>
+                        <input type="color" value="${element.overlayColor || 'rgba(0,0,0,0.5)'}" 
+                            onchange="updateElement('${element.id}', {overlayColor: this.value})" style="width:100%">
+                    </div>
+                    ` : ''}
+                    
+                    <div class="property-group">
+                        <div class="property-label">Blend Mode</div>
+                        <select onchange="updateElement('${element.id}', {blendMode: this.value})" style="width:100%">
+                            <option value="normal" ${element.blendMode === 'normal' ? 'selected' : ''}>Normal</option>
+                            <option value="multiply" ${element.blendMode === 'multiply' ? 'selected' : ''}>Multiply</option>
+                            <option value="screen" ${element.blendMode === 'screen' ? 'selected' : ''}>Screen</option>
+                            <option value="overlay" ${element.blendMode === 'overlay' ? 'selected' : ''}>Overlay</option>
+                            <option value="darken" ${element.blendMode === 'darken' ? 'selected' : ''}>Darken</option>
+                            <option value="lighten" ${element.blendMode === 'lighten' ? 'selected' : ''}>Lighten</option>
+                            <option value="color-dodge" ${element.blendMode === 'color-dodge' ? 'selected' : ''}>Color Dodge</option>
+                            <option value="color-burn" ${element.blendMode === 'color-burn' ? 'selected' : ''}>Color Burn</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            // Universal Properties
+            html += `
+                <div class="property-group">
+                    <div class="property-label">Opacity</div>
+                    <input type="range" min="0" max="1" step="0.1" value="${element.opacity || 1}" 
+                        oninput="updateElement('${element.id}', {opacity: parseFloat(this.value)})">
+                    <div class="range-value">${Math.round((element.opacity || 1) * 100)}%</div>
+                </div>
+                <div class="property-group">
+                    <div class="property-label">Rotation</div>
+                    <input type="range" min="0" max="360" value="${element.rotation || 0}" 
+                        oninput="updateElement('${element.id}', {rotation: parseInt(this.value)})">
+                    <div class="range-value">${element.rotation || 0}°</div>
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 16px 0; padding-top: 16px;">
+                    <button class="action-btn duplicate" onclick="duplicateElement('${element.id}')">📋 Duplicate</button>
+                    <button class="action-btn delete" onclick="deleteElement('${element.id}')">🗑️ Delete</button>
+                </div>
+            `;
+
+            properties.innerHTML = html;
+        }
+
+        // Helper Functions
+        function getElementIcon(type) {
+            const icons = {
+                text: '📝',
+                image: '🖼️',
+                shape: '🔷'
+            };
+            return icons[type] || '📄';
+        }
+
+        function getElementLabel(element) {
+            if (element.type === 'text') {
+                return element.content.substring(0, 20) + (element.content.length > 20 ? '...' : '');
+            } else if (element.type === 'image') {
+                // Check if it's QR or barcode
+                if (element.content.includes('qrcode')) return 'QR Code';
+                if (element.content.includes('canvas')) return 'Barcode';
+                return 'Image';
+            }
+            const labels = {
+                shape: 'Shape'
+            };
+            return labels[element.type] || 'Element';
+        }
+
+        // Drag & Drop
+        function onElementMouseDown(e, id) {
+            if (e.target.classList.contains('resize-handle')) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            isDragging = true;
+            state.selectedElement = id;
+
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+            const canvas = document.getElementById(state.activeSide + 'Canvas');
+            const rect = canvas.getBoundingClientRect();
+
+            dragStartX = e.clientX - rect.left - element.x;
+            dragStartY = e.clientY - rect.top - element.y;
+
+            updateUI();
+        }
+
+        function onResizeMouseDown(e, id, corner) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            isResizing = true;
+            state.selectedElement = id;
+
+            const element = state[state.activeSide].elements.find(el => el.id === id);
+
+            resizeStartData = {
+                id,
+                corner,
+                startX: e.clientX,
+                startY: e.clientY,
+                startWidth: element.width,
+                startHeight: element.height,
+                startPosX: element.x,
+                startPosY: element.y
+            };
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const canvas = document.getElementById(state.activeSide + 'Canvas');
+                const rect = canvas.getBoundingClientRect();
+                const element = state[state.activeSide].elements.find(el => el.id === state.selectedElement);
+
+                if (element) {
+                    let newX = e.clientX - rect.left - dragStartX;
+                    let newY = e.clientY - rect.top - dragStartY;
+
+                    // Constrain within canvas
+                    newX = Math.max(0, Math.min(newX, state[state.activeSide].width - (element.width || 50)));
+                    newY = Math.max(0, Math.min(newY, state[state.activeSide].height - (element.height || 50)));
+
+                    element.x = newX;
+                    element.y = newY;
+                    renderCanvas();
+                }
+            } else if (isResizing && resizeStartData) {
+                const element = state[state.activeSide].elements.find(el => el.id === resizeStartData.id);
+                if (element) {
+                    const deltaX = e.clientX - resizeStartData.startX;
+                    const deltaY = e.clientY - resizeStartData.startY;
+
+                    let newWidth = resizeStartData.startWidth;
+                    let newHeight = resizeStartData.startHeight;
+                    let newX = resizeStartData.startPosX;
+                    let newY = resizeStartData.startPosY;
+
+                    if (resizeStartData.corner.includes('e')) {
+                        newWidth = Math.max(30, resizeStartData.startWidth + deltaX);
+                    }
+                    if (resizeStartData.corner.includes('s')) {
+                        newHeight = Math.max(30, resizeStartData.startHeight + deltaY);
+                    }
+                    if (resizeStartData.corner.includes('w')) {
+                        newWidth = Math.max(30, resizeStartData.startWidth - deltaX);
+                        newX = resizeStartData.startPosX + deltaX;
+                    }
+                    if (resizeStartData.corner.includes('n')) {
+                        newHeight = Math.max(30, resizeStartData.startHeight - deltaY);
+                        newY = resizeStartData.startPosY + deltaY;
+                    }
+
+                    // Constrain within canvas
+                    newX = Math.max(0, Math.min(newX, state[state.activeSide].width - newWidth));
+                    newY = Math.max(0, Math.min(newY, state[state.activeSide].height - newHeight));
+
+                    element.width = newWidth;
+                    element.height = newHeight;
+                    element.x = newX;
+                    element.y = newY;
+                    renderCanvas();
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging || isResizing) {
+                saveToHistory();
+            }
+            isDragging = false;
+            isResizing = false;
+            resizeStartData = null;
+        });
+
+        // High Quality Download Function
+        async function downloadHighQuality(mode) {
+            showLoading();
+
+            const currentZoom = zoomLevel;
+            zoomLevel = 1;
+            updateZoomDisplay();
+
+            const originalSide = state.activeSide;
+            const originalSelected = state.selectedElement;
+
+            try {
+                // Calculate scale factor for high quality
+                const scaleFactor = downloadQuality;
+
+                if (mode === 'both') {
+                    // Download both sides
+
+                    // Download front side
+                    state.activeSide = 'front';
+                    state.selectedElement = null;
+                    renderCanvas();
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    updateLoadingText('Processing front side...');
+                    const frontCanvas = document.getElementById('frontCanvas');
+                    const frontImage = await html2canvas(frontCanvas, {
+                        backgroundColor: null,
+                        scale: scaleFactor,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        imageTimeout: 0,
+                        onclone: function (clonedDoc) {
+                            // Ensure all images are loaded
+                            const imgs = clonedDoc.querySelectorAll('img');
+                            imgs.forEach(img => {
+                                img.crossOrigin = 'anonymous';
+                            });
+                        }
+                    });
+
+                    // Download back side
+                    state.activeSide = 'back';
+                    state.selectedElement = null;
+                    renderCanvas();
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    updateLoadingText('Processing back side...');
+                    const backCanvas = document.getElementById('backCanvas');
+                    const backImage = await html2canvas(backCanvas, {
+                        backgroundColor: null,
+                        scale: scaleFactor,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        imageTimeout: 0,
+                        onclone: function (clonedDoc) {
+                            const imgs = clonedDoc.querySelectorAll('img');
+                            imgs.forEach(img => {
+                                img.crossOrigin = 'anonymous';
+                            });
+                        }
+                    });
+
+                    updateLoadingText('Creating ZIP file...');
+                    const zip = new JSZip();
+
+                    // Add user info to ZIP
+                    const userInfoStr = JSON.stringify(userInfo, null, 2);
+                    zip.file("user-info.json", userInfoStr);
+
+                    // Add front image to zip with highest quality
+                    const frontDataUrl = frontImage.toDataURL('image/png', 1.0);
+                    const frontBase64 = frontDataUrl.split(',')[1];
+                    zip.file("id-card-front.png", frontBase64, { base64: true });
+
+                    // Add back image to zip with highest quality
+                    const backDataUrl = backImage.toDataURL('image/png', 1.0);
+                    const backBase64 = backDataUrl.split(',')[1];
+                    zip.file("id-card-back.png", backBase64, { base64: true });
+
+                    updateLoadingText('Finalizing download...');
+                    const content = await zip.generateAsync({
+                        type: "blob",
+                        compression: "STORE", // No compression for faster processing
+                        compressionOptions: {
+                            level: 0
+                        }
+                    });
+
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = `id-card-${userInfo.fullName.replace(/\s+/g, '-')}-${scaleFactor}x-${Date.now()}.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    alert(`Both sides downloaded successfully! Quality: ${scaleFactor}x`);
+
+                } else if (mode === 'front' || mode === 'back') {
+                    // Download single side
+                    state.activeSide = mode;
+                    state.selectedElement = null;
+                    renderCanvas();
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    updateLoadingText(`Processing ${mode} side...`);
+                    const canvas = document.getElementById(mode + 'Canvas');
+                    const image = await html2canvas(canvas, {
+                        backgroundColor: null,
+                        scale: scaleFactor,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        imageTimeout: 0,
+                        onclone: function (clonedDoc) {
+                            const imgs = clonedDoc.querySelectorAll('img');
+                            imgs.forEach(img => {
+                                img.crossOrigin = 'anonymous';
+                            });
+                        }
+                    });
+
+                    updateLoadingText('Creating image file...');
+                    const link = document.createElement('a');
+                    link.download = `id-card-${userInfo.fullName.replace(/\s+/g, '-')}-${mode}-${scaleFactor}x-${Date.now()}.png`;
+
+                    // Create blob with maximum quality
+                    image.toBlob(function (blob) {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+
+                        alert(`${mode} side downloaded successfully! Quality: ${scaleFactor}x`);
+                        hideLoading();
+                    }, 'image/png', 1.0);
+
+                    return; // Return early for blob download
+                }
+
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Error downloading canvas. Please try again with lower quality settings.');
+            } finally {
+                // Restore original state
+                state.activeSide = originalSide;
+                state.selectedElement = originalSelected;
+                zoomLevel = currentZoom;
+                updateZoomDisplay();
+                renderCanvas();
+                hideLoading();
+            }
+        }
+
+        // Loading overlay functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function updateLoadingText(text) {
+            document.getElementById('loadingDetails').textContent = text;
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function () {
+            init();
+            loadSavedExportData();
+        });
+
+        // Validation functions for user info modal
+        function validateForm() {
+            const fullName = document.getElementById('fullNameInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
+            const address = document.getElementById('addressInput').value.trim();
+
+            let isValid = true;
+
+            // Validate full name
+            const nameError = document.getElementById('nameError');
+            const nameInput = document.getElementById('fullNameInput');
+            if (fullName.length < 3) {
+                nameError.classList.add('show');
+                nameInput.classList.add('error');
+                isValid = false;
+            } else {
+                nameError.classList.remove('show');
+                nameInput.classList.remove('error');
+            }
+
+            // Validate phone number (10-15 digits)
+            const phoneError = document.getElementById('phoneError');
+            const phoneInput = document.getElementById('phoneInput');
+            const phoneRegex = /^[0-9]{10,15}$/;
+            if (!phoneRegex.test(phone)) {
+                phoneError.classList.add('show');
+                phoneInput.classList.add('error');
+                isValid = false;
+            } else {
+                phoneError.classList.remove('show');
+                phoneInput.classList.remove('error');
+            }
+
+            // Validate address
+            const addressError = document.getElementById('addressError');
+            const addressInput = document.getElementById('addressInput');
+            if (address.length < 10) {
+                addressError.classList.add('show');
+                addressInput.classList.add('error');
+                isValid = false;
+            } else {
+                addressError.classList.remove('show');
+                addressInput.classList.remove('error');
+            }
+
+            // Enable/disable save button
+            document.getElementById('saveBtn').disabled = !isValid;
+
+            return isValid;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('#userInfoModal .error-message').forEach(el => {
+                el.classList.remove('show');
+            });
+            document.querySelectorAll('#userInfoModal .form-input').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('fullNameInput').value = '';
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('addressInput').value = '';
+            document.getElementById('saveBtn').disabled = true;
+        }
+
+        function loadSavedUserInfo() {
+            const savedInfo = localStorage.getItem('idCardUserInfo');
+            if (savedInfo) {
+                try {
+                    const parsedInfo = JSON.parse(savedInfo);
+                    document.getElementById('fullNameInput').value = parsedInfo.fullName || '';
+                    document.getElementById('phoneInput').value = parsedInfo.phone || '';
+                    document.getElementById('addressInput').value = parsedInfo.address || '';
+                    validateForm();
+                } catch (e) {
+                    console.error('Error loading saved user info:', e);
+                }
+            }
+        }
+
+        function saveUserInfo() {
+            if (!validateForm()) {
+                return;
+            }
+
+            // Get user info from form
+            userInfo = {
+                fullName: document.getElementById('fullNameInput').value.trim(),
+                phone: document.getElementById('phoneInput').value.trim(),
+                address: document.getElementById('addressInput').value.trim()
+            };
+
+            // Save to localStorage
+            try {
+                localStorage.setItem('idCardUserInfo', JSON.stringify(userInfo));
+                // Also save phone as app_id if not already set
+                if (userInfo.phone && !localStorage.getItem('app_id')) {
+                    localStorage.setItem('app_id', userInfo.phone);
+                }
+                console.log('User info saved to localStorage');
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+                alert('Warning: Could not save user info to browser storage.');
+            }
+
+            // Close modal
+            closeUserModal();
+
+            // Trigger the actual download
+            if (currentDownloadMode) {
+                downloadHighQuality(currentDownloadMode);
+            }
+        }
+
+        // Initialize export modal event listeners
+        function initExportModal() {
+            // Template name input
+            document.getElementById('templateNameInput').addEventListener('input', validateExportForm);
+            
+            // Service select
+            document.getElementById('serviceSelect').addEventListener('change', validateExportForm);
+            
+            // Access type radio buttons
+            document.querySelectorAll('input[name="accessType"]').forEach(radio => {
+                radio.addEventListener('change', validateExportForm);
+            });
+            
+            // Export type radio buttons
+            document.querySelectorAll('input[name="exportType"]').forEach(radio => {
+                radio.addEventListener('change', validateExportForm);
+            });
+            
+            // Also add event listeners for radio options
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radioInput = this.querySelector('input[type="radio"]');
+                    if (radioInput.name === 'accessType') {
+                        selectRadio(this);
+                    } else if (radioInput.name === 'exportType') {
+                        selectExportType(this);
+                    }
+                });
+            });
+            
+            // Handle Enter key in export modal
+            document.getElementById('exportElementsModal').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleExportClick(e);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Layout Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --border-radius: 8px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 6px 15px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 25px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--gray-900);
+            color: var(--gray-800);
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+        }
+
+        .app-header {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.125rem;
+        }
+
+        .project-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .project-info i {
+            color: var(--primary);
+        }
+
+        .project-info span {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .project-id {
+            color: var(--gray-600);
+        }
+
+        .project-no {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .control-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            white-space: nowrap;
+        }
+
+        .dropdown {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            background: white;
+            color: var(--gray-800);
+            font-size: 0.875rem;
+            min-width: 140px;
+            cursor: pointer;
+        }
+
+        .custom-size-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 0.5rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        .custom-size-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-lg);
+            min-width: 320px;
+        }
+
+        .dimension-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .dimension-input input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .dimension-input span {
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        .gap-control-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .gap-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 160px;
+        }
+
+        .gap-control.horizontal {
+            border-right: 1px solid var(--gray-300);
+            padding-right: 1rem;
+        }
+
+        .gap-control input[type="number"] {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .gap-control select {
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 0.875rem;
+            background: white;
+            min-width: 60px;
+        }
+
+        .gap-value {
+            min-width: 40px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .gap-label {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .gap-label i {
+            color: var(--gray-600);
+        }
+
+        .btn {
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd8b0b;
+        }
+
+        .btn-back {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-back:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-400);
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .sidebar-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .image-count {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-box {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .search-box .search-input {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 0.875rem;
+        }
+
+        .images-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            background: var(--gray-50);
+        }
+
+        .image-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: grab;
+            position: relative;
+            transition: all 0.2s;
+            height: fit-content;
+        }
+
+        .image-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .image-card.dragging {
+            opacity: 0.5;
+        }
+
+        .image-preview {
+            height: 120px;
+            width: 100%;
+            background: var(--gray-100);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            background: white;
+            /* Remove any borders */
+            border: none;
+            outline: none;
+        }
+
+        .image-info {
+            padding: 0.75rem;
+            border-top: 1px solid var(--gray-200);
+            background: white;
+        }
+
+        .image-name {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--gray-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-dimensions {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+        }
+
+        .no-images {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray-400);
+        }
+
+        .type-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+
+        .type-badge.front {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .type-badge.rear {
+            background: linear-gradient(135deg, var(--success), #0da271);
+        }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--gray-900);
+            position: relative;
+        }
+
+        .canvas-toolbar {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .toolbar-left, .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--gray-100);
+            border-radius: var(--border-radius);
+            padding: 0.375rem;
+        }
+
+        .page-info {
+            padding: 0 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .btn-icon {
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+
+        .canvas-container {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+            background: var(--gray-900);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: #000;
+            box-shadow: var(--shadow-lg);
+            margin: 0 auto;
+            transform-origin: top center;
+        }
+
+        .canvas {
+            position: relative;
+            background: white;
+        }
+
+        .draggable-image {
+            position: absolute;
+            cursor: move;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+            user-select: none;
+            touch-action: none;
+            /* Remove any default borders */
+            border: none !important;
+        }
+
+        .draggable-image:hover {
+            /* Remove colored borders on hover */
+            border: none !important;
+            z-index: 100;
+        }
+
+        .draggable-image.selected {
+            /* Remove blue selection border */
+            border: none !important;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .draggable-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            display: block;
+            /* Remove all borders */
+            border: none !important;
+            outline: none;
+            /* Remove blue/yellow browser outlines */
+            -webkit-tap-highlight-color: transparent;
+            -webkit-focus-ring-color: transparent;
+        }
+
+        .image-controls {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 101;
+        }
+
+        .draggable-image:hover .image-controls {
+            opacity: 1;
+        }
+
+        .image-control-btn {
+            width: 1.75rem;
+            height: 1.75rem;
+            background: white;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            color: var(--gray-700);
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            /* Remove focus outlines */
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .image-control-btn:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+
+        .image-control-btn.delete {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .image-control-btn.delete:hover {
+            background: #dc2626;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 102;
+        }
+
+        .draggable-image:hover .resize-handle,
+        .draggable-image.selected .resize-handle {
+            opacity: 1;
+        }
+
+        .resize-nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .resize-ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .resize-sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .resize-se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 50;
+        }
+
+        .zoom-display {
+            min-width: 60px;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .canvas-bottom-bar {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .zoom-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 200px;
+        }
+
+        .zoom-slider {
+            flex: 1;
+            height: 4px;
+            background: var(--gray-300);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .zoom-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            /* Center the modal */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-container {
+            background: var(--gray-100);
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark);
+            border-radius: 4px;
+        }
+
+        .drop-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            color: var(--gray-500);
+            transition: all 0.2s;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .drop-zone i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray-400);
+        }
+
+        .text-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            color: var(--gray-900);
+            font-weight: 600;
+            /* Remove text outline */
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            -webkit-text-stroke: 0;
+    
+        }
+
+        /* Column Menu Modal - Centered */
+        .column-menu-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .column-menu-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .column-menu-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .column-menu-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .column-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .column-item {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .column-item:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-300);
+        }
+
+        .column-item.selected {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* Remove all focus outlines globally */
+        *:focus {
+            outline: none !important;
+        }
+
+        input, select, button, textarea {
+            outline: none !important;
+        }
+
+        /* Remove browser default styles for images */
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+
+        /* Fix for Excel data input */
+        .excel-data-input {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            min-width: 400px;
+        }
+
+        .excel-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .excel-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .excel-input-group input,
+        .excel-input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Image Layout Editor</h1>
+                    </div>
+                </div>
+                
+                <div class="project-info" id="projectInfo">
+                    <i class="fas fa-folder"></i>
+                    <span>Project:</span>
+                    <span class="project-no" id="projectNo">-</span>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <div class="control-group">
+                    <label for="pageSize"><i class="fas fa-expand-alt"></i> Page:</label>
+                    <select id="pageSize" class="dropdown">
+                        <option value="a4">A4 (210×297mm)</option>
+                        <option value="a3" selected>A3 (297×420mm)</option>
+                        <option value="a2">A2 (420×594mm)</option>
+                        <option value="a5">A5 (148×210mm)</option>
+                        <option value="letter">Letter (216×279mm)</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    
+                    <div id="customSizeContainer" class="custom-size-container">
+                        <div class="custom-size-controls">
+                            <div class="dimension-input">
+                                <input type="number" id="customWidth" placeholder="Width" min="100" max="2000" value="800">
+                                <span>×</span>
+                                <input type="number" id="customHeight" placeholder="Height" min="100" max="2000" value="600">
+                                <select id="customUnit">
+                                    <option value="px">px</option>
+                                    <option value="mm" selected>mm</option>
+                                    <option value="cm">cm</option>
+                                    <option value="in">in</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="gap-control-container">
+                    <div class="gap-control horizontal">
+                        <label class="gap-label" title="Horizontal gap between images">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </label>
+                        <input type="number" id="horizontalGapInput" min="0" max="100" value="10" step="1">
+                        <select id="gapUnit">
+                            <option value="mm">mm</option>
+                            <option value="px">px</option>
+                            <option value="cm">cm</option>
+                        </select>
+                        <span id="horizontalGapValue" class="gap-value">10mm</span>
+                    </div>
+                    
+                    <div class="gap-control vertical">
+                        <label class="gap-label" title="Vertical gap between images">
+                            <i class="fas fa-arrows-alt-v"></i>
+                        </label>
+                        <input type="number" id="verticalGapInput" min="0" max="100" value="10" step="1">
+                        <select id="verticalGapUnit">
+                            <option value="mm">mm</option>
+                            <option value="px">px</option>
+                            <option value="cm">cm</option>
+                        </select>
+                        <span id="verticalGapValue" class="gap-value">10mm</span>
+                    </div>
+                </div>
+                
+                <button id="backBtn" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                
+                <button id="applyGapsBtn" class="btn btn-warning">
+                    <i class="fas fa-object-group"></i> Apply Gaps
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Project Images</h3>
+                    <div class="image-count">
+                        <i class="fas fa-images"></i>
+                        <span id="imageCount">Loading...</span>
+                    </div>
+                </div>
+                
+                <div class="search-box">
+                    <div class="search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchImages" placeholder="Search images... (type:front or type:rear)">
+                    </div>
+                </div>
+                
+                <div class="images-container" id="imagesContainer">
+                    <div class="no-images">
+                        <i class="fas fa-images"></i>
+                        <p>Loading images...</p>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="canvas-area">
+                <div class="canvas-toolbar">
+                    <div class="toolbar-left">
+                        <div class="page-controls">
+                            <button id="prevPageBtn" class="btn-icon">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="page-info" id="pageIndicator">Page 1 of 1</div>
+                            <button id="nextPageBtn" class="btn-icon">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button id="addPageBtn" class="btn-icon" title="Add Page">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="applyToAllBtn" class="btn btn-primary">
+                            <i class="fas fa-copy"></i> Apply to All
+                        </button>
+                        <button id="excelDataBtn" class="btn btn-secondary">
+                            <i class="fas fa-file-excel"></i> Excel Data
+                        </button>
+                    </div>
+                    <div class="toolbar-right">
+                        <button id="downloadPdfBtn" class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="canvas-container" id="canvasContainer">
+                    <div class="canvas-wrapper" id="canvasWrapper">
+                        <div class="canvas" id="mainCanvas">
+                            <div class="drop-zone" id="dropZone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>Drop Images Here</h3>
+                                <p>Drag and drop images from the sidebar</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="zoom-controls">
+                        <button id="zoomOutBtn" class="btn-icon">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <div class="zoom-display" id="zoomDisplay">100%</div>
+                        <button id="zoomInBtn" class="btn-icon">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button id="resetZoomBtn" class="btn-icon" title="Reset Zoom">
+                            <i class="fas fa-expand-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="canvas-bottom-bar">
+                    <div class="zoom-slider-container">
+                        <i class="fas fa-search-minus"></i>
+                        <input type="range" id="zoomSlider" class="zoom-slider" min="25" max="300" value="100">
+                        <i class="fas fa-search-plus"></i>
+                        <span id="zoomPercentage">100%</span>
+                    </div>
+                    
+                    <div class="toolbar-right">
+                        <button id="arrangeGridBtn" class="btn btn-secondary">
+                            <i class="fas fa-th"></i> Arrange as Grid
+                        </button>
+                        <button id="clearPageBtn" class="btn btn-secondary">
+                            <i class="fas fa-trash"></i> Clear Page
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Image Size Modal -->
+    <div id="imageSizeModal" class="modal">
+        <div class="modal-content">
+            <h3>Adjust Image Size</h3>
+            <div class="size-control-group">
+                <label for="imageWidth">Width (px)</label>
+                <input type="number" id="imageWidth" min="50" max="2000" value="150">
+            </div>
+            <div class="size-control-group">
+                <label for="imageHeight">Height (px)</label>
+                <input type="number" id="imageHeight" min="50" max="2000" value="100">
+            </div>
+            <div class="size-control-group">
+                <label>
+                    <input type="checkbox" id="maintainAspectRatio" checked> Maintain aspect ratio
+                </label>
+            </div>
+            <div class="size-control-actions">
+                <button id="applySizeBtn" class="btn btn-primary">Apply</button>
+                <button id="cancelSizeBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Column Menu Modal (Centered) -->
+    <div id="columnMenuModal" class="column-menu-modal">
+        <div class="column-menu-content">
+            <div class="column-menu-header">
+                <h3>Select Columns for Excel Data</h3>
+            </div>
+            <div class="column-list" id="columnList">
+                <!-- Columns will be populated here -->
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button id="applyColumnsBtn" class="btn btn-primary">Apply</button>
+                <button id="cancelColumnsBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excel Data Input Modal -->
+    <div id="excelDataModal" class="modal">
+        <div class="modal-content">
+            <h3>Import Excel Data</h3>
+            <div class="excel-input-group">
+                <label for="excelFile">Upload Excel File</label>
+                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv">
+            </div>
+            <div class="excel-input-group">
+                <label for="excelUrl">Or Enter Excel File URL</label>
+                <input type="text" id="excelUrl" placeholder="https://example.com/data.xlsx">
+            </div>
+            <div class="excel-input-group">
+                <label for="dataSheet">Sheet Name</label>
+                <input type="text" id="dataSheet" placeholder="Sheet1">
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button id="importExcelBtn" class="btn btn-primary">Import</button>
+                <button id="cancelExcelBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <h3>Loading Project</h3>
+            <p id="loadingMessage">Loading metadata...</p>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <h3>Generating PDF</h3>
+            <div class="progress-container">
+                <div class="progress-bar" id="pdfProgressBar"></div>
+            </div>
+            <p id="pdfStatus">Initializing...</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Simple toast function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#2563eb',
+                warning: '#f59e0b'
+            };
+            
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 9999;
+                box-shadow: 0 10px 25px -3px rgba(0,0,0,0.1);
+                animation: slideIn 0.3s ease;
+                max-width: 350px;
+                background: ${colors[type] || colors.info};
+                font-family: 'Inter', sans-serif;
+            `;
+            
+            toast.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="font-size: 14px;">${message}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer; font-size: 16px; margin-left: 15px; opacity: 0.8;">
+                        ×
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+        
+        // Add CSS for animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Configuration
+        const API_URL = 'https://www.coremicron.co.in/skynetwork/admin/single-project.php';
+        const PAGE_SIZES = {
+            a4: { width: 210, height: 297, unit: 'mm' },
+            a3: { width: 297, height: 420, unit: 'mm' },
+            a2: { width: 420, height: 594, unit: 'mm' },
+            a5: { width: 148, height: 210, unit: 'mm' },
+            letter: { width: 216, height: 279, unit: 'mm' }
+        };
+
+        // Application State
+        let images = [];
+        let filteredImages = [];
+        let pages = [];
+        let currentPageIndex = 0;
+        let horizontalGap = 10;
+        let verticalGap = 10;
+        let gapUnit = 'mm';
+        let verticalGapUnit = 'mm';
+        let zoomLevel = 100;
+        let isResizing = false;
+        let resizeHandle = null;
+        let resizeStart = { x: 0, y: 0, width: 0, height: 0 };
+        let isDragging = false;
+        let dragElement = null;
+        let dragOffset = { x: 0, y: 0 };
+        let selectedImage = null;
+        let loadedImageIds = new Set();
+        let excelColumns = [];
+
+        // DOM Elements
+        const elements = {
+            projectNo: document.getElementById('projectNo'),
+            pageSize: document.getElementById('pageSize'),
+            customSizeContainer: document.getElementById('customSizeContainer'),
+            customWidth: document.getElementById('customWidth'),
+            customHeight: document.getElementById('customHeight'),
+            customUnit: document.getElementById('customUnit'),
+            horizontalGapInput: document.getElementById('horizontalGapInput'),
+            verticalGapInput: document.getElementById('verticalGapInput'),
+            gapUnit: document.getElementById('gapUnit'),
+            verticalGapUnit: document.getElementById('verticalGapUnit'),
+            horizontalGapValue: document.getElementById('horizontalGapValue'),
+            verticalGapValue: document.getElementById('verticalGapValue'),
+            backBtn: document.getElementById('backBtn'),
+            applyToAllBtn: document.getElementById('applyToAllBtn'),
+            applyGapsBtn: document.getElementById('applyGapsBtn'),
+            excelDataBtn: document.getElementById('excelDataBtn'),
+            searchImages: document.getElementById('searchImages'),
+            imagesContainer: document.getElementById('imagesContainer'),
+            imageCount: document.getElementById('imageCount'),
+            prevPageBtn: document.getElementById('prevPageBtn'),
+            nextPageBtn: document.getElementById('nextPageBtn'),
+            addPageBtn: document.getElementById('addPageBtn'),
+            pageIndicator: document.getElementById('pageIndicator'),
+            downloadPdfBtn: document.getElementById('downloadPdfBtn'),
+            canvasWrapper: document.getElementById('canvasWrapper'),
+            mainCanvas: document.getElementById('mainCanvas'),
+            dropZone: document.getElementById('dropZone'),
+            zoomOutBtn: document.getElementById('zoomOutBtn'),
+            zoomInBtn: document.getElementById('zoomInBtn'),
+            resetZoomBtn: document.getElementById('resetZoomBtn'),
+            zoomDisplay: document.getElementById('zoomDisplay'),
+            zoomSlider: document.getElementById('zoomSlider'),
+            zoomPercentage: document.getElementById('zoomPercentage'),
+            arrangeGridBtn: document.getElementById('arrangeGridBtn'),
+            clearPageBtn: document.getElementById('clearPageBtn'),
+            loadingModal: document.getElementById('loadingModal'),
+            loadingMessage: document.getElementById('loadingMessage'),
+            pdfModal: document.getElementById('pdfModal'),
+            pdfProgressBar: document.getElementById('pdfProgressBar'),
+            pdfStatus: document.getElementById('pdfStatus'),
+            imageSizeModal: document.getElementById('imageSizeModal'),
+            imageWidth: document.getElementById('imageWidth'),
+            imageHeight: document.getElementById('imageHeight'),
+            maintainAspectRatio: document.getElementById('maintainAspectRatio'),
+            applySizeBtn: document.getElementById('applySizeBtn'),
+            cancelSizeBtn: document.getElementById('cancelSizeBtn'),
+            columnMenuModal: document.getElementById('columnMenuModal'),
+            columnList: document.getElementById('columnList'),
+            applyColumnsBtn: document.getElementById('applyColumnsBtn'),
+            cancelColumnsBtn: document.getElementById('cancelColumnsBtn'),
+            excelDataModal: document.getElementById('excelDataModal'),
+            excelFile: document.getElementById('excelFile'),
+            excelUrl: document.getElementById('excelUrl'),
+            dataSheet: document.getElementById('dataSheet'),
+            importExcelBtn: document.getElementById('importExcelBtn'),
+            cancelExcelBtn: document.getElementById('cancelExcelBtn')
+        };
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            showLoading();
+            
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                let prjno = urlParams.get('prjno') || urlParams.get('project') || urlParams.get('id');
+                const appId = localStorage.getItem('app_id');
+                
+                if (prjno && prjno.includes('--')) {
+                    try {
+                        prjno = atob(prjno.replace(/--/g, ''));
+                    } catch (e) {
+                        console.log('Could not decode prjno, using as is');
+                    }
+                }
+                
+                if (!appId) throw new Error('Application ID not found. Please login first.');
+                if (!prjno) throw new Error('Project number not found in URL.');
+                
+                elements.projectNo.textContent = prjno;
+                
+                initializeUI();
+                
+                // Initialize with one page
+                pages = [{
+                    id: Date.now(),
+                    size: { ...PAGE_SIZES.a3 },
+                    images: []
+                }];
+                
+                renderCurrentPage();
+                updateUI();
+                
+                // Load images
+                await loadImages(appId, prjno);
+                
+                showToast('Project loaded successfully', 'success');
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showToast(error.message, 'error');
+            } finally {
+                setTimeout(hideLoading, 500);
+            }
+        }
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const result = reader.result;
+                    if (typeof result === 'string' && !result.startsWith('data:image')) {
+                        resolve(`data:image/jpeg;base64,${result}`);
+                    } else {
+                        resolve(result);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function loadImages(appId, prjno) {
+            elements.loadingMessage.textContent = 'Loading images...';
+            loadedImageIds.clear();
+            
+            try {
+                const payload = { app_id: appId, prjno: prjno };
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                // Reset images array
+                images = [];
+                
+                // Function to create image data
+                async function createImageData(imageUrl, imageName, imageType) {
+                    const imageKey = `${imageName}_${imageType}`;
+                    if (loadedImageIds.has(imageKey)) {
+                        console.log(`Skipping duplicate image: ${imageName}`);
+                        return null;
+                    }
+                    
+                    try {
+                        console.log(`Loading image: ${imageUrl}`);
+                        const imgResponse = await fetch(imageUrl, {
+                            mode: 'cors',
+                            credentials: 'same-origin'
+                        });
+                        
+                        if (!imgResponse.ok) {
+                            console.warn(`Failed to fetch: ${imageUrl} - Status: ${imgResponse.status}`);
+                            return null;
+                        }
+                        
+                        const blob = await imgResponse.blob();
+                        const base64Data = await blobToBase64(blob);
+                        
+                        // Create image element to get dimensions
+                        return new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const imageId = `img-${Date.now()}-${images.length}`;
+                                loadedImageIds.add(imageKey);
+                                
+                                images.push({
+                                    id: imageId,
+                                    name: imageName,
+                                    base64: base64Data,
+                                    element: img,
+                                    width: img.naturalWidth,
+                                    height: img.naturalHeight,
+                                    type: imageType.toLowerCase(),
+                                    originalWidth: img.naturalWidth,
+                                    originalHeight: img.naturalHeight
+                                });
+                                resolve(true);
+                            };
+                            img.onerror = () => {
+                                console.warn(`Failed to load image: ${imageName}`);
+                                resolve(false);
+                            };
+                            img.src = base64Data;
+                        });
+                    } catch (error) {
+                        console.error(`Error loading image ${imageName}:`, error);
+                        return false;
+                    }
+                }
+                
+                // Load front images
+                if (data.front_images && Array.isArray(data.front_images)) {
+                    elements.loadingMessage.textContent = 'Loading front images...';
+                    const frontPath = data.front_path || '';
+                    
+                    for (let i = 0; i < data.front_images.length; i++) {
+                        const imageName = data.front_images[i];
+                        let imageUrl;
+                        
+                        if (frontPath.startsWith('http')) {
+                            imageUrl = `${frontPath}${imageName}`;
+                        } else {
+                            const baseUrl = 'https://www.coremicron.co.in';
+                            imageUrl = `${baseUrl}/${frontPath.replace(/^\/+/, '')}${imageName}`;
+                        }
+                        
+                        await createImageData(imageUrl, imageName, 'front');
+                        
+                        // Update progress
+                        elements.loadingMessage.textContent = `Loading front images... ${i+1}/${data.front_images.length}`;
+                    }
+                }
+                
+                // Load rear images
+                if (data.rear_images && Array.isArray(data.rear_images)) {
+                    elements.loadingMessage.textContent = 'Loading rear images...';
+                    const rearPath = data.rear_path || '';
+                    
+                    for (let i = 0; i < data.rear_images.length; i++) {
+                        const imageName = data.rear_images[i];
+                        let imageUrl;
+                        
+                        if (rearPath.startsWith('http')) {
+                            imageUrl = `${rearPath}${imageName}`;
+                        } else {
+                            const baseUrl = 'https://www.coremicron.co.in';
+                            imageUrl = `${baseUrl}/${rearPath.replace(/^\/+/, '')}${imageName}`;
+                        }
+                        
+                        await createImageData(imageUrl, imageName, 'rear');
+                        
+                        // Update progress
+                        elements.loadingMessage.textContent = `Loading rear images... ${i+1}/${data.rear_images.length}`;
+                    }
+                }
+                
+                if (images.length === 0) {
+                    showToast('No images found in project. Using sample images for demo.', 'warning');
+                    await loadSampleImages();
+                } else {
+                    filteredImages = [...images];
+                    renderImageSidebar();
+                    
+                    const frontCount = images.filter(img => img.type === 'front').length;
+                    const rearCount = images.filter(img => img.type === 'rear').length;
+                    showToast(`Loaded ${images.length} unique images (${frontCount} front, ${rearCount} rear)`, 'success');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load images:', error);
+                showToast('Failed to load images. Using demo images.', 'error');
+                await loadSampleImages();
+            }
+        }
+
+        async function loadSampleImages() {
+            images = [];
+            
+            const sampleImages = [
+                {
+                    id: 'sample-1',
+                    name: 'Front View 1',
+                    base64: 'data:image/svg+xml;base64,' + btoa('<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="#2563eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="24">FRONT VIEW 1</text></svg>'),
+                    width: 400,
+                    height: 300,
+                    type: 'front'
+                },
+                {
+                    id: 'sample-2',
+                    name: 'Rear View 1',
+                    base64: 'data:image/svg+xml;base64,' + btoa('<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="#10b981"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="24">REAR VIEW 1</text></svg>'),
+                    width: 400,
+                    height: 300,
+                    type: 'rear'
+                }
+            ];
+            
+            for (const sample of sampleImages) {
+                const img = new Image();
+                await new Promise((resolve) => {
+                    img.onload = () => {
+                        images.push({
+                            ...sample,
+                            element: img,
+                            width: img.naturalWidth,
+                            height: img.naturalHeight,
+                            originalWidth: img.naturalWidth,
+                            originalHeight: img.naturalHeight
+                        });
+                        resolve();
+                    };
+                    img.src = sample.base64;
+                });
+            }
+            
+            filteredImages = [...images];
+            renderImageSidebar();
+            showToast('Demo images loaded successfully', 'info');
+        }
+
+        function initializeUI() {
+            // Page size change
+            elements.pageSize.addEventListener('change', function() {
+                const value = this.value;
+                if (value === 'custom') {
+                    elements.customSizeContainer.style.display = 'block';
+                    const page = pages[currentPageIndex];
+                    elements.customWidth.value = page.size.width || 800;
+                    elements.customHeight.value = page.size.height || 600;
+                    elements.customUnit.value = page.size.unit || 'mm';
+                } else {
+                    elements.customSizeContainer.style.display = 'none';
+                    if (pages[currentPageIndex]) {
+                        pages[currentPageIndex].size = { ...PAGE_SIZES[value] };
+                        renderCurrentPage();
+                    }
+                }
+            });
+            
+            // Close custom size dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.control-group') && elements.customSizeContainer.style.display === 'block') {
+                    elements.customSizeContainer.style.display = 'none';
+                }
+            });
+            
+            // Custom size inputs
+            elements.customWidth.addEventListener('input', updateCustomSize);
+            elements.customHeight.addEventListener('input', updateCustomSize);
+            elements.customUnit.addEventListener('change', updateCustomSize);
+            
+            // Gap controls
+            elements.horizontalGapInput.addEventListener('input', function() {
+                horizontalGap = parseFloat(this.value) || 10;
+                updateGapDisplay();
+            });
+            
+            elements.gapUnit.addEventListener('change', function() {
+                gapUnit = this.value;
+                updateGapDisplay();
+            });
+            
+            elements.verticalGapInput.addEventListener('input', function() {
+                verticalGap = parseFloat(this.value) || 10;
+                updateGapDisplay();
+            });
+            
+            elements.verticalGapUnit.addEventListener('change', function() {
+                verticalGapUnit = this.value;
+                updateGapDisplay();
+            });
+            
+            // Buttons
+            elements.backBtn.addEventListener('click', () => {
+                window.location.href = 'project.html';
+            });
+            
+            elements.applyToAllBtn.addEventListener('click', applySettingsToAllPages);
+            elements.applyGapsBtn.addEventListener('click', applyGapsToCurrentPage);
+            elements.clearPageBtn.addEventListener('click', clearCurrentPage);
+            elements.excelDataBtn.addEventListener('click', showExcelDataModal);
+            elements.searchImages.addEventListener('input', handleSearchImages);
+            elements.prevPageBtn.addEventListener('click', () => navigatePage(-1));
+            elements.nextPageBtn.addEventListener('click', () => navigatePage(1));
+            elements.addPageBtn.addEventListener('click', addNewPage);
+            elements.downloadPdfBtn.addEventListener('click', downloadPDF);
+            elements.arrangeGridBtn.addEventListener('click', arrangeImagesAsGrid);
+            
+            // Zoom controls
+            elements.zoomOutBtn.addEventListener('click', () => adjustZoom(-25));
+            elements.zoomInBtn.addEventListener('click', () => adjustZoom(25));
+            elements.resetZoomBtn.addEventListener('click', resetZoom);
+            elements.zoomSlider.addEventListener('input', function() {
+                zoomLevel = parseInt(this.value);
+                updateZoom();
+            });
+            
+            // Image size controls
+            elements.applySizeBtn.addEventListener('click', applyImageSize);
+            elements.cancelSizeBtn.addEventListener('click', () => {
+                elements.imageSizeModal.style.display = 'none';
+            });
+            
+            // Column menu controls
+            elements.applyColumnsBtn.addEventListener('click', applySelectedColumns);
+            elements.cancelColumnsBtn.addEventListener('click', () => {
+                elements.columnMenuModal.style.display = 'none';
+            });
+            
+            // Excel data controls
+            elements.importExcelBtn.addEventListener('click', importExcelData);
+            elements.cancelExcelBtn.addEventListener('click', () => {
+                elements.excelDataModal.style.display = 'none';
+            });
+            
+            // Drag and drop
+            elements.mainCanvas.addEventListener('dragover', handleDragOver);
+            elements.mainCanvas.addEventListener('dragleave', handleDragLeave);
+            elements.mainCanvas.addEventListener('drop', handleDrop);
+            
+            // Mouse events
+            document.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyDown);
+            
+            // Close modals when clicking outside
+            elements.imageSizeModal.addEventListener('click', (e) => {
+                if (e.target === elements.imageSizeModal) {
+                    elements.imageSizeModal.style.display = 'none';
+                }
+            });
+            
+            elements.columnMenuModal.addEventListener('click', (e) => {
+                if (e.target === elements.columnMenuModal) {
+                    elements.columnMenuModal.style.display = 'none';
+                }
+            });
+            
+            elements.excelDataModal.addEventListener('click', (e) => {
+                if (e.target === elements.excelDataModal) {
+                    elements.excelDataModal.style.display = 'none';
+                }
+            });
+        }
+
+        function updateGapDisplay() {
+            elements.horizontalGapValue.textContent = `${horizontalGap}${gapUnit}`;
+            elements.verticalGapValue.textContent = `${verticalGap}${verticalGapUnit}`;
+        }
+
+        function updateCustomSize() {
+            if (elements.pageSize.value === 'custom') {
+                const width = parseFloat(elements.customWidth.value) || 800;
+                const height = parseFloat(elements.customHeight.value) || 600;
+                const unit = elements.customUnit.value;
+                
+                if (pages[currentPageIndex]) {
+                    pages[currentPageIndex].size = { width, height, unit };
+                    renderCurrentPage();
+                }
+            }
+        }
+
+        function renderImageSidebar() {
+            if (filteredImages.length === 0) {
+                elements.imagesContainer.innerHTML = `
+                    <div class="no-images">
+                        <i class="fas fa-images"></i>
+                        <p>No images found</p>
+                    </div>
+                `;
+                elements.imageCount.textContent = '0 images';
+                return;
+            }
+            
+            const fragment = document.createDocumentFragment();
+            
+            filteredImages.forEach((image) => {
+                const imageCard = document.createElement('div');
+                imageCard.className = 'image-card';
+                imageCard.draggable = true;
+                imageCard.dataset.id = image.id;
+                imageCard.title = `${image.type}: ${image.name}`;
+                
+                imageCard.innerHTML = `
+                    <div class="image-preview">
+                        <img 
+                            src="${image.base64}" 
+                            alt="${image.name}" 
+                            loading="lazy"
+                            draggable="false"
+                            onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDE1MCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxMjAiIGZpbGw9IiNmMWY1ZjkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzY0NzQ4YiIgZm9udC1zaXplPSIxMiI+SW1hZ2UgRXJyb3I8L3RleHQ+PC9zdmc+';"
+                        >
+                        <div class="type-badge ${image.type}">${image.type}</div>
+                    </div>
+                    <div class="image-info">
+                        <div class="image-name">${image.name}</div>
+                        <div class="image-dimensions">${image.width} × ${image.height}px</div>
+                    </div>
+                `;
+                
+                imageCard.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', image.id);
+                    imageCard.classList.add('dragging');
+                });
+                
+                imageCard.addEventListener('dragend', () => {
+                    imageCard.classList.remove('dragging');
+                });
+                
+                imageCard.addEventListener('click', (e) => {
+                    if (e.target.closest('.image-control-btn')) return;
+                    addImageToCanvas(image);
+                });
+                
+                fragment.appendChild(imageCard);
+            });
+            
+            elements.imagesContainer.innerHTML = '';
+            elements.imagesContainer.appendChild(fragment);
+            
+            const frontCount = filteredImages.filter(img => img.type === 'front').length;
+            const rearCount = filteredImages.filter(img => img.type === 'rear').length;
+            elements.imageCount.textContent = `${filteredImages.length} images (${frontCount} front, ${rearCount} rear)`;
+        }
+
+        function renderCurrentPage() {
+            if (!pages[currentPageIndex]) return;
+            
+            const page = pages[currentPageIndex];
+            elements.mainCanvas.innerHTML = '';
+            
+            const size = page.size;
+            let width, height;
+            
+            switch (size.unit) {
+                case 'mm':
+                    width = size.width * 3.78;
+                    height = size.height * 3.78;
+                    break;
+                case 'cm':
+                    width = size.width * 37.8;
+                    height = size.height * 37.8;
+                    break;
+                case 'in':
+                    width = size.width * 96;
+                    height = size.height * 96;
+                    break;
+                default:
+                    width = size.width;
+                    height = size.height;
+            }
+            
+            elements.mainCanvas.style.width = `${width}px`;
+            elements.mainCanvas.style.height = `${height}px`;
+
+            elements.canvasWrapper.style.width = `${width}px`;
+            elements.canvasWrapper.style.height = `${height}px`;
+            
+            if (page.images.length === 0) {
+                elements.dropZone.style.display = 'flex';
+                elements.mainCanvas.appendChild(elements.dropZone);
+            } else {
+                elements.dropZone.style.display = 'none';
+                
+                page.images.forEach(imageData => {
+                    const image = images.find(img => img.id === imageData.imageId);
+                    if (!image) return;
+                    
+                    const imageElement = document.createElement('div');
+                    imageElement.className = 'draggable-image';
+                    imageElement.dataset.id = imageData.id;
+                    
+                    // Set position and size - NO BORDERS
+                    imageElement.style.left = `${imageData.x}px`;
+                    imageElement.style.top = `${imageData.y}px`;
+                    imageElement.style.width = `${imageData.width}px`;
+                    imageElement.style.height = `${imageData.height}px`;
+                    imageElement.style.border = 'none';
+                    imageElement.style.outline = 'none';
+                    
+                    // Add image and controls
+                    imageElement.innerHTML = `
+                        <img src="${image.base64}" alt="${imageData.name}" draggable="false" style="border: none; outline: none;">
+                        <div class="text-overlay">${image.type.toUpperCase()}</div>
+                        <div class="image-controls">
+                            <button class="image-control-btn size-btn" title="Adjust size">
+                                <i class="fas fa-expand-alt"></i>
+                            </button>
+                            <button class="image-control-btn delete" title="Remove image">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="resize-handle resize-nw"></div>
+                        <div class="resize-handle resize-ne"></div>
+                        <div class="resize-handle resize-sw"></div>
+                        <div class="resize-handle resize-se"></div>
+                    `;
+                    
+                    // Event listeners
+                    imageElement.addEventListener('mousedown', (e) => {
+                        if (e.target.closest('.image-control-btn')) return;
+                        if (e.target.classList.contains('resize-handle')) return;
+                        selectImage(imageData.id);
+                    });
+                    
+                    // Size button
+                    imageElement.querySelector('.size-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showImageSizeModal(imageData.id);
+                    });
+                    
+                    // Delete button
+                    imageElement.querySelector('.delete').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        removeImageFromCanvas(imageData.id);
+                    });
+                    
+                    // Resize handles
+                    const resizeHandles = imageElement.querySelectorAll('.resize-handle');
+                    resizeHandles.forEach(handle => {
+                        handle.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            startResize(imageData.id, e.target);
+                        });
+                    });
+                    
+                    elements.mainCanvas.appendChild(imageElement);
+                });
+            }
+            
+            updateUI();
+            updateZoom();
+        }
+
+        function showImageSizeModal(imageId) {
+            const page = pages[currentPageIndex];
+            const imageData = page.images.find(img => img.id === imageId);
+            
+            if (imageData) {
+                elements.imageWidth.value = Math.round(imageData.width);
+                elements.imageHeight.value = Math.round(imageData.height);
+                elements.imageSizeModal.dataset.imageId = imageId;
+                elements.imageSizeModal.style.display = 'flex';
+            }
+        }
+
+        function applyImageSize() {
+            const imageId = parseInt(elements.imageSizeModal.dataset.imageId);
+            const width = parseInt(elements.imageWidth.value);
+            const height = parseInt(elements.imageHeight.value);
+            const maintainRatio = elements.maintainAspectRatio.checked;
+            
+            const page = pages[currentPageIndex];
+            const imageData = page.images.find(img => img.id === imageId);
+            
+            if (imageData && width > 10 && height > 10) {
+                if (maintainRatio) {
+                    const aspectRatio = imageData.aspectRatio;
+                    imageData.width = width;
+                    imageData.height = width / aspectRatio;
+                } else {
+                    imageData.width = width;
+                    imageData.height = height;
+                    imageData.aspectRatio = width / height;
+                }
+                
+                renderCurrentPage();
+                elements.imageSizeModal.style.display = 'none';
+                showToast('Image size updated', 'success');
+            }
+        }
+
+        function showExcelDataModal() {
+            elements.excelDataModal.style.display = 'flex';
+        }
+
+        async function importExcelData() {
+            const file = elements.excelFile.files[0];
+            const url = elements.excelUrl.value;
+            const sheetName = elements.dataSheet.value || 'Sheet1';
+            
+            if (!file && !url) {
+                showToast('Please provide either a file or a URL', 'warning');
+                return;
+            }
+            
+            showLoading('Loading Excel data...');
+            
+            try {
+                let data;
+                
+                if (file) {
+                    data = await readExcelFile(file, sheetName);
+                } else if (url) {
+                    data = await readExcelFromUrl(url, sheetName);
+                }
+                
+                if (data && data.length > 0) {
+                    excelColumns = Object.keys(data[0]);
+                    showColumnMenu();
+                    showToast(`Loaded ${data.length} rows from Excel`, 'success');
+                } else {
+                    showToast('No data found in Excel file', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('Error reading Excel:', error);
+                showToast('Failed to read Excel file: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+                elements.excelDataModal.style.display = 'none';
+            }
+        }
+
+        function readExcelFile(file, sheetName) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const worksheet = workbook.Sheets[sheetName] || workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                        resolve(jsonData);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function readExcelFromUrl(url, sheetName) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Failed to fetch Excel file: ${response.status}`);
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[sheetName] || workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                return jsonData;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function showColumnMenu() {
+            elements.columnList.innerHTML = '';
+            
+            excelColumns.forEach((column, index) => {
+                const columnItem = document.createElement('div');
+                columnItem.className = 'column-item';
+                columnItem.dataset.column = column;
+                columnItem.textContent = column;
+                
+                columnItem.addEventListener('click', () => {
+                    columnItem.classList.toggle('selected');
+                });
+                
+                elements.columnList.appendChild(columnItem);
+            });
+            
+            elements.columnMenuModal.style.display = 'flex';
+        }
+
+        function applySelectedColumns() {
+            const selectedColumns = Array.from(elements.columnList.querySelectorAll('.column-item.selected'))
+                .map(item => item.dataset.column);
+            
+            if (selectedColumns.length === 0) {
+                showToast('Please select at least one column', 'warning');
+                return;
+            }
+            
+            console.log('Selected columns:', selectedColumns);
+            // Here you would process the selected columns
+            // For example, update image names or create new images based on Excel data
+            
+            elements.columnMenuModal.style.display = 'none';
+            showToast(`Applied ${selectedColumns.length} columns`, 'success');
+        }
+
+        function addImageToCanvas(image, x = null, y = null) {
+            if (!pages[currentPageIndex]) return;
+            
+            const page = pages[currentPageIndex];
+            const canvasWidth = parseInt(elements.mainCanvas.style.width) || 800;
+            const canvasHeight = parseInt(elements.mainCanvas.style.height) || 600;
+            
+            const aspectRatio = image.width / image.height || 1;
+            let width = 150;
+            let height = width / aspectRatio;
+            
+            if (x === null) x = Math.max(0, (canvasWidth - width) / 2);
+            if (y === null) y = Math.max(0, (canvasHeight - height) / 2);
+            
+            if (x + width > canvasWidth) x = Math.max(0, canvasWidth - width);
+            
+            page.images.push({
+                id: Date.now(),
+                imageId: image.id,
+                name: image.name,
+                x, y, width, height,
+                aspectRatio
+            });
+            
+            renderCurrentPage();
+            showToast(`Added "${image.name}"`, 'success');
+        }
+
+        function updateUI() {
+            if (!pages[currentPageIndex]) return;
+            
+            elements.pageIndicator.textContent = `Page ${currentPageIndex + 1} of ${pages.length}`;
+            elements.prevPageBtn.disabled = currentPageIndex === 0;
+            elements.nextPageBtn.disabled = currentPageIndex === pages.length - 1;
+        }
+
+        function handleSearchImages() {
+            const searchTerm = elements.searchImages.value.toLowerCase();
+            
+            if (searchTerm.includes('type:front')) {
+                filteredImages = images.filter(img => img.type === 'front');
+            } else if (searchTerm.includes('type:rear')) {
+                filteredImages = images.filter(img => img.type === 'rear');
+            } else if (searchTerm) {
+                filteredImages = images.filter(img => 
+                    img.name.toLowerCase().includes(searchTerm) ||
+                    img.type.toLowerCase().includes(searchTerm)
+                );
+            } else {
+                filteredImages = [...images];
+            }
+            
+            renderImageSidebar();
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            elements.dropZone.classList.add('drag-over');
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            if (!e.relatedTarget || !e.relatedTarget.closest('#dropZone')) {
+                elements.dropZone.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            elements.dropZone.classList.remove('drag-over');
+            
+            const imageId = e.dataTransfer.getData('text/plain');
+            if (imageId) {
+                const image = images.find(img => img.id === imageId);
+                if (image) {
+                    const rect = elements.mainCanvas.getBoundingClientRect();
+                    const scale = zoomLevel / 100;
+                    const offsetX = (150 / 2) * scale;
+                    const offsetY = (100 / 2) * scale;
+                    const x = (e.clientX - rect.left) / scale - offsetX;
+                    const y = (e.clientY - rect.top) / scale - offsetY;
+                    addImageToCanvas(image, Math.max(0, x), Math.max(0, y));
+                }
+            }
+        }
+
+        function navigateToPage(index) {
+            if (index >= 0 && index < pages.length) {
+                currentPageIndex = index;
+                renderCurrentPage();
+                updateUI();
+            }
+        }
+
+        function navigatePage(direction) {
+            navigateToPage(currentPageIndex + direction);
+        }
+
+        function addNewPage() {
+            const newPage = {
+                id: Date.now(),
+                size: pages[currentPageIndex] ? { ...pages[currentPageIndex].size } : { ...PAGE_SIZES.a3 },
+                images: []
+            };
+            pages.push(newPage);
+            currentPageIndex = pages.length - 1;
+            renderCurrentPage();
+            updateUI();
+            showToast('New page added', 'success');
+        }
+
+        function clearCurrentPage() {
+            if (!pages[currentPageIndex]) return;
+            
+            pages[currentPageIndex].images = [];
+            renderCurrentPage();
+            showToast('Page cleared', 'info');
+        }
+
+        function convertGapToPixels(value, unit) {
+            switch (unit) {
+                case 'mm': return value * 3.78;
+                case 'cm': return value * 37.8;
+                case 'px': return value;
+                default: return value;
+            }
+        }
+
+        function applyGapsToCurrentPage() {
+            const page = pages[currentPageIndex];
+            if (!page || page.images.length === 0) {
+                showToast('No images on current page to apply gaps to', 'warning');
+                return;
+            }
+            
+            const horizontalGapPx = convertGapToPixels(horizontalGap, gapUnit);
+            const verticalGapPx = convertGapToPixels(verticalGap, verticalGapUnit);
+            const canvasWidth = parseInt(elements.mainCanvas.style.width) || 800;
+            const canvasHeight = parseInt(elements.mainCanvas.style.height) || 600;
+            
+            // Sort images by their current position
+            const sortedImages = [...page.images].sort((a, b) => {
+                if (Math.abs(a.y - b.y) < 50) {
+                    return a.x - b.x;
+                }
+                return a.y - b.y;
+            });
+            
+            // Group into rows
+            const rows = [];
+            let currentRow = [];
+            let lastY = null;
+            
+            sortedImages.forEach(img => {
+                if (lastY === null || Math.abs(img.y - lastY) < 50) {
+                    currentRow.push(img);
+                } else {
+                    if (currentRow.length > 0) {
+                        rows.push([...currentRow]);
+                    }
+                    currentRow = [img];
+                }
+                lastY = img.y;
+            });
+            
+            if (currentRow.length > 0) {
+                rows.push(currentRow);
+            }
+            
+            // Arrange each row
+            let currentY = verticalGapPx;
+            
+            rows.forEach(row => {
+                row.sort((a, b) => a.x - b.x);
+                
+                const totalImagesWidth = row.reduce((sum, img) => sum + img.width, 0);
+                const totalGapsWidth = (row.length - 1) * horizontalGapPx;
+                const totalRowWidth = totalImagesWidth + totalGapsWidth;
+                
+                const startX = Math.max(0, (canvasWidth - totalRowWidth) / 2);
+                
+                let currentX = startX;
+                row.forEach(img => {
+                    img.x = currentX;
+                    img.y = currentY;
+                    currentX += img.width + horizontalGapPx;
+                });
+                
+                const rowHeight = Math.max(...row.map(img => img.height));
+                currentY += rowHeight + verticalGapPx;
+            });
+            
+            renderCurrentPage();
+            showToast(`Applied gaps to current page`, 'success');
+        }
+
+        function applySettingsToAllPages() {
+            const currentPage = pages[currentPageIndex];
+            if (!currentPage) return;
+            
+            const horizontalGapPx = convertGapToPixels(horizontalGap, gapUnit);
+            const verticalGapPx = convertGapToPixels(verticalGap, verticalGapUnit);
+            
+            // Get all images that haven't been placed
+            const placedImageIds = new Set();
+            pages.forEach(page => {
+                page.images.forEach(img => {
+                    placedImageIds.add(img.imageId);
+                });
+            });
+            
+            const unplacedImages = images.filter(img => !placedImageIds.has(img.id));
+            
+            if (unplacedImages.length === 0 && pages.length === 1) {
+                applyGapsToCurrentPage();
+                return;
+            }
+            
+            // Analyze current page layout
+            const currentImages = currentPage.images;
+            if (currentImages.length === 0) {
+                showToast('Please arrange some images on current page first', 'warning');
+                return;
+            }
+            
+            // Apply to all pages
+            pages.forEach((page, pageIdx) => {
+                if (page.images.length > 0) {
+                    const canvasWidth = parseInt(elements.mainCanvas.style.width);
+                    const canvasHeight = parseInt(elements.mainCanvas.style.height);
+                    
+                    // Sort and group
+                    const sortedImages = [...page.images].sort((a, b) => {
+                        if (Math.abs(a.y - b.y) < 50) {
+                            return a.x - b.x;
+                        }
+                        return a.y - b.y;
+                    });
+                    
+                    const rows = [];
+                    let currentRow = [];
+                    let lastY = null;
+                    
+                    sortedImages.forEach(img => {
+                        if (lastY === null || Math.abs(img.y - lastY) < 50) {
+                            currentRow.push(img);
+                        } else {
+                            if (currentRow.length > 0) {
+                                rows.push([...currentRow]);
+                            }
+                            currentRow = [img];
+                        }
+                        lastY = img.y;
+                    });
+                    
+                    if (currentRow.length > 0) {
+                        rows.push(currentRow);
+                    }
+                    
+                    // Apply gaps
+                    let currentY = verticalGapPx;
+                    
+                    rows.forEach(row => {
+                        row.sort((a, b) => a.x - b.x);
+                        
+                        const totalImagesWidth = row.reduce((sum, img) => sum + img.width, 0);
+                        const totalGapsWidth = (row.length - 1) * horizontalGapPx;
+                        const totalRowWidth = totalImagesWidth + totalGapsWidth;
+                        
+                        const startX = Math.max(0, (canvasWidth - totalRowWidth) / 2);
+                        
+                        let currentX = startX;
+                        row.forEach(img => {
+                            img.x = currentX;
+                            img.y = currentY;
+                            currentX += img.width + horizontalGapPx;
+                        });
+                        
+                        const rowHeight = Math.max(...row.map(img => img.height));
+                        currentY += rowHeight + verticalGapPx;
+                    });
+                }
+            });
+            
+            renderCurrentPage();
+            updateUI();
+            showToast(`Applied layout to all pages`, 'success');
+        }
+
+        function arrangeImagesAsGrid() {
+            const page = pages[currentPageIndex];
+            if (!page || page.images.length === 0) return;
+            
+            const canvasWidth = parseInt(elements.mainCanvas.style.width) || 800;
+            const canvasHeight = parseInt(elements.mainCanvas.style.height) || 600;
+            const horizontalGapPx = convertGapToPixels(horizontalGap, gapUnit);
+            const verticalGapPx = convertGapToPixels(verticalGap, verticalGapUnit);
+            
+            const cols = Math.ceil(Math.sqrt(page.images.length));
+            const rows = Math.ceil(page.images.length / cols);
+            
+            const availableWidth = canvasWidth - (cols + 1) * horizontalGapPx;
+            const availableHeight = canvasHeight - (rows + 1) * verticalGapPx;
+            
+            let cellWidth = availableWidth / cols;
+            let cellHeight = availableHeight / rows;
+            
+            page.images.forEach((image, index) => {
+                const col = index % cols;
+                const row = Math.floor(index / cols);
+                
+                const x = horizontalGapPx + col * (cellWidth + horizontalGapPx);
+                const y = verticalGapPx + row * (cellHeight + verticalGapPx);
+                
+                const imgAspectRatio = image.aspectRatio || 1;
+                let width, height;
+                
+                if (imgAspectRatio > (cellWidth / cellHeight)) {
+                    width = cellWidth;
+                    height = width / imgAspectRatio;
+                } else {
+                    height = cellHeight;
+                    width = height * imgAspectRatio;
+                }
+                
+                const cellCenterX = x + cellWidth / 2;
+                const cellCenterY = y + cellHeight / 2;
+                
+                image.x = cellCenterX - width / 2;
+                image.y = cellCenterY - height / 2;
+                image.width = width;
+                image.height = height;
+            });
+            
+            renderCurrentPage();
+            showToast(`Images arranged in ${cols}×${rows} grid`, 'success');
+        }
+
+        function handleMouseDown(e) {
+            if (e.target.closest('.resize-handle')) {
+                const handle = e.target;
+                const element = e.target.closest('.draggable-image');
+                if (!element) return;
+                
+                isResizing = true;
+                resizeHandle = handle;
+                const rect = element.getBoundingClientRect();
+                resizeStart = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    width: parseFloat(element.style.width),
+                    height: parseFloat(element.style.height),
+                    left: parseFloat(element.style.left),
+                    top: parseFloat(element.style.top)
+                };
+                
+                const imageId = parseInt(element.dataset.id);
+                selectImage(imageId);
+                e.preventDefault();
+                return;
+            }
+            
+            if (!e.target.closest('.draggable-image')) return;
+            const element = e.target.closest('.draggable-image');
+            if (!element) return;
+            
+            isDragging = true;
+            dragElement = element;
+            
+            const rect = element.getBoundingClientRect();
+            const scale = zoomLevel / 100;
+            dragOffset.x = (e.clientX - rect.left) / scale;
+            dragOffset.y = (e.clientY - rect.top) / scale;
+            
+            const imageId = parseInt(element.dataset.id);
+            selectImage(imageId);
+            e.preventDefault();
+        }
+
+        function handleMouseMove(e) {
+            if (isResizing && resizeHandle && selectedImage) {
+                const page = pages[currentPageIndex];
+                const imageData = page.images.find(img => img.id === selectedImage);
+                if (!imageData) return;
+                
+                const deltaX = e.clientX - resizeStart.x;
+                const deltaY = e.clientY - resizeStart.y;
+                
+                let newWidth = resizeStart.width;
+                let newHeight = resizeStart.height;
+                let newLeft = resizeStart.left;
+                let newTop = resizeStart.top;
+                
+                const handleClass = resizeHandle.className;
+                const aspectRatio = imageData.aspectRatio;
+                
+                if (handleClass.includes('resize-e')) {
+                    newWidth = Math.max(50, resizeStart.width + deltaX);
+                    newHeight = newWidth / aspectRatio;
+                } else if (handleClass.includes('resize-w')) {
+                    newWidth = Math.max(50, resizeStart.width - deltaX);
+                    newHeight = newWidth / aspectRatio;
+                    newLeft = resizeStart.left + deltaX;
+                } else if (handleClass.includes('resize-s')) {
+                    newHeight = Math.max(50, resizeStart.height + deltaY);
+                    newWidth = newHeight * aspectRatio;
+                } else if (handleClass.includes('resize-n')) {
+                    newHeight = Math.max(50, resizeStart.height - deltaY);
+                    newWidth = newHeight * aspectRatio;
+                    newTop = resizeStart.top + deltaY;
+                } else if (handleClass.includes('resize-se')) {
+                    newWidth = Math.max(50, resizeStart.width + deltaX);
+                    newHeight = newWidth / aspectRatio;
+                } else if (handleClass.includes('resize-sw')) {
+                    newWidth = Math.max(50, resizeStart.width - deltaX);
+                    newHeight = newWidth / aspectRatio;
+                    newLeft = resizeStart.left + deltaX;
+                } else if (handleClass.includes('resize-ne')) {
+                    newWidth = Math.max(50, resizeStart.width + deltaX);
+                    newHeight = newWidth / aspectRatio;
+                    newTop = resizeStart.top + deltaY;
+                } else if (handleClass.includes('resize-nw')) {
+                    newWidth = Math.max(50, resizeStart.width - deltaX);
+                    newHeight = newWidth / aspectRatio;
+                    newLeft = resizeStart.left + deltaX;
+                    newTop = resizeStart.top + deltaY;
+                }
+                
+                const canvasWidth = parseInt(elements.mainCanvas.style.width);
+                const canvasHeight = parseInt(elements.mainCanvas.style.height);
+                
+                if (newLeft < 0) newLeft = 0;
+                if (newTop < 0) newTop = 0;
+                if (newLeft + newWidth > canvasWidth) newWidth = canvasWidth - newLeft;
+                if (newTop + newHeight > canvasHeight) newHeight = canvasHeight - newTop;
+                
+                const element = document.querySelector(`.draggable-image[data-id="${selectedImage}"]`);
+                if (element) {
+                    element.style.width = `${newWidth}px`;
+                    element.style.height = `${newHeight}px`;
+                    element.style.left = `${newLeft}px`;
+                    element.style.top = `${newTop}px`;
+                }
+                
+                imageData.width = newWidth;
+                imageData.height = newHeight;
+                imageData.x = newLeft;
+                imageData.y = newTop;
+                
+            } else if (isDragging && dragElement) {
+                const scale = zoomLevel / 100;
+                const canvasRect = elements.mainCanvas.getBoundingClientRect();
+
+                let x = (e.clientX - canvasRect.left) / scale - dragOffset.x;
+                let y = (e.clientY - canvasRect.top) / scale - dragOffset.y;
+
+                const maxX = parseFloat(elements.mainCanvas.style.width) - dragElement.offsetWidth;
+                const maxY = parseFloat(elements.mainCanvas.style.height) - dragElement.offsetHeight;
+
+                x = Math.max(0, Math.min(x, maxX));
+                y = Math.max(0, Math.min(y, maxY));
+
+                dragElement.style.left = `${x}px`;
+                dragElement.style.top = `${y}px`;
+
+                const imageId = parseInt(dragElement.dataset.id);
+                const page = pages[currentPageIndex];
+                const imageData = page.images.find(img => img.id === imageId);
+
+                if (imageData) {
+                    imageData.x = x;
+                    imageData.y = y;
+                }
+            }
+        }
+
+        function handleMouseUp() {
+            isDragging = false;
+            dragElement = null;
+            isResizing = false;
+            resizeHandle = null;
+        }
+
+        function startResize(imageId, handle) {
+            const element = document.querySelector(`.draggable-image[data-id="${imageId}"]`);
+            if (!element) return;
+            
+            isResizing = true;
+            resizeHandle = handle;
+            const rect = element.getBoundingClientRect();
+            resizeStart = {
+                x: event.clientX,
+                y: event.clientY,
+                width: parseFloat(element.style.width),
+                height: parseFloat(element.style.height),
+                left: parseFloat(element.style.left),
+                top: parseFloat(element.style.top)
+            };
+            
+            selectImage(imageId);
+            event.preventDefault();
+        }
+
+        function selectImage(imageId) {
+            if (selectedImage === imageId) return;
+            
+            if (selectedImage) {
+                const prevElement = document.querySelector(`.draggable-image[data-id="${selectedImage}"]`);
+                if (prevElement) {
+                    prevElement.classList.remove('selected');
+                    // Remove any borders
+                    prevElement.style.border = 'none';
+                }
+            }
+            
+            selectedImage = imageId;
+            const element = document.querySelector(`.draggable-image[data-id="${imageId}"]`);
+            if (element) {
+                element.classList.add('selected');
+                element.style.zIndex = '1000';
+                // Ensure no borders on selection
+                element.style.border = 'none';
+            }
+        }
+
+        function removeImageFromCanvas(imageId) {
+            const page = pages[currentPageIndex];
+            const index = page.images.findIndex(img => img.id === imageId);
+            
+            if (index !== -1) {
+                page.images.splice(index, 1);
+                renderCurrentPage();
+                
+                if (selectedImage === imageId) {
+                    selectedImage = null;
+                }
+                showToast('Image removed', 'info');
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedImage) {
+                    removeImageFromCanvas(selectedImage);
+                }
+            }
+            
+            if (selectedImage) {
+                const page = pages[currentPageIndex];
+                const imageData = page.images.find(img => img.id === selectedImage);
+                if (!imageData) return;
+                
+                let moved = false;
+                switch(e.key) {
+                    case 'ArrowUp':
+                        imageData.y = Math.max(0, imageData.y - 1);
+                        moved = true;
+                        break;
+                    case 'ArrowDown':
+                        imageData.y = Math.min(
+                            parseInt(elements.mainCanvas.style.height) - imageData.height,
+                            imageData.y + 1
+                        );
+                        moved = true;
+                        break;
+                    case 'ArrowLeft':
+                        imageData.x = Math.max(0, imageData.x - 1);
+                        moved = true;
+                        break;
+                    case 'ArrowRight':
+                        imageData.x = Math.min(
+                            parseInt(elements.mainCanvas.style.width) - imageData.width,
+                            imageData.x + 1
+                        );
+                        moved = true;
+                        break;
+                }
+                
+                if (moved) {
+                    e.preventDefault();
+                    const element = document.querySelector(`.draggable-image[data-id="${selectedImage}"]`);
+                    if (element) {
+                        element.style.left = `${imageData.x}px`;
+                        element.style.top = `${imageData.y}px`;
+                    }
+                }
+            }
+        }
+
+        function adjustZoom(amount) {
+            zoomLevel = Math.max(25, Math.min(300, zoomLevel + amount));
+            updateZoom();
+        }
+
+        function resetZoom() {
+            zoomLevel = 100;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            elements.zoomDisplay.textContent = `${zoomLevel}%`;
+            elements.zoomPercentage.textContent = `${zoomLevel}%`;
+            elements.zoomSlider.value = zoomLevel;
+
+            const scale = zoomLevel / 100;
+            elements.canvasWrapper.style.transform = `scale(${scale})`;
+            elements.canvasWrapper.style.transformOrigin = 'top center';
+        }
+
+        async function downloadPDF() {
+            if (pages.length === 0) {
+                showToast('No pages to export', 'warning');
+                return;
+            }
+            
+            showPdfModal();
+            elements.pdfStatus.textContent = 'Preparing PDF...';
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                let doc = null;
+                
+                for (let i = 0; i < pages.length; i++) {
+                    const page = pages[i];
+                    const size = page.size;
+                    
+                    let widthMm, heightMm;
+                    
+                    if (size.unit === 'mm') {
+                        widthMm = size.width;
+                        heightMm = size.height;
+                    } else if (size.unit === 'cm') {
+                        widthMm = size.width * 10;
+                        heightMm = size.height * 10;
+                    } else if (size.unit === 'in') {
+                        widthMm = size.width * 25.4;
+                        heightMm = size.height * 25.4;
+                    } else if (size.unit === 'px') {
+                        widthMm = (size.width / 96) * 25.4;
+                        heightMm = (size.height / 96) * 25.4;
+                    } else {
+                        widthMm = 297;
+                        heightMm = 420;
+                    }
+                    
+                    const orientation = widthMm > heightMm ? 'landscape' : 'portrait';
+                    
+                    if (i === 0) {
+                        doc = new jsPDF({
+                            orientation: orientation,
+                            unit: 'mm',
+                            format: [widthMm, heightMm]
+                        });
+                    } else {
+                        doc.addPage([widthMm, heightMm], orientation);
+                    }
+                    
+                    for (const imageData of page.images) {
+                        const image = images.find(img => img.id === imageData.imageId);
+                        if (!image) continue;
+                        
+                        const x = imageData.x * 0.264583;
+                        const y = imageData.y * 0.264583;
+                        const width = imageData.width * 0.264583;
+                        const height = imageData.height * 0.264583;
+                        
+                        let imageBase64 = image.base64;
+                        if (!imageBase64.startsWith('data:image')) {
+                            imageBase64 = `data:image/jpeg;base64,${imageBase64}`;
+                        }
+                        
+                        try {
+                            let format = 'JPEG';
+                            if (imageBase64.includes('data:image/png')) {
+                                format = 'PNG';
+                            }
+                            
+                            doc.addImage(
+                                imageBase64,
+                                format,
+                                x, y, width, height
+                            );
+                        } catch (imgError) {
+                            console.warn('Failed to add image to PDF:', imgError);
+                        }
+                    }
+                    
+                    const progress = Math.round((i + 1) / pages.length * 100);
+                    elements.pdfProgressBar.style.width = `${progress}%`;
+                    elements.pdfStatus.textContent = `Processing page ${i + 1} of ${pages.length}...`;
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                const prjno = elements.projectNo.textContent || 'unknown';
+                const timestamp = new Date().toISOString().slice(0,10);
+                const filename = `Project_${prjno}_${timestamp}.pdf`;
+                
+                doc.save(filename);
+                
+                hidePdfModal();
+                showToast('PDF downloaded successfully', 'success');
+                
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                hidePdfModal();
+                showToast('Failed to generate PDF: ' + error.message, 'error');
+            }
+        }
+
+        function showLoading(message = 'Loading...') {
+            elements.loadingMessage.textContent = message;
+            elements.loadingModal.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            elements.loadingModal.style.display = 'none';
+        }
+
+        function showPdfModal() {
+            elements.pdfModal.style.display = 'flex';
+        }
+
+        function hidePdfModal() {
+            elements.pdfModal.style.display = 'none';
+            elements.pdfProgressBar.style.width = '0%';
+        }
+
+        // Export for debugging
+        window.app = {
+            images,
+            pages,
+            currentPageIndex,
+            applyGapsToCurrentPage,
+            applySettingsToAllPages,
+            arrangeImagesAsGrid,
+            loadSampleImages: () => {
+                loadSampleImages();
+            }
+        };
+        
+        console.log('Image Layout Editor initialized');
+    </script>
+</body>
+</html>

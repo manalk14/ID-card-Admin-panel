@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First View Edit - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --primary: #696cff; 
+            --primary-dark: #5f61e6; 
+            --secondary: #8592a3;
+            --success: #71dd37; 
+            --warning: #ffab00; 
+            --danger: #ff3e1d;
+            --info: #03c3ec; 
+            --dark: #233446; 
+            --light: #f5f5f9;
+            --border-color: #d9dee3; 
+            --card-bg: #fff; 
+            --body-bg: #f5f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: #333;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        #sidebar-container {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        /* Mobile Toggle Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media(max-width: 992px) {
+            .menu-toggle { display: block; }
+            #sidebar-container { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.4);
+            backdrop-filter: blur(2px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Content Styles */
+        .content-box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background-color: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .form-control.invalid {
+            border-color: var(--danger);
+            background-color: rgba(255, 62, 29, 0.05);
+        }
+
+        .form-control.valid {
+            border-color: var(--success);
+            background-color: rgba(113, 221, 55, 0.05);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Character Counters */
+        .char-counter {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: var(--warning);
+        }
+
+        .char-counter.danger {
+            color: var(--danger);
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            background-color: #f8fafc;
+            cursor: pointer;
+        }
+
+        .image-upload-container.drag-over {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .image-upload-container.invalid {
+            border-color: var(--danger);
+            background-color: rgba(255, 62, 29, 0.05);
+        }
+
+        .upload-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-text h4 {
+            color: var(--dark-color);
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .upload-text p {
+            color: #6c757d;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Image Status Styles */
+        .image-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .image-status.info {
+            background: #e7f3ff;
+            color: #0c5460;
+            border: 1px solid #b8daff;
+        }
+
+        .image-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .image-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+
+        .btn-refresh {
+            padding: 8px 16px;
+            font-size: 13px;
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: #03a9d4;
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Message Styles */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            #sidebar-container {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-box {
+                padding: 20px;
+            }
+            
+            .image-upload-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar will be loaded here -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1><i class="fa-solid fa-desktop"></i> First View Edit</h1>
+                    <p>Update your first view description and upload image</p>
+                </div>
+                <button type="button" class="btn btn-refresh" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+            </div>
+            
+            <!-- Messages -->
+            <div class="message message-success" id="successMessage"></div>
+            <div class="message message-error" id="errorMessage"></div>
+            
+            <!-- Text Input Section -->
+            <div class="content-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title"><i class="fas fa-edit"></i> First View Content</h2>
+                    <div id="dataStatus" style="font-size: 12px; color: #6c757d; display: flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Loading data...</span>
+                    </div>
+                </div>
+                
+                <form id="firstViewForm">
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="descriptionInput">
+                            <i class="fas fa-align-left"></i> Description 
+                            <span style="color: var(--primary); font-size: 11px; margin-left: 5px;">
+                                (Currently: <span id="currentDescLength">0</span> characters)
+                            </span>
+                        </label>
+                        <textarea id="descriptionInput" class="form-control" 
+                                  rows="8"
+                                  placeholder="Enter your first view description here..."
+                                  maxlength="15000"></textarea>
+                        <div class="char-counter" id="descriptionCounter">0/15000</div>
+                        <div class="form-help">Provide detailed information about your first view. Maximum 15000 characters.</div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Image Section -->
+            <div class="content-box">
+                <h2 class="section-title"><i class="fas fa-image"></i> Image Upload</h2>
+                
+                <!-- Image Upload Section -->
+                <div class="form-group">
+                    <label><i class="fas fa-cloud-upload-alt"></i> Upload Image (Optional)</label>
+                    
+                    <!-- Upload Area -->
+                    <div class="image-upload-container" id="uploadContainer">
+                        <label class="upload-label" for="fileInput" style="cursor: pointer;">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">
+                                <h4>Upload Image</h4>
+                                <p>Click to browse or drag and drop your image here</p>
+                                <p>Supported formats: JPG, PNG, GIF, WEBP • Max size: 5MB</p>
+                                <p>Image will be converted to base64 format and sent to API</p>
+                            </div>
+                            <input type="file" id="fileInput" accept="image/*">
+                        </label>
+                    </div>
+                    
+                    <!-- Image Status Display (No Preview) -->
+                    <div id="imageStatus" class="image-status">
+                        <div id="imageInfo"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button type="button" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <button type="button" class="btn btn-secondary" id="clearBtn">
+                    <i class="fas fa-redo"></i> Reset Form
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sidebarContainer = document.getElementById('sidebar-container');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const fileInput = document.getElementById('fileInput');
+        const uploadContainer = document.getElementById('uploadContainer');
+        const imageStatus = document.getElementById('imageStatus');
+        const imageInfo = document.getElementById('imageInfo');
+        const dataStatus = document.getElementById('dataStatus');
+        const currentDescLength = document.getElementById('currentDescLength');
+        const submitBtn = document.getElementById('submitBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Character counter elements
+        const descriptionCounter = document.getElementById('descriptionCounter');
+        
+        // API Configuration
+        const API_BASE_URL = 'https://www.coremicron.co.in/skynetwork/admin';
+        const HOME_PAGE_SLIDER_API = `${API_BASE_URL}/home_page_slider.php`;
+        const UPDATE_API = `${API_BASE_URL}/action/home_page_slider.php`;
+        
+        // State variables
+        let originalData = {
+            description: ''
+        };
+        let currentBase64Image = '';
+        let formIsValid = false;
+        let currentApiData = null;
+
+        // Validation rules
+        const validationRules = {
+            description: {
+                minLength: 10,
+                maxLength: 15000,
+                required: true
+            },
+            image: {
+                maxSize: 5 * 1024 * 1024, // 5MB
+                allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+                required: false // Image is optional
+            }
+        };
+
+        // ========== AUTHENTICATION & SIDEBAR FUNCTIONS ==========
+
+        // Enforce login
+        function enforceLogin() {
+            const appId = localStorage.getItem("app_id");
+            if (!appId) {
+                window.location.replace("login.html");
+            }
+            return appId;
+        }
+
+        // Load sidebar
+        async function loadSidebar() {
+            try {
+                const response = await fetch('sidebar.html');
+                if (response.ok) {
+                    const sidebarHtml = await response.text();
+                    sidebarContainer.innerHTML = sidebarHtml;
+                    
+                    setTimeout(() => {
+                        initializeSidebar();
+                    }, 100);
+                } else {
+                    console.error('Failed to load sidebar');
+                }
+            } catch (error) {
+                console.error('Error loading sidebar:', error);
+            }
+        }
+
+        // Initialize sidebar with collapsible sections
+        function initializeSidebar() {
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            // Remove ALL event listeners first
+            document.querySelectorAll('.collapsible-header').forEach((header, i) => {
+                const newHeader = header.cloneNode(true);
+                header.parentNode.replaceChild(newHeader, header);
+            });
+            
+            // Get fresh references after cloning
+            const headers = document.querySelectorAll('.collapsible-header');
+            
+            headers.forEach((header, index) => {
+                const section = header.closest('.collapsible-section');
+                const content = section?.querySelector('.collapsible-content');
+                
+                if (!section || !content) return;
+                
+                // Set initial state
+                const links = content.querySelectorAll('a');
+                let isActiveSection = false;
+                
+                links.forEach(link => {
+                    if (link.getAttribute('href') === currentPage || 
+                        link.getAttribute('href') === 'first-view.html' || 
+                        link.getAttribute('href').includes('first-view')) {
+                        link.classList.add('active');
+                        isActiveSection = true;
+                    }
+                });
+                
+                header.classList.toggle('active', isActiveSection);
+                content.classList.toggle('expanded', isActiveSection);
+                
+                // Create a unique function for this header
+                const handleClick = (function(h, c, idx) {
+                    return function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        h.classList.toggle('active');
+                        c.classList.toggle('expanded');
+                    };
+                })(header, content, index);
+                
+                header.onclick = null;
+                header.addEventListener('click', handleClick, {once: false});
+            });
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            if (sidebar) {
+                sidebar.classList.toggle("active");
+                if (overlay) overlay.classList.toggle("active");
+            }
+        }
+
+        // ========== IMAGE STATUS FUNCTIONS ==========
+
+        // Update image status
+        function updateImageStatus(message, type = 'info') {
+            imageStatus.style.display = 'block';
+            imageStatus.className = 'image-status ' + type;
+            
+            let icon = 'info-circle';
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    break;
+                case 'error':
+                    icon = 'exclamation-circle';
+                    break;
+                case 'info':
+                default:
+                    icon = 'info-circle';
+            }
+            
+            imageInfo.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+        }
+
+        // Clear image status
+        function clearImageStatus() {
+            imageStatus.style.display = 'none';
+            imageInfo.innerHTML = '';
+        }
+
+        // ========== API FUNCTIONS ==========
+
+        // Fetch data from API - Only gets description
+        async function fetchDataFromAPI() {
+            const appId = enforceLogin();
+            if (!appId) return null;
+
+            try {
+                updateDataStatus('Loading description...', 'info');
+                
+                // Create request body
+                const requestBody = {
+                    app_id: appId
+                };
+                
+                console.log('Fetching description from API:', requestBody);
+                console.log('API URL:', HOME_PAGE_SLIDER_API);
+                
+                const response = await fetch(HOME_PAGE_SLIDER_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('API Fetch Response:', data);
+                
+                // Check response format
+                if (data.result === "1" && data.hm_slider && data.hm_slider.length > 0) {
+                    currentApiData = data.hm_slider[0]; // Get first item from array
+                    populateFormWithData(currentApiData);
+                    updateDataStatus('Description loaded successfully', 'success');
+                    return currentApiData;
+                } else if (data.result === "0") {
+                    // No data found
+                    updateDataStatus('No data found', 'info');
+                    populateFormWithData(null);
+                    showSuccess('No existing description found. You can add new description.');
+                    return null;
+                } else {
+                    throw new Error(data.message || 'Invalid response format from API');
+                }
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                updateDataStatus('Failed to load description', 'error');
+                showError('Failed to load description from server. Please try again.');
+                return null;
+            }
+        }
+
+        // Update data via API - Sends description and image in base64
+        async function updateDataViaAPI() {
+            const appId = enforceLogin();
+            if (!appId) return null;
+
+            try {
+                showLoading(true);
+                
+                // Prepare request body for update API
+                const requestBody = {
+                    app_id: appId,
+                    description: descriptionInput.value.trim(),
+                    action: "update"
+                };
+                
+                // Add image in base64 format if uploaded
+                if (currentBase64Image) {
+                    // Send the full base64 string
+                    requestBody.image = currentBase64Image;
+                    console.log('Image base64 length:', currentBase64Image.length);
+                    console.log('Image base64 preview:', currentBase64Image.substring(0, 100) + '...');
+                }
+                
+                console.log('Sending update request to API:', {
+                    ...requestBody,
+                    description_length: requestBody.description.length,
+                    has_image: !!requestBody.image
+                });
+                
+                const response = await fetch(UPDATE_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('API Update Response:', result);
+                
+                return result;
+                
+            } catch (error) {
+                console.error('Error updating data:', error);
+                throw error;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Populate form with data from API - Only loads description
+        function populateFormWithData(data) {
+            if (!data) {
+                descriptionInput.value = '';
+                descriptionInput.placeholder = 'No description found. Enter your first view description here...';
+                currentDescLength.textContent = '0';
+                originalData = {
+                    description: ''
+                };
+                return;
+            }
+            
+            console.log('Populating form with description data:', data);
+            
+            // Extract description only
+            let description = data.description || '';
+            
+            // Populate description field only
+            descriptionInput.value = description;
+            updateCharCounter(descriptionInput, descriptionCounter);
+            currentDescLength.textContent = description.length;
+            
+            // Store original data (description only)
+            originalData = {
+                description: description
+            };
+        }
+
+        // Update data status display
+        function updateDataStatus(message, type = 'info') {
+            let icon = 'info-circle';
+            let color = '#6c757d';
+            
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    color = 'var(--success)';
+                    break;
+                case 'error':
+                    icon = 'exclamation-circle';
+                    color = 'var(--danger)';
+                    break;
+                case 'loading':
+                    icon = 'spinner fa-spin';
+                    color = 'var(--primary)';
+                    break;
+                case 'info':
+                default:
+                    icon = 'info-circle';
+                    color = 'var(--info)';
+            }
+            
+            dataStatus.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${message}</span>
+            `;
+            dataStatus.style.color = color;
+        }
+
+        // ========== CHARACTER COUNTER FUNCTIONS ==========
+
+        // Initialize character counters
+        function initializeCharCounters() {
+            updateCharCounter(descriptionInput, descriptionCounter);
+            
+            // Add input event listeners for character counting
+            descriptionInput.addEventListener('input', () => {
+                updateCharCounter(descriptionInput, descriptionCounter);
+                currentDescLength.textContent = descriptionInput.value.length;
+            });
+        }
+
+        // Update character counter
+        function updateCharCounter(inputElement, counterElement) {
+            const length = inputElement.value.length;
+            const maxLength = inputElement.maxLength;
+            
+            counterElement.textContent = `${length}/${maxLength}`;
+            
+            // Update color based on length
+            if (length === 0) {
+                counterElement.className = 'char-counter';
+            } else if (length >= maxLength * 0.9) {
+                counterElement.className = 'char-counter danger';
+            } else if (length >= maxLength * 0.75) {
+                counterElement.className = 'char-counter warning';
+            } else {
+                counterElement.className = 'char-counter';
+            }
+        }
+
+        // ========== VALIDATION FUNCTIONS ==========
+
+        // Validate description field
+        function validateDescription() {
+            const value = descriptionInput.value.trim();
+            const rules = validationRules.description;
+            
+            if (rules.required && !value) {
+                showError('First view description is required');
+                return false;
+            }
+            
+            if (value.length < rules.minLength) {
+                showError(`Description must be at least ${rules.minLength} characters long`);
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Validate image
+        function validateImage(file) {
+            const rules = validationRules.image;
+            
+            if (!file) {
+                return true; // Image is optional
+            }
+            
+            // Check file type
+            if (!rules.allowedTypes.includes(file.type)) {
+                showError('Invalid file type. Please upload JPG, PNG, GIF, or WEBP files only');
+                return false;
+            }
+            
+            // Check file size
+            if (file.size > rules.maxSize) {
+                showError(`File size too large. Maximum size is ${rules.maxSize / (1024 * 1024)}MB`);
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Validate entire form
+        function validateForm() {
+            const isDescriptionValid = validateDescription();
+            
+            formIsValid = isDescriptionValid;
+            return formIsValid;
+        }
+
+        // ========== FORM FUNCTIONS ==========
+
+        // Show loading overlay
+        function showLoading(show) {
+            if (show) {
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('active');
+            setTimeout(() => {
+                successMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Convert image to base64
+        function convertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Handle drag and drop events
+        ['dragover', 'dragenter'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadContainer.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'dragend'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, () => {
+                uploadContainer.classList.remove('drag-over');
+            });
+        });
+
+        uploadContainer.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            uploadContainer.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                await handleImageUpload(file);
+            }
+        });
+
+        // Handle file input change
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await handleImageUpload(file);
+            }
+        });
+
+        // Handle image upload (no preview - just status)
+        async function handleImageUpload(file) {
+            // Validate image first
+            if (!validateImage(file)) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                updateImageStatus('Processing image and converting to base64...', 'info');
+                
+                // Convert image to base64
+                const base64 = await convertToBase64(file);
+                
+                // Store the base64 image
+                currentBase64Image = base64;
+                
+                // Show success message
+                const sizeInKB = Math.round(file.size / 1024);
+                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                updateImageStatus(`✓ ${file.name} (${sizeInKB} KB) - Ready to send as base64 to API`, 'success');
+                showSuccess('Image uploaded and converted to base64 format! Will be sent to API on save.');
+                
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error converting image:', error);
+                updateImageStatus('Error processing image. Please try again.', 'error');
+                showError('Error processing image. Please try again.');
+                currentBase64Image = '';
+                showLoading(false);
+            }
+        }
+
+        // Clear image
+        function clearImage() {
+            currentBase64Image = '';
+            fileInput.value = '';
+            clearImageStatus();
+            showSuccess('Image cleared. No image will be sent to API.');
+        }
+
+        // Submit form
+        submitBtn.addEventListener('click', async () => {
+            if (!validateForm()) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                submitBtn.disabled = true;
+
+                // Call API to update data
+                const result = await updateDataViaAPI();
+                
+                console.log('Update result:', result);
+                
+                if (result && result.result === "1") {
+                    let successMsg = 'First view description updated successfully!';
+                    if (currentBase64Image) {
+                        successMsg += ' Image uploaded successfully as base64!';
+                    }
+                    showSuccess(successMsg);
+                    
+                    // Refresh data from API
+                    await fetchDataFromAPI();
+                    
+                    // Clear image after successful upload
+                    clearImage();
+                } else {
+                    throw new Error(result?.message || 'Failed to update data');
+                }
+
+            } catch (err) {
+                console.error(err);
+                showError(err.message || 'Update failed. Please check console for details and try again.');
+            } finally {
+                showLoading(false);
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Clear form
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset the form to original description?')) {
+                // Reset to original data
+                if (originalData) {
+                    descriptionInput.value = originalData.description || '';
+                } else {
+                    descriptionInput.value = '';
+                }
+                
+                // Clear uploaded image
+                clearImage();
+                
+                // Update character counters
+                updateCharCounter(descriptionInput, descriptionCounter);
+                currentDescLength.textContent = descriptionInput.value.length;
+                
+                showSuccess('Form reset successfully!');
+            }
+        });
+
+        // Refresh data
+        refreshBtn.addEventListener('click', async () => {
+            await fetchDataFromAPI();
+            showSuccess('Description refreshed successfully!');
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Enforce login first
+            enforceLogin();
+            
+            // Load sidebar and set up collapse functionality
+            await loadSidebar();
+            
+            // Initialize character counters
+            initializeCharCounters();
+            
+            // Fetch and display current description from API
+            await fetchDataFromAPI();
+        });
+    </script>
+</body>
+</html>

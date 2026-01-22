@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experience Edit - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --primary: #696cff; 
+            --primary-dark: #5f61e6; 
+            --secondary: #8592a3;
+            --success: #71dd37; 
+            --warning: #ffab00; 
+            --danger: #ff3e1d;
+            --info: #03c3ec; 
+            --dark: #233446; 
+            --light: #f5f5f9;
+            --border-color: #d9dee3; 
+            --card-bg: #fff; 
+            --body-bg: #f5f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: #333;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        #sidebar-container {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        /* Mobile Toggle Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media(max-width: 992px) {
+            .menu-toggle { display: block; }
+            #sidebar-container { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.4);
+            backdrop-filter: blur(2px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Content Styles */
+        .content-box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background-color: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .form-control.invalid {
+            border-color: var(--danger);
+            background-color: rgba(255, 62, 29, 0.05);
+        }
+
+        .form-control.valid {
+            border-color: var(--success);
+            background-color: rgba(113, 221, 55, 0.05);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Character Counters */
+        .char-counter {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: var(--warning);
+        }
+
+        .char-counter.danger {
+            color: var(--danger);
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            background-color: #f8fafc;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .image-upload-container.drag-over {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .image-upload-container.invalid {
+            border-color: var(--danger);
+            background-color: rgba(255, 62, 29, 0.05);
+        }
+
+        .upload-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-text h4 {
+            color: var(--dark-color);
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .upload-text p {
+            color: #6c757d;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Message Styles */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            #sidebar-container {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-box {
+                padding: 20px;
+            }
+            
+            .image-upload-container {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar will be loaded here -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1><i class="fa-solid fa-desktop"></i> Experience Edit</h1>
+                    <p>Update your experience description and company image</p>
+                </div>
+                <button class="btn btn-secondary" onclick="fetchExperienceData()" style="padding: 10px 20px;">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+            </div>
+            
+            <!-- Messages -->
+            <div class="message message-success" id="successMessage"></div>
+            <div class="message message-error" id="errorMessage"></div>
+            
+            <!-- Status Indicator -->
+            <div id="dataStatus" class="message" style="display: block; background: #e7f3ff; color: #0c5460; border: 1px solid #b8daff;">
+                <i class="fas fa-spinner fa-spin"></i> Loading experience data...
+            </div>
+            
+            <!-- Description Section -->
+            <div class="content-box">
+                <h2 class="section-title"><i class="fas fa-edit"></i> Experience Description</h2>
+                
+                <form id="experienceForm">
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="descriptionInput"><i class="fas fa-align-left"></i> Experience Description *</label>
+                        <textarea id="descriptionInput" class="form-control" 
+                                  rows="6"
+                                  placeholder="Loading experience data..." 
+                                  maxlength="1500" disabled></textarea>
+                        <div class="char-counter" id="descriptionCounter">0/1500</div>
+                        <div class="form-help">Provide detailed information about your professional experience, responsibilities, achievements, and skills</div>
+                    </div>
+                    
+                    <!-- Image Upload Section -->
+                    <div class="form-group">
+                        <label><i class="fas fa-image"></i> Company Image (Optional)</label>
+                        
+                        <!-- Upload Area -->
+                        <div class="image-upload-container" id="uploadContainer" style="opacity: 0.5; pointer-events: none;">
+                            <label class="upload-label" for="fileInput" style="cursor: not-allowed;">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="upload-text">
+                                    <h4>Upload Company Image</h4>
+                                    <p>Click to browse or drag and drop your image here</p>
+                                    <p>Supported formats: JPG, PNG, GIF • Max size: 5MB</p>
+                                    <p>Image will be converted to base64 format and sent to API</p>
+                                </div>
+                                <input type="file" id="fileInput" accept="image/*" disabled>
+                            </label>
+                        </div>
+                        
+                        <!-- Image Upload Status -->
+                        <div id="imageStatus" style="display: none; padding: 10px; background: #f8f9fa; border-radius: 5px; margin-top: 10px;">
+                            <div id="imageInfo" style="font-size: 12px; color: #6c757d;"></div>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" id="submitBtn" disabled>
+                        <i class="fas fa-save"></i> Save Experience
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearBtn" disabled>
+                        <i class="fas fa-redo"></i> Clear Form
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoints
+        const API_GET_ENDPOINT = 'https://www.coremicron.co.in/skynetwork/admin/home_page_experience.php';
+        const API_UPDATE_ENDPOINT = 'https://www.coremicron.co.in/skynetwork/admin/action/home_page_experience.php';
+        
+        // DOM Elements
+        const sidebarContainer = document.getElementById('sidebar-container');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const fileInput = document.getElementById('fileInput');
+        const uploadContainer = document.getElementById('uploadContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const dataStatus = document.getElementById('dataStatus');
+        const imageStatus = document.getElementById('imageStatus');
+        const imageInfo = document.getElementById('imageInfo');
+        
+        // Character counter elements
+        const descriptionCounter = document.getElementById('descriptionCounter');
+        
+        // State variables
+        let originalData = {
+            description: '',
+            image: ''
+        };
+        let currentBase64Image = '';
+        let dataLoaded = false;
+
+        // Validation rules
+        const validationRules = {
+            description: {
+                minLength: 50,
+                maxLength: 1500,
+                required: true
+            },
+            image: {
+                maxSize: 5 * 1024 * 1024, // 5MB
+                allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'],
+                required: false
+            }
+        };
+
+        // ========== AUTHENTICATION & SIDEBAR FUNCTIONS ==========
+
+        // Enforce login
+        function enforceLogin() {
+            const appId = localStorage.getItem("app_id");
+            if (!appId) {
+                window.location.replace("login.html");
+            }
+        }
+
+        // Load sidebar
+        async function loadSidebar() {
+            try {
+                const response = await fetch('sidebar.html');
+                if (response.ok) {
+                    const sidebarHtml = await response.text();
+                    sidebarContainer.innerHTML = sidebarHtml;
+                    
+                    setTimeout(() => {
+                        initializeSidebar();
+                    }, 100);
+                } else {
+                    console.error('Failed to load sidebar');
+                }
+            } catch (error) {
+                console.error('Error loading sidebar:', error);
+            }
+        }
+
+        // Initialize sidebar with collapsible sections
+        function initializeSidebar() {
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            document.querySelectorAll('.collapsible-header').forEach((header, index) => {
+                const section = header.closest('.collapsible-section');
+                const content = section?.querySelector('.collapsible-content');
+                
+                if (!section || !content) return;
+                
+                // Set initial state
+                const links = content.querySelectorAll('a');
+                let isActiveSection = false;
+                
+                links.forEach(link => {
+                    if (link.getAttribute('href') === currentPage || 
+                        link.getAttribute('href') === 'experience-edit.html' || 
+                        link.getAttribute('href').includes('experience')) {
+                        link.classList.add('active');
+                        isActiveSection = true;
+                    }
+                });
+                
+                header.classList.toggle('active', isActiveSection);
+                content.classList.toggle('expanded', isActiveSection);
+                
+                header.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    header.classList.toggle('active');
+                    content.classList.toggle('expanded');
+                });
+            });
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            if (sidebar) {
+                sidebar.classList.toggle("active");
+                if (overlay) overlay.classList.toggle("active");
+            }
+        }
+
+        // ========== CHARACTER COUNTER FUNCTIONS ==========
+
+        // Initialize character counters
+        function initializeCharCounters() {
+            updateCharCounter(descriptionInput, descriptionCounter);
+            
+            // Add input event listeners for character counting
+            descriptionInput.addEventListener('input', () => updateCharCounter(descriptionInput, descriptionCounter));
+        }
+
+        // Update character counter
+        function updateCharCounter(inputElement, counterElement) {
+            const length = inputElement.value.length;
+            const maxLength = inputElement.maxLength;
+            
+            counterElement.textContent = `${length}/${maxLength}`;
+            
+            // Update color based on length
+            if (length === 0) {
+                counterElement.className = 'char-counter';
+            } else if (length >= maxLength * 0.9) {
+                counterElement.className = 'char-counter danger';
+            } else if (length >= maxLength * 0.75) {
+                counterElement.className = 'char-counter warning';
+            } else {
+                counterElement.className = 'char-counter';
+            }
+        }
+
+        // ========== FORM FUNCTIONS ==========
+
+        // Enable form for editing
+        function enableForm() {
+            descriptionInput.disabled = false;
+            descriptionInput.placeholder = "Describe your professional experience, responsibilities, achievements, and skills...";
+            
+            uploadContainer.style.opacity = '1';
+            uploadContainer.style.pointerEvents = 'auto';
+            fileInput.disabled = false;
+            
+            submitBtn.disabled = false;
+            clearBtn.disabled = false;
+            
+            dataStatus.style.display = 'none';
+            dataLoaded = true;
+        }
+
+        // Update status message
+        function updateStatus(message, type = 'info') {
+            dataStatus.innerHTML = `<i class="fas fa-${type === 'info' ? 'info-circle' : type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
+            dataStatus.style.display = 'block';
+            
+            if (type === 'success') {
+                dataStatus.style.background = '#d4edda';
+                dataStatus.style.color = '#155724';
+                dataStatus.style.border = '1px solid #c3e6cb';
+            } else if (type === 'error') {
+                dataStatus.style.background = '#f8d7da';
+                dataStatus.style.color = '#721c24';
+                dataStatus.style.border = '1px solid #f5c6cb';
+            } else {
+                dataStatus.style.background = '#e7f3ff';
+                dataStatus.style.color = '#0c5460';
+                dataStatus.style.border = '1px solid #b8daff';
+            }
+        }
+
+        // Update image status
+        function updateImageStatus(message, type = 'info') {
+            imageStatus.style.display = 'block';
+            imageInfo.innerHTML = `<i class="fas fa-${type === 'info' ? 'info-circle' : type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
+            
+            if (type === 'success') {
+                imageStatus.style.background = '#d4edda';
+                imageStatus.style.color = '#155724';
+                imageStatus.style.border = '1px solid #c3e6cb';
+            } else if (type === 'error') {
+                imageStatus.style.background = '#f8d7da';
+                imageStatus.style.color = '#721c24';
+                imageStatus.style.border = '1px solid #f5c6cb';
+            } else {
+                imageStatus.style.background = '#f8f9fa';
+                imageStatus.style.color = '#6c757d';
+                imageStatus.style.border = '1px solid #e9ecef';
+            }
+        }
+
+        // Clear image status
+        function clearImageStatus() {
+            imageStatus.style.display = 'none';
+            imageInfo.innerHTML = '';
+        }
+
+        // ========== VALIDATION FUNCTIONS ==========
+
+        // Validate description field
+        function validateDescription() {
+            const value = descriptionInput.value.trim();
+            const rules = validationRules.description;
+            
+            if (rules.required && !value) {
+                showError('Experience description is required');
+                return false;
+            }
+            
+            if (value.length < rules.minLength) {
+                showError(`Description must be at least ${rules.minLength} characters long`);
+                return false;
+            }
+            
+            if (value.length > rules.maxLength) {
+                showError(`Description must not exceed ${rules.maxLength} characters`);
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Validate image
+        function validateImage(file) {
+            if (!file) {
+                return true; // Image is optional
+            }
+            
+            const rules = validationRules.image;
+            
+            // Check file type
+            if (!rules.allowedTypes.includes(file.type)) {
+                showError('Invalid file type. Please upload JPG, PNG, or GIF files only');
+                return false;
+            }
+            
+            // Check file size
+            if (file.size > rules.maxSize) {
+                showError(`File size too large. Maximum size is ${rules.maxSize / (1024 * 1024)}MB`);
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Validate entire form
+        function validateForm() {
+            return validateDescription();
+        }
+
+        // ========== API FUNCTIONS ==========
+
+        // Get app_id from localStorage
+        function getAppId() {
+            const appId = localStorage.getItem('app_id');
+            if (!appId) {
+                showError('App ID not found. Please login again.');
+                return null;
+            }
+            return appId;
+        }
+
+        // Fetch experience data from API
+        async function fetchExperienceData() {
+            const appId = getAppId();
+            if (!appId) return;
+            
+            try {
+                showLoading(true);
+                updateStatus('Fetching experience data...');
+                
+                const requestData = {
+                    app_id: appId
+                };
+                
+                console.log('Fetching experience data with:', requestData);
+                
+                const response = await fetch(API_GET_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                // Try to parse as JSON
+                let data;
+                const responseText = await response.text();
+                console.log('Raw API response:', responseText);
+                
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('Parsed JSON:', data);
+                } catch (parseError) {
+                    console.error('Failed to parse JSON:', parseError);
+                    updateStatus('Invalid response format from server', 'error');
+                    return;
+                }
+                
+                // Process and display the data
+                displayExperienceData(data);
+                
+            } catch (error) {
+                console.error('Error fetching experience data:', error);
+                updateStatus('Error loading experience data. Please try again.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Display experience data in form
+        function displayExperienceData(data) {
+            try {
+                console.log('Displaying data:', data);
+                
+                // Check the API response structure
+                if (data.result === "1" && data.hm_experience && Array.isArray(data.hm_experience) && data.hm_experience.length > 0) {
+                    // Extract data from hm_experience array
+                    const experienceData = data.hm_experience[0];
+                    
+                    // Display description
+                    if (experienceData.description) {
+                        descriptionInput.value = experienceData.description;
+                        originalData.description = experienceData.description;
+                        
+                        // Update character counter
+                        updateCharCounter(descriptionInput, descriptionCounter);
+                    }
+                    
+                    // Store existing image if exists
+                    if (experienceData.image && experienceData.image.startsWith('data:image')) {
+                        originalData.image = experienceData.image;
+                        updateImageStatus('Existing image loaded from API', 'success');
+                    }
+                    
+                    // Enable the form
+                    enableForm();
+                    
+                    // Show success status
+                    updateStatus('Experience data loaded successfully! You can now edit and save changes.', 'success');
+                    setTimeout(() => {
+                        dataStatus.style.display = 'none';
+                    }, 3000);
+                    
+                } else if (data.result === "0" || !data.hm_experience || data.hm_experience.length === 0) {
+                    // No data found
+                    updateStatus('No experience data found. You can add new data.', 'info');
+                    enableForm();
+                } else {
+                    // Unexpected response format
+                    console.error('Unexpected API response format:', data);
+                    updateStatus('Unexpected response format from API', 'error');
+                    enableForm();
+                }
+                
+            } catch (error) {
+                console.error('Error displaying experience data:', error);
+                updateStatus('Error displaying experience data', 'error');
+                // Still enable the form so user can enter data
+                enableForm();
+            }
+        }
+
+        // Update experience data via API
+        async function updateExperienceData() {
+            if (!dataLoaded) {
+                showError('Please wait for data to load first');
+                return;
+            }
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const appId = getAppId();
+            if (!appId) return;
+            
+            try {
+                showLoading(true);
+                submitBtn.disabled = true;
+                updateStatus('Saving experience data...');
+                
+                // Prepare data for API in exact format required
+                const requestData = {
+                    app_id: appId,
+                    description: descriptionInput.value.trim(),
+                    action: "update"
+                };
+                
+                // Handle image data - send image in base64 format
+                if (currentBase64Image) {
+                    // User uploaded a new image
+                    requestData.image = currentBase64Image;
+                } else if (originalData.image && !currentBase64Image) {
+                    // Keep existing image (user didn't change it)
+                    requestData.image = originalData.image;
+                } else {
+                    // No image - send empty string
+                    requestData.image = "";
+                }
+                
+                console.log('Sending data to update API:', { 
+                    ...requestData, 
+                    image: requestData.image ? 'BASE64_IMAGE_DATA (' + requestData.image.length + ' chars)' : 'EMPTY'
+                });
+                
+                const response = await fetch(API_UPDATE_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const responseText = await response.text();
+                console.log('Update API response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse update response:', parseError);
+                    showError('Invalid response from server: ' + responseText);
+                    return;
+                }
+                
+                console.log('Update API response JSON:', result);
+                
+                if (result.success || result.status === 'success' || result.message === 'Experience updated successfully' || result.result === "1") {
+                    showSuccess('Experience data saved successfully!');
+                    updateStatus('Experience saved successfully!', 'success');
+                    
+                    // Update original data
+                    originalData.description = descriptionInput.value.trim();
+                    
+                    if (currentBase64Image) {
+                        originalData.image = currentBase64Image;
+                    }
+                    
+                    // Clear current base64 image after saving
+                    currentBase64Image = '';
+                    clearImageStatus();
+                    fileInput.value = '';
+                    
+                    // Refresh data from API to ensure sync
+                    setTimeout(() => {
+                        fetchExperienceData();
+                    }, 1000);
+                } else {
+                    const errorMsg = result.message || result.error || 'Failed to save experience data';
+                    showError(errorMsg);
+                    updateStatus(errorMsg, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error updating experience data:', error);
+                const errorMsg = 'Save failed. Please try again. Error: ' + error.message;
+                showError(errorMsg);
+                updateStatus(errorMsg, 'error');
+            } finally {
+                showLoading(false);
+                submitBtn.disabled = false;
+                
+                // Hide status after 3 seconds
+                setTimeout(() => {
+                    if (dataStatus.style.display !== 'none') {
+                        dataStatus.style.display = 'none';
+                    }
+                }, 3000);
+            }
+        }
+
+        // ========== IMAGE HANDLING FUNCTIONS ==========
+
+        // Show loading overlay
+        function showLoading(show) {
+            if (show) {
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('active');
+            setTimeout(() => {
+                successMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Convert image to base64
+        function convertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Handle drag and drop events
+        ['dragover', 'dragenter'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, (e) => {
+                if (!dataLoaded) return;
+                e.preventDefault();
+                uploadContainer.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'dragend'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, () => {
+                uploadContainer.classList.remove('drag-over');
+            });
+        });
+
+        uploadContainer.addEventListener('drop', async (e) => {
+            if (!dataLoaded) return;
+            e.preventDefault();
+            uploadContainer.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                await handleImageUpload(file);
+            }
+        });
+
+        // Handle file input change
+        fileInput.addEventListener('change', async (e) => {
+            if (!dataLoaded) return;
+            const file = e.target.files[0];
+            if (file) {
+                await handleImageUpload(file);
+            }
+        });
+
+        // Handle image upload
+        async function handleImageUpload(file) {
+            // Validate image first
+            if (!validateImage(file)) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                updateImageStatus('Processing image and converting to base64...', 'info');
+                
+                // Convert image to base64 format
+                const base64 = await convertToBase64(file);
+                
+                // Store the base64 image
+                currentBase64Image = base64;
+                
+                // Show success message
+                const sizeInKB = Math.round(file.size / 1024);
+                updateImageStatus(`✓ Image uploaded successfully! ${file.name} (${sizeInKB} KB) - Ready to send as base64 to API`, 'success');
+                showSuccess('Image uploaded and converted to base64 format!');
+                
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error converting image:', error);
+                updateImageStatus('Error processing image. Please try again.', 'error');
+                showError('Error processing image. Please try again.');
+                showLoading(false);
+            }
+        }
+
+        // Clear image
+        function clearImage() {
+            if (!dataLoaded) return;
+            
+            currentBase64Image = '';
+            fileInput.value = '';
+            clearImageStatus();
+            showSuccess('Image cleared. Empty image will be sent to API.');
+        }
+
+        // Submit form
+        submitBtn.addEventListener('click', async () => {
+            if (!dataLoaded) {
+                showError('Please wait for data to load first');
+                return;
+            }
+
+            await updateExperienceData();
+        });
+
+        // Clear form
+        clearBtn.addEventListener('click', () => {
+            if (!dataLoaded) {
+                showError('Please wait for data to load first');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear all fields? This will remove any unsaved changes.')) {
+                // Reset to original data
+                descriptionInput.value = originalData.description || '';
+                
+                // Clear uploaded image
+                clearImage();
+                
+                // Update character counters
+                updateCharCounter(descriptionInput, descriptionCounter);
+                
+                showSuccess('Form reset to original data!');
+                updateStatus('Form reset', 'success');
+                
+                // Hide status after 2 seconds
+                setTimeout(() => {
+                    if (dataStatus.innerHTML.includes('Form reset')) {
+                        dataStatus.style.display = 'none';
+                    }
+                }, 2000);
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Enforce login first
+            enforceLogin();
+            
+            // Load sidebar and set up collapse functionality
+            await loadSidebar();
+            
+            // Initialize character counters
+            initializeCharCounters();
+            
+            // Fetch experience data from API
+            await fetchExperienceData();
+        });
+    </script>
+</body>
+</html>

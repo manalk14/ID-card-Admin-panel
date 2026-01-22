@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="sidebar.css" />
+    <link
+      rel="stylesheet"
+      href="fontawesome-free-7.1.0-web/fontawesome-free-7.1.0-web/css/all.min.css"
+    />
+    <style>
+      /* Collapsible Settings Styles */
+      .collapsible-section {
+        margin: 5px 0;
+      }
+      
+      .collapsible-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+        cursor: pointer;
+        color: #697a8d;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
+      
+      .collapsible-header:hover {
+        background: rgba(105, 108, 255, 0.05);
+        color: #696cff;
+      }
+      
+      .collapsible-header.active {
+        background: rgba(105, 108, 255, 0.1);
+        color: #696cff;
+      }
+      
+      .collapsible-header i:first-child {
+        margin-right: 10px;
+        font-size: 16px;
+      }
+      
+      .collapsible-header .chevron {
+        font-size: 12px;
+        transition: transform 0.3s ease;
+      }
+      
+      .collapsible-header.active .chevron {
+        transform: rotate(180deg);
+      }
+      
+      .collapsible-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        margin-left: 15px;
+        border-left: 2px solid #d9dee3;
+      }
+      
+      .collapsible-content.expanded {
+        max-height: 300px; /* Increased to accommodate more items */
+      }
+      
+      .collapsible-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #697a8d;
+        transition: all 0.3s ease;
+        margin-left: 10px;
+      }
+      
+      .collapsible-item:hover {
+        color: #696cff;
+        background: rgba(105, 108, 255, 0.05);
+        margin-top: 5px;
+      }
+      
+      .collapsible-item.active {
+        color: #696cff;
+        margin-top: 5px;
+        font-weight: 500;
+        background: rgba(105, 108, 255, 0.08);
+        border-left: 3px solid #696cff;
+      }
+      
+      .collapsible-item i {
+        margin-right: 10px;
+        font-size: 14px;
+        width: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2><i class="fa-solid fa-user-tie fa-xl"></i> Dashboard</h2>
+      </div>
+
+      <div class="nav-links">
+        <a href="template.html" class="nav-item">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Manage Template</span>
+        </a>
+        <a href="dealer.html" class="nav-item">
+          <i class="fas fa-users"></i>
+          <span>Dealer Management</span>
+        </a>
+        <a href="project.html" class="nav-item">
+          <i class="fa-solid fa-list-ul"></i>
+          <span>Project Management</span>
+        </a>
+
+        <a href="message.html" class="nav-item">
+          <i class="fa-solid fa-comments"></i>
+          <span>Messages</span>
+        </a>
+        <a href="services.html" class="nav-item">
+         <i class="fa-solid fa-gears"></i>
+          <span>Services</span>
+        </a>
+        
+        <!-- Collapsible Landing Page Section -->
+        <div class="collapsible-section">
+          <div class="collapsible-header" class="nav-item">
+            <div>
+              <i class="fa-solid fa-window-restore"></i>
+              <span>Landing Page</span>
+            </div>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="collapsible-content">
+            <a href="first_view.html" class="collapsible-item">
+              <i class="fa-solid fa-desktop"></i>
+              <span>First View</span>
+            </a>
+             <a href="Experince.html" class="collapsible-item">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>Experience Edit</span>
+            </a>
+             <a href="upload_img.html" class="collapsible-item">
+             <i class="fa-solid fa-images"></i>
+              <span>Upload</span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Collapsible report Section -->
+        <div class="collapsible-section">
+          <div class="collapsible-header" class="nav-item">
+            <div>
+              <i class="fa-solid fa-clipboard-list"></i>
+              <span>Report</span>
+            </div>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="collapsible-content">
+            <a href="dealer_reports.html" class="collapsible-item">
+            <i class="fa-solid fa-clipboard-list"></i>
+              <span>Dealer Reports</span>
+            </a>
+            <a href="style_reports.html" class="collapsible-item">
+             <i class="fa-solid fa-clipboard-list"></i>
+              <span>Style Reports</span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Collapsible Settings Section -->
+        <div class="collapsible-section">
+          <div class="collapsible-header" class="nav-item">
+            <div>
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </div>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="collapsible-content">
+            <a href="change_password.html" class="collapsible-item">
+              <i class="fas fa-key"></i>
+              <span>Change Password</span>
+            </a>
+            <a href="change_username.html" class="collapsible-item">
+              <i class="fa-solid fa-user-edit"></i>
+              <span>Change Username</span>
+            </a>
+            <a href="about_us.html" class="collapsible-item">
+              <i class="fa-solid fa-people-group"></i>
+              <span>About Us</span>
+            </a>
+            <a href="company.html" class="collapsible-item">
+              <i class="fa-solid fa-building"></i>
+              <span>Company Details</span>
+            </a>
+            <a href="privacy.html" class="collapsible-item">
+              <i class="fa-solid fa-shield-alt"></i>
+              <span>Privacy & Policy</span>
+            </a> 
+            <!-- NEW: Terms & Conditions Page -->
+            <a href="terms.html" class="collapsible-item">
+              <i class="fa-solid fa-file-contract"></i>
+              <span>Terms & Conditions</span>
+            </a>
+          </div>
+        </div>
+        
+        <a href="logout.html" class="nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Load sidebar.js externally -->
+    <script src="sidebar.js"></script>
+  </body>
+</html>

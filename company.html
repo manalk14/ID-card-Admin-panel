@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Details - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --header-height: 70px;
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --primary: #696cff; 
+            --primary-dark: #5f61e6; 
+            --secondary: #8592a3;
+            --success: #71dd37; 
+            --warning: #ffab00; 
+            --danger: #ff3e1d;
+            --info: #03c3ec; 
+            --dark: #233446; 
+            --light: #f5f5f9;
+            --border-color: #d9dee3; 
+            --card-bg: #fff; 
+            --body-bg: #f5f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: #333;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        #sidebar-container {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        /* Mobile Toggle Button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media(max-width: 992px) {
+            .menu-toggle { display: block; }
+            #sidebar-container { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.4);
+            backdrop-filter: blur(2px);
+            z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--dark-color);
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Content Styles */
+        .content-box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            width: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background-color: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .form-control:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Social Media Input Groups */
+        .social-input-group {
+            position: relative;
+        }
+
+        .social-input-group .form-control {
+            padding-left: 40px;
+        }
+
+        .social-prefix {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        /* Character Counters */
+        .char-counter {
+            font-size: 11px;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .char-counter.warning {
+            color: var(--warning);
+        }
+
+        .char-counter.danger {
+            color: var(--danger);
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #28a745);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffc107);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Message Styles */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .status-loading {
+            background: #e7f3ff;
+            color: #0c5460;
+            border: 1px solid #b8daff;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            #sidebar-container {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-box {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar will be loaded here -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Mobile Menu Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1><i class="fas fa-building"></i> Company Details</h1>
+                    <p>Manage your company information and contact details</p>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="message message-success" id="successMessage"></div>
+            <div class="message message-error" id="errorMessage"></div>
+            
+            <!-- Status Indicator -->
+            <div id="dataStatus" class="status-indicator status-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading company details...
+            </div>
+            
+            <!-- Main Content Box -->
+            <div class="content-box">
+                <h2 class="section-title"><i class="fas fa-edit"></i> Company Information</h2>
+                
+                <form id="companyForm">
+                    <div class="form-row">
+                        
+                        <div class="form-group">
+                            <label for="companyEmail"><i class="fas fa-envelope"></i> Email Address *</label>
+                            <input type="email" id="companyEmail" class="form-control" 
+                                   placeholder="Enter company email" 
+                                   maxlength="100" 
+                                   required 
+                                   disabled>
+                            <div class="form-help">Primary contact email address</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="companyAddress"><i class="fas fa-map-marker-alt"></i> Address *</label>
+                        <textarea id="companyAddress" class="form-control" 
+                                  rows="3"
+                                  placeholder="Enter full company address" 
+                                  maxlength="500" 
+                                  required 
+                                  disabled></textarea>
+                        <div class="char-counter" id="addressCounter">0/500</div>
+                        <div class="form-help">Complete physical address of your company</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companyPhone"><i class="fas fa-phone"></i> Phone Number *</label>
+                            <input type="tel" id="companyPhone" class="form-control" 
+                                   placeholder="Enter phone number" 
+                                   maxlength="20" 
+                                   required 
+                                   disabled>
+                            <div class="form-help">Primary contact phone number</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="companyWebsite"><i class="fas fa-globe"></i> Website</label>
+                            <input type="text" id="companyWebsite" class="form-control" 
+                                   placeholder="https://example.com or example.com" 
+                                   maxlength="200" 
+                                   disabled>
+                            <div class="form-help">Company website URL</div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="section-title" style="margin-top: 40px;">
+                        <i class="fas fa-share-alt"></i> Social Media Links
+                    </h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group social-input-group">
+                            <label for="companyFacebook"><i class="fab fa-facebook"></i> Facebook</label>
+                            <div class="social-prefix">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <input type="text" id="companyFacebook" class="form-control" 
+                                   placeholder="Facebook page URL or username" 
+                                   maxlength="200" 
+                                   disabled>
+                            <div class="form-help">Facebook page URL or username</div>
+                        </div>
+                        
+                        <div class="form-group social-input-group">
+                            <label for="companyInstagram"><i class="fab fa-instagram"></i> Instagram</label>
+                            <div class="social-prefix">
+                                <i class="fab fa-instagram"></i>
+                            </div>
+                            <input type="text" id="companyInstagram" class="form-control" 
+                                   placeholder="Instagram profile URL or username" 
+                                   maxlength="200" 
+                                   disabled>
+                            <div class="form-help">Instagram profile URL or username</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group social-input-group">
+                            <label for="companyLinkedin"><i class="fab fa-linkedin"></i> LinkedIn</label>
+                            <div class="social-prefix">
+                                <i class="fab fa-linkedin-in"></i>
+                            </div>
+                            <input type="text" id="companyLinkedin" class="form-control" 
+                                   placeholder="LinkedIn company page URL" 
+                                   maxlength="200" 
+                                   disabled>
+                            <div class="form-help">LinkedIn company page URL</div>
+                        </div>
+                        
+                        <div class="form-group social-input-group">
+                            <label for="companyTwitter"><i class="fab fa-twitter"></i> Twitter/X</label>
+                            <div class="social-prefix">
+                                <i class="fab fa-twitter"></i>
+                            </div>
+                            <input type="text" id="companyTwitter" class="form-control" 
+                                   placeholder="Twitter/X profile URL or username" 
+                                   maxlength="200" 
+                                   disabled>
+                            <div class="form-help">Twitter/X profile URL or username</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="button-group">
+                        <button type="button" class="btn btn-primary" id="saveCompanyBtn" disabled>
+                            <i class="fas fa-save"></i> Save Company Details
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="clearCompanyBtn" disabled>
+                            <i class="fas fa-redo"></i> Clear All
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoints
+        const COMPANY_GET_API = 'https://www.coremicron.co.in/skynetwork/admin/company_details.php';
+        const COMPANY_SAVE_API = 'https://www.coremicron.co.in/skynetwork/admin/action/company_details.php';
+        
+        // DOM Elements
+        const sidebarContainer = document.getElementById('sidebar-container');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const dataStatus = document.getElementById('dataStatus');
+        const saveCompanyBtn = document.getElementById('saveCompanyBtn');
+        const clearCompanyBtn = document.getElementById('clearCompanyBtn');
+        const editModeBtn = document.getElementById('editModeBtn');
+        const addressCounter = document.getElementById('addressCounter');
+        
+        // Form elements
+        const companyEmail = document.getElementById('companyEmail');
+        const companyAddress = document.getElementById('companyAddress');
+        const companyPhone = document.getElementById('companyPhone');
+        const companyWebsite = document.getElementById('companyWebsite');
+        const companyFacebook = document.getElementById('companyFacebook');
+        const companyInstagram = document.getElementById('companyInstagram');
+        const companyLinkedin = document.getElementById('companyLinkedin');
+        const companyTwitter = document.getElementById('companyTwitter');
+        
+        // State variables
+        let originalData = {};
+        let dataLoaded = false;
+        let editMode = false;
+
+        // ========== AUTHENTICATION & SIDEBAR FUNCTIONS ==========
+
+        // Enforce login
+        function enforceLogin() {
+            const appId = localStorage.getItem("app_id");
+            if (!appId) {
+                window.location.replace("login.html");
+                return false;
+            }
+            return true;
+        }
+
+        // Load sidebar
+        async function loadSidebar() {
+            try {
+                const response = await fetch('sidebar.html');
+                if (response.ok) {
+                    const sidebarHtml = await response.text();
+                    sidebarContainer.innerHTML = sidebarHtml;
+                    
+                    setTimeout(() => {
+                        initializeSidebar();
+                    }, 100);
+                } else {
+                    console.error('Failed to load sidebar');
+                    sidebarContainer.innerHTML = '<div style="padding: 20px; color: white;">Navigation Menu</div>';
+                }
+            } catch (error) {
+                console.error('Error loading sidebar:', error);
+                sidebarContainer.innerHTML = '<div style="padding: 20px; color: white;">Navigation Menu</div>';
+            }
+        }
+
+        // Initialize sidebar with collapsible sections
+        function initializeSidebar() {
+            const currentPage = window.location.pathname.split('/').pop();
+            
+            document.querySelectorAll('.collapsible-header').forEach((header, index) => {
+                const section = header.closest('.collapsible-section');
+                const content = section?.querySelector('.collapsible-content');
+                
+                if (!section || !content) return;
+                
+                // Set initial state
+                const links = content.querySelectorAll('a');
+                let isActiveSection = false;
+                
+                links.forEach(link => {
+                    if (link.getAttribute('href') === currentPage || 
+                        link.getAttribute('href') === 'company-details.html') {
+                        link.classList.add('active');
+                        isActiveSection = true;
+                    }
+                });
+                
+                header.classList.toggle('active', isActiveSection);
+                content.classList.toggle('expanded', isActiveSection);
+                
+                header.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    header.classList.toggle('active');
+                    content.classList.toggle('expanded');
+                });
+            });
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            if (sidebar) {
+                sidebar.classList.toggle("active");
+                if (overlay) overlay.classList.toggle("active");
+            } else {
+                sidebarContainer.classList.toggle("active");
+                overlay.classList.toggle("active");
+            }
+        }
+
+        // ========== FORM FUNCTIONS ==========
+
+        // Initialize character counters
+        function initializeCharCounters() {
+            updateCharCounter(companyAddress, addressCounter);
+            
+            // Add input event listener for character counting
+            companyAddress.addEventListener('input', () => updateCharCounter(companyAddress, addressCounter));
+        }
+
+        // Update character counter
+        function updateCharCounter(inputElement, counterElement) {
+            const length = inputElement.value.length;
+            const maxLength = inputElement.maxLength;
+            
+            counterElement.textContent = `${length}/${maxLength}`;
+            
+            // Update color based on length
+            if (length === 0) {
+                counterElement.className = 'char-counter';
+            } else if (length >= maxLength * 0.9) {
+                counterElement.className = 'char-counter danger';
+            } else if (length >= maxLength * 0.75) {
+                counterElement.className = 'char-counter warning';
+            } else {
+                counterElement.className = 'char-counter';
+            }
+        }
+
+        // Enable form for editing
+        function enableForm() {
+            const inputs = [
+               companyEmail, companyAddress, companyPhone, 
+                companyWebsite, companyFacebook, companyInstagram, 
+                companyLinkedin, companyTwitter
+            ];
+            
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+            
+            // Enable buttons
+            saveCompanyBtn.disabled = false;
+            clearCompanyBtn.disabled = false;
+            
+            // Update status
+            dataStatus.innerHTML = '<i class="fas fa-check-circle"></i> Data loaded successfully!';
+            dataStatus.className = 'status-indicator status-success';
+            
+            dataLoaded = true;
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            if (!dataLoaded) {
+                showError('Please wait for data to load first');
+                return;
+            }
+            
+            editMode = !editMode;
+            
+            const inputs = [
+               companyEmail, companyAddress, companyPhone, 
+                companyWebsite, companyFacebook, companyInstagram, 
+                companyLinkedin, companyTwitter
+            ];
+            
+            if (editMode) {
+                // Enable all inputs
+                inputs.forEach(input => {
+                    input.disabled = false;
+                    input.style.borderColor = '#4361ee';
+                });
+                
+                editModeBtn.innerHTML = '<i class="fas fa-lock"></i> Disable Editing';
+                editModeBtn.className = 'btn btn-warning';
+                showSuccess('Edit mode enabled. You can now modify the fields.');
+            } else {
+                // Disable all inputs
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.style.borderColor = '';
+                });
+                
+                editModeBtn.innerHTML = '<i class="fas fa-edit"></i> Enable Editing';
+                editModeBtn.className = 'btn btn-success';
+                showSuccess('Edit mode disabled.');
+            }
+        }
+
+        // Update status message
+        function updateStatus(message, type = 'info') {
+            let icon = 'info-circle';
+            let statusClass = 'status-loading';
+            
+            if (type === 'success') {
+                icon = 'check-circle';
+                statusClass = 'status-success';
+            } else if (type === 'error') {
+                icon = 'exclamation-triangle';
+                statusClass = 'status-error';
+            }
+            
+            dataStatus.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+            dataStatus.className = `status-indicator ${statusClass}`;
+            dataStatus.style.display = 'flex';
+        }
+
+        // ========== VALIDATION FUNCTIONS ==========
+
+        // Validate company form (SIMPLIFIED - removed website/social validation)
+        function validateCompanyForm() {
+            // Required fields only
+            if (!companyEmail.value.trim()) {
+                showError('Email address is required');
+                companyEmail.focus();
+                return false;
+            }
+            
+            // Simple email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(companyEmail.value.trim())) {
+                showError('Please enter a valid email address');
+                companyEmail.focus();
+                return false;
+            }
+            
+            if (!companyAddress.value.trim()) {
+                showError('Address is required');
+                companyAddress.focus();
+                return false;
+            }
+            
+            if (!companyPhone.value.trim()) {
+                showError('Phone number is required');
+                companyPhone.focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // ========== API FUNCTIONS ==========
+
+        // Get app_id from localStorage
+        function getAppId() {
+            const appId = localStorage.getItem('app_id');
+            if (!appId) {
+                showError('App ID not found. Please login again.');
+                return null;
+            }
+            return appId;
+        }
+
+        // Fetch company data - UPDATED FOR SPECIFIC JSON FORMAT
+        async function fetchCompanyData() {
+            const appId = getAppId();
+            if (!appId) return;
+            
+            try {
+                showLoading(true);
+                updateStatus('Fetching company details...');
+                
+                // Prepare JSON data for API - Use the exact format you specified
+                const requestData = {
+                    "app_id": appId
+                };
+                
+                console.log('Sending request to API:', requestData);
+                console.log('API URL:', COMPANY_GET_API);
+                
+                const response = await fetch(COMPANY_GET_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const responseText = await response.text();
+                console.log('Raw API response:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                    console.log('Parsed JSON result:', result);
+                } catch (parseError) {
+                    console.error('Failed to parse JSON:', parseError);
+                    showError('Invalid JSON response from server. Raw response: ' + responseText.substring(0, 200));
+                    updateStatus('Invalid server response', 'error');
+                    showLoading(false);
+                    return;
+                }
+                
+                // Check if we have a successful response
+                if (result.result === "1") {
+                    // Check for comdet array in the response
+                    if (result.comdet && Array.isArray(result.comdet) && result.comdet.length > 0) {
+                        const companyData = result.comdet[0]; // Get first item from array
+                        console.log('Company data from comdet array:', companyData);
+                        
+                        // Populate form fields from the comdet array data
+    
+                        // So we'll handle what's available
+                        companyEmail.value = companyData.email || '';
+                        companyAddress.value = companyData.address || '';
+                        companyPhone.value = companyData.phone || '';
+                        
+                        // Check for website field (might be in different location)
+                        companyWebsite.value = companyData.website || companyData.website_url || '';
+                        
+                        // Social media fields
+                        companyFacebook.value = companyData.facebook || companyData.facebook_url || '';
+                        companyInstagram.value = companyData.instagram || companyData.instagram_url || '';
+                        companyLinkedin.value = companyData.linkedin || companyData.linkedin_url || '';
+                        companyTwitter.value = companyData.twitter || companyData.twitter_url || '';
+                        
+                        // Store original data
+                        originalData = { ...companyData };
+                        
+                        // Update character counter
+                        updateCharCounter(companyAddress, addressCounter);
+                        
+                        // Enable form
+                        enableForm();
+                        
+                        showSuccess('Company details loaded successfully!');
+                        updateStatus('Company details loaded', 'success');
+                        
+                        console.log('Form populated with comdet data');
+                        
+                    } else if (result.company_data) {
+                        // Alternative: Check for company_data object
+                        const companyData = result.company_data;
+                        console.log('Company data from company_data:', companyData);
+                        
+                        companyEmail.value = companyData.email || '';
+                        companyAddress.value = companyData.address || '';
+                        companyPhone.value = companyData.phone || '';
+                        companyWebsite.value = companyData.website || '';
+                        companyFacebook.value = companyData.facebook || '';
+                        companyInstagram.value = companyData.instagram || '';
+                        companyLinkedin.value = companyData.linkedin || '';
+                        companyTwitter.value = companyData.twitter || '';
+                        
+                        originalData = { ...companyData };
+                        updateCharCounter(companyAddress, addressCounter);
+                        enableForm();
+                        showSuccess('Company details loaded successfully!');
+                        updateStatus('Company details loaded', 'success');
+                        
+                    } else {
+                        // Check if data is directly in result
+                        console.log('Checking result for direct data fields...');
+                        
+                        // Try to get data directly from result
+                        companyEmail.value = result.email || '';
+                        companyAddress.value = result.address || '';
+                        companyPhone.value = result.phone || '';
+                        companyWebsite.value = result.website || '';
+                        companyFacebook.value = result.facebook || '';
+                        companyInstagram.value = result.instagram || '';
+                        companyLinkedin.value = result.linkedin || '';
+                        companyTwitter.value = result.twitter || '';
+                        
+                        if (companyEmail.value || companyPhone.value) {
+                            originalData = { ...result };
+                            updateCharCounter(companyAddress, addressCounter);
+                            enableForm();
+                            showSuccess('Company details loaded!');
+                            updateStatus('Data loaded', 'success');
+                        } else {
+                            showError('No company data found in comdet array');
+                            updateStatus('No data found', 'error');
+                            enableForm(); // Still enable form for new entry
+                        }
+                    }
+                    
+                } else if (result.result === "0") {
+                    // No data found - this is normal for first-time setup
+                    const message = result.message || "No company data found";
+                    console.log('No data found:', message);
+                    
+                    // Clear form for new entry
+                    clearFormForNewEntry();
+                    
+                    // Enable form for data entry
+                    enableForm();
+                    
+                    showSuccess('No existing company details found. You can add new details.');
+                    updateStatus('Ready to add company details', 'success');
+                    
+                } else {
+                    // Unknown response format
+                    console.error('Unknown response format:', result);
+                    showError('Unexpected response format from server');
+                    updateStatus('Server error', 'error');
+                    
+                    // Still enable form for manual entry
+                    enableForm();
+                }
+                
+            } catch (error) {
+                console.error('Error fetching company data:', error);
+                showError('Failed to load company details: ' + error.message);
+                updateStatus('Network error', 'error');
+                
+                // Still enable the form so user can enter data
+                enableForm();
+            } finally {
+                showLoading(false);
+                
+                // Hide status after 3 seconds
+                setTimeout(() => {
+                    dataStatus.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Clear form for new entry
+        function clearFormForNewEntry() {
+            companyEmail.value = '';
+            companyAddress.value = '';
+            companyPhone.value = '';
+            companyWebsite.value = '';
+            companyFacebook.value = '';
+            companyInstagram.value = '';
+            companyLinkedin.value = '';
+            companyTwitter.value = '';
+            
+            updateCharCounter(companyAddress, addressCounter);
+        }
+
+        // Save company data
+        async function saveCompanyData() {
+            if (!dataLoaded) {
+                showError('Please wait for data to load first');
+                return;
+            }
+            
+            if (!validateCompanyForm()) {
+                return;
+            }
+            
+            const appId = getAppId();
+            if (!appId) return;
+            
+            // Prepare data in the expected format
+            const companyData = {
+                app_id: appId,
+                email: companyEmail.value.trim(),
+                address: companyAddress.value.trim(),
+                phone: companyPhone.value.trim(),
+                website: companyWebsite.value.trim() || '',
+                facebook: companyFacebook.value.trim() || '',
+                instagram: companyInstagram.value.trim() || '',
+                linkedin: companyLinkedin.value.trim() || '',
+                twitter: companyTwitter.value.trim() || '',
+                action:"edit"
+            };
+            
+            try {
+                showLoading(true);
+                saveCompanyBtn.disabled = true;
+                updateStatus('Saving company details...');
+                
+                console.log('Saving company data:', companyData);
+                
+                // Send to save API
+                const response = await fetch(COMPANY_SAVE_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(companyData)
+                });
+                
+                const responseText = await response.text();
+                console.log('Save API response:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse response:', parseError);
+                    
+                    // Check if response indicates success even without proper JSON
+                    if (responseText.toLowerCase().includes('success') || response.ok) {
+                        showSuccess('Company details saved successfully!');
+                        updateStatus('Company details saved', 'success');
+                        originalData = { ...companyData };
+                    } else {
+                        showError('Server response format error: ' + responseText.substring(0, 100));
+                        updateStatus('Save failed - server error', 'error');
+                    }
+                    showLoading(false);
+                    saveCompanyBtn.disabled = false;
+                    return;
+                }
+                
+                if (result.result === "1" || result.status === 'success' || result.success) {
+                    showSuccess('Company details saved successfully!');
+                    updateStatus('Company details saved', 'success');
+                    originalData = { ...companyData };
+                } else {
+                    const errorMsg = result.message || result.error || 'Failed to save company details';
+                    showError(errorMsg);
+                    updateStatus('Save failed: ' + errorMsg, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error saving company data:', error);
+                showError('Save failed. Please try again. Error: ' + error.message);
+                updateStatus('Save failed', 'error');
+            } finally {
+                showLoading(false);
+                saveCompanyBtn.disabled = false;
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            if (!dataLoaded) {
+                showError('Please wait for data to load first');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear all fields? This will remove any unsaved changes.')) {
+                companyEmail.value = '';
+                companyAddress.value = '';
+                companyPhone.value = '';
+                companyWebsite.value = '';
+                companyFacebook.value = '';
+                companyInstagram.value = '';
+                companyLinkedin.value = '';
+                companyTwitter.value = '';
+                
+                updateCharCounter(companyAddress, addressCounter);
+                showSuccess('All fields cleared!');
+            }
+        }
+
+        // ========== UTILITY FUNCTIONS ==========
+
+        // Show loading overlay
+        function showLoading(show) {
+            if (show) {
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('active');
+            setTimeout(() => {
+                successMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        // ========== EVENT LISTENERS ==========
+
+        // Save Company Details
+        saveCompanyBtn.addEventListener('click', saveCompanyData);
+
+        // Clear Form
+        clearCompanyBtn.addEventListener('click', clearForm);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Company Details page loaded, initializing...');
+            
+            // Check login first
+            if (!enforceLogin()) return;
+            
+            // Load sidebar first
+            await loadSidebar();
+            
+            // Initialize character counters
+            initializeCharCounters();
+            
+            // Fetch data from API
+            await fetchCompanyData();
+            
+            console.log('Initialization complete');
+        });
+    </script>
+</body>
+</html>

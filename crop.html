@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Image</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="fontawesome-free-7.1.0-web/fontawesome-free-7.1.0-web/css/all.min.css"/>
+    
+    <style>
+        :root {
+            --primary: #696cff;
+            --primary-dark: #5f61e6;
+            --secondary: #8592a3;
+            --success: #71dd37;
+            --warning: #ffab00;
+            --danger: #ff3e1d;
+            --info: #03c3ec;
+            --dark: #233446;
+            --light: #f5f5f9;
+            --border-color: #d9dee3;
+            --card-bg: #fff;
+            --body-bg: #f5f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--body-bg);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #697a8d;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--card-bg);
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(165,163,174,.1);
+        }
+
+        .dashboard-header h1 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Project Info Card */
+        .project-info-card {
+            background: var(--card-bg);
+            border-radius: .625rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 6px rgba(165,163,174,.1);
+        }
+
+        .project-info-card h3 {
+            color: var(--dark);
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            color: var(--secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Thumbnails Grid */
+        .thumbnails-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .thumbnail-card {
+            background: var(--card-bg);
+            border-radius: .625rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 2px 4px rgba(165,163,174,.05);
+        }
+
+        .thumbnail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(165,163,174,.1);
+        }
+
+        .thumbnail-image {
+            width: 100%;
+            height: 160px;
+            object-fit: contain;
+            display: block;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .thumbnail-content {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .thumbnail-filename {
+            color: var(--dark);
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            word-break: break-all;
+            font-weight: 500;
+        }
+
+        /* Image Toggle Buttons */
+        .image-toggle-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: .625rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .image-toggle-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--dark);
+            border-radius: .5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all .2s;
+        }
+
+        .image-toggle-btn:hover {
+            background: var(--light);
+        }
+
+        .image-toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: .5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(105,108,255,.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(105,108,255,.05);
+        }
+
+        .btn-back {
+            background: #2c2c53;
+            color: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-back:hover {
+            background: var(--border-color);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff2e1a;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg);
+            margin-top: 2rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: .75rem;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,.15);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: .375rem;
+            transition: background .2s;
+        }
+
+        .close-btn:hover {
+            background: var(--light);
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Two-column layout for crop area and preview */
+        .crop-preview-container {
+            display: flex;
+            gap: 1.5rem;
+            flex: 1;
+            min-height: 500px;
+        }
+
+        .crop-area {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-sidebar {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Preview styles */
+        .preview-section {
+            background: var(--light);
+            border-radius: .5rem;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-section h4 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-image-container {
+            background: var(--card-bg);
+            border-radius: .375rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: .25rem;
+        }
+
+        .preview-info {
+            margin-top: 1rem;
+        }
+
+        .preview-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .preview-label {
+            color: var(--secondary);
+        }
+
+        .preview-value {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Crop Tool Styles */
+        .crop-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: .5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-label {
+            color: var(--dark);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .crop-canvas-container {
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: .5rem;
+            overflow: hidden;
+            background: #f8f9fa;
+            flex: 1;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cropCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        .crop-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .crop-btn-group {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: .5rem;
+            overflow: hidden;
+        }
+
+        .crop-btn {
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: none;
+            color: var(--dark);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all .2s;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .crop-btn:last-child {
+            border-right: none;
+        }
+
+        .crop-btn:hover {
+            background: var(--light);
+        }
+
+        .crop-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .print-options {
+            background: var(--light);
+            padding: 1.25rem;
+            border-radius: .5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .print-options h4 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option-label {
+            color: var(--dark);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .option-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: .375rem;
+            background: var(--card-bg);
+            color: var(--dark);
+            font-size: 0.9rem;
+            transition: border-color .2s;
+        }
+
+        .option-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: auto;
+        }
+
+        /* Crop Handles */
+        .crop-handle {
+            position: absolute;
+            background: var(--primary);
+            border: 2px solid var(--card-bg);
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            z-index: 10;
+            pointer-events: auto;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,.2);
+        }
+
+        .crop-handle-nw { top: -5px; left: -5px; cursor: nw-resize; }
+        .crop-handle-ne { top: -5px; right: -5px; cursor: ne-resize; }
+        .crop-handle-sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+        .crop-handle-se { bottom: -5px; right: -5px; cursor: se-resize; }
+        .crop-handle-n { top: -5px; left: 50%; transform: translateX(-50%); cursor: n-resize; width: 16px; height: 8px; border-radius: 4px; }
+        .crop-handle-s { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; width: 16px; height: 8px; border-radius: 4px; }
+        .crop-handle-w { top: 50%; left: -5px; transform: translateY(-50%); cursor: w-resize; width: 8px; height: 16px; border-radius: 4px; }
+        .crop-handle-e { top: 50%; right: -5px; transform: translateY(-50%); cursor: e-resize; width: 8px; height: 16px; border-radius: 4px; }
+
+        /* Download Modal */
+        .download-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(3px);
+        }
+
+        .download-modal.active {
+            display: flex;
+        }
+
+        .download-modal-content {
+            background: var(--card-bg);
+            border-radius: .75rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.15);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .download-modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-modal-header h3 {
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .download-modal-body {
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .download-modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .download-progress {
+            margin: 1.5rem 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin-top: 0.5rem;
+        }
+
+        .download-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-message {
+            background: rgba(113, 221, 55, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 0.75rem 1rem;
+            border-radius: .5rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .success-icon {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: .5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 10001;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.active {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.info {
+            background: var(--info);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .crop-preview-container {
+                flex-direction: column;
+            }
+            
+            .preview-sidebar {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95vw;
+            }
+            
+            .thumbnails-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+
+            .modal-content {
+                max-height: 95vh;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .download-modal-content {
+                max-width: 90vw;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                justify-content: center;
+            }
+
+            .thumbnails-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                left: 20px;
+                right: 20px;
+                transform: translateY(-100%);
+            }
+            
+            .toast.active {
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--secondary);
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.75rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Image Loading States */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .thumbnail-image.loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        .thumbnail-image.error {
+            background: linear-gradient(45deg, #ffebee 25%, #ffcdd2 25%, #ffcdd2 50%, #ffebee 50%, #ffebee 75%, #ffcdd2 75%, #ffcdd2);
+            background-size: 20px 20px;
+        }
+
+        /* Helper Classes */
+        .text-center { text-align: center; }
+        .text-muted { color: var(--secondary); }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        .gap-3 { gap: 1.5rem; }
+        .d-flex { display: flex; }
+        .flex-column { flex-direction: column; }
+        .align-items-center { align-items: center; }
+        .justify-content-between { justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <h1>
+            <i class="fas fa-id-card" style="color: var(--primary);"></i>
+            Crop & Print Assistant
+        </h1>
+        <div class="header-actions">
+            <a href="project.html" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Image Toggle Buttons -->
+        <div class="image-toggle-container" id="imageToggleContainer">
+            <button class="image-toggle-btn active" onclick="showFrontImages()">
+                <i class="fas fa-id-card"></i>
+                Front Side
+            </button>
+            <button class="image-toggle-btn" onclick="showRearImages()">
+                <i class="fas fa-id-card-alt"></i>
+                Rear Side
+            </button>
+        </div>
+
+        <!-- Project Info -->
+        <div class="project-info-card">
+            <h3><i class="fas fa-info-circle"></i> Project Information</h3>
+            <div class="info-grid" id="projectInfo">
+                <div class="info-item">
+                    <span class="info-label">Project Name</span>
+                    <span class="info-value" id="projectName">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dealer Name</span>
+                    <span class="info-value" id="dealerName">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone Number</span>
+                    <span class="info-value" id="phoneNumber">Loading...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Images Count</span>
+                    <span class="info-value" id="imagesCount">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Thumbnails -->
+        <div class="thumbnails-grid" id="thumbnailsGrid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                Loading project images...
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="text-center">
+            <i class="fas fa-print"></i>
+            ID Card Print Assistant v1.0
+            <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                Professional ID Card Printing Solution
+            </div>
+        </div>
+    </footer>
+
+    <!-- Crop & Print Modal -->
+    <div id="cropPrintModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-crop-alt"></i>
+                    Advanced Crop & Print
+                </h3>
+                <button class="close-btn" id="closeCropModal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Two-column layout -->
+                <div class="crop-preview-container">
+                    <!-- Left Column: Crop Area -->
+                    <div class="crop-area">
+                        <!-- Crop Toolbar -->
+                        <div class="crop-toolbar">
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Zoom:</span>
+                                <div class="crop-btn-group">
+                                    <button class="crop-btn" onclick="zoomIn()">
+                                        <i class="fas fa-search-plus"></i>
+                                    </button>
+                                    <button class="crop-btn" onclick="zoomOut()">
+                                        <i class="fas fa-search-minus"></i>
+                                    </button>
+                                    <button class="crop-btn" onclick="resetZoom()">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Rotate:</span>
+                                <div class="crop-btn-group">
+                                    <button class="crop-btn" onclick="rotateImage(-90)">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    <button class="crop-btn" onclick="rotateImage(90)">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">Aspect Ratio:</span>
+                                <div class="crop-btn-group">
+                                    <button class="crop-btn active" onclick="setAspect(1)">1:1</button>
+                                    <button class="crop-btn" onclick="setAspect(4/3)">4:3</button>
+                                    <button class="crop-btn" onclick="setAspect(16/9)">16:9</button>
+                                    <button class="crop-btn" onclick="setAspect(null)">Free</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Crop Canvas -->
+                        <div class="crop-canvas-container" id="cropCanvasContainer">
+                            <canvas id="cropCanvas" width="400" height="188"></canvas>
+                        </div>
+
+                        <!-- Crop Controls -->
+                        <div class="crop-controls">
+                            <div class="action-buttons">
+                                <button class="btn btn-outline" onclick="resetCrop()">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Reset Crop
+                                </button>
+                                <button class="btn btn-outline" onclick="resetZoom()">
+                                    <i class="fas fa-search"></i>
+                                    Reset Zoom
+                                </button>
+                                <button class="btn btn-outline" onclick="centerCrop()">
+                                    <i class="fas fa-crosshairs"></i>
+                                    Center Crop
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Preview Sidebar -->
+                    <div class="preview-sidebar">
+                        <!-- Preview Section -->
+                        <div class="preview-section">
+                            <h4><i class="fas fa-eye"></i> Live Preview</h4>
+                            <div class="preview-image-container" id="previewImageContainer">
+                                <canvas id="livePreviewCanvas" class="preview-image"></canvas>
+                            </div>
+                            <div class="preview-info" id="previewInfo">
+                                <!-- Preview info will be added here -->
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-outline" onclick="startDownloadProcess()">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                            <button class="btn btn-danger" onclick="saveCropToAll()" id="saveToAllBtn">
+                                <i class="fas fa-sync"></i>
+                                Apply to All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="text-muted" style="font-size: 0.85rem;">
+                    <i class="fas fa-info-circle"></i>
+                    Current Image: <span id="currentImageName">idcard_front.png</span>
+                </div>
+                <div>
+                    <button class="btn btn-outline" onclick="clearAllCropSettings()">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear Settings
+                    </button>
+                    <button class="btn btn-outline" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Progress Modal -->
+    <div id="downloadModal" class="download-modal">
+        <div class="download-modal-content">
+            <div class="download-modal-header">
+                <h3>
+                    <i class="fas fa-download"></i>
+                    Downloading Image
+                </h3>
+                <button class="close-btn" onclick="closeDownloadModal()">&times;</button>
+            </div>
+            <div class="download-modal-body">
+                <div class="download-icon">
+                    <i class="fas fa-file-download"></i>
+                </div>
+                <h4 id="downloadStatus">Preparing Download...</h4>
+                <div class="download-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <div id="downloadMessage" class="success-message" style="display: none;">
+                    <i class="fas fa-check-circle success-icon"></i>
+                    <span>Download completed successfully!</span>
+                </div>
+            </div>
+            <div class="download-modal-footer">
+                <button class="btn btn-outline" onclick="closeDownloadModal()" id="closeDownloadBtn" style="display: none;">
+                    <i class="fas fa-times"></i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast success" style="display: none;">
+        <i class="fas fa-check-circle toast-icon"></i>
+        <span id="toastMessage">Operation completed successfully!</span>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // SVG data URI for error image (properly URL encoded)
+        const ERROR_SVG = 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22160%22 viewBox=%220 0 200 160%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23f8f9fa%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2214%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23697a8d%22%3EImage Load Error%3C/text%3E%3C/svg%3E';
+        
+        function enforceLogin() {
+            const appId = localStorage.getItem("app_id");
+            if (!appId) {
+                window.location.replace("login.html");
+            }
+        }
+        enforceLogin();
+
+        // ========== GLOBAL VARIABLES ==========
+        let currentProjectId = null;
+        let currentImageType = 'front'; // 'front' or 'rear'
+        let projectData = null;
+        let currentImageUrl = '';
+        let currentImageIndex = 0;
+        let cropRect = null;
+        let isDragging = false;
+        let isResizing = false;
+        let isMoving = false;
+        let aspectRatio = null;
+        let rotation = 0;
+        let zoom = 1;
+        let panX = 0, panY = 0;
+        let startX = 0, startY = 0;
+        let resizeHandle = null;
+        let moveOffsetX = 0, moveOffsetY = 0;
+        let handles = [];
+        let previewUpdateTimeout = null;
+        let scale = 1;
+        let offsetX = 0, offsetY = 0;
+        let cropImg = new Image();
+        let cropCanvas = document.getElementById('cropCanvas');
+        let cropCtx = cropCanvas.getContext('2d');
+        let cropModal = document.getElementById('cropPrintModal');
+        let previewCanvas = document.getElementById('livePreviewCanvas');
+        let previewCtx = previewCanvas.getContext('2d');
+        let downloadModal = document.getElementById('downloadModal');
+        let toast = document.getElementById('toast');
+
+        // ========== URL PARAMETERS ==========
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                app_id: params.get('app_id'),
+                prjno: params.get('prjno')
+            };
+        }
+
+        // ========== PROJECT DATA FETCHING ==========
+        async function fetchProjectData() {
+            const params = getUrlParams();
+            
+            if (!params.app_id || !params.prjno) {
+                showError('Missing project parameters. Please go back and select a project.');
+                return;
+            }
+
+            currentProjectId = `${params.app_id}-${params.prjno}`;
+            
+            try {
+                showLoading(true);
+
+                const response = await fetch(
+                    "https://www.coremicron.co.in/skynetwork/admin/single-project.php",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            app_id: params.app_id,
+                            prjno: params.prjno
+                        })
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data || data.result !== "1") {
+                    throw new Error(data.message || "No project data found");
+                }
+
+                projectData = data;
+                console.log('Loaded project data:', projectData);
+
+                displayProjectData();
+                showLoading(false);
+
+            } catch (error) {
+                console.error("Error fetching project data:", error);
+                showError("Failed to load project data. Please try again.");
+                showLoading(false);
+            }
+        }
+
+        // ========== DISPLAY PROJECT DATA ==========
+        function displayProjectData() {
+            if (!projectData) return;
+            
+            // Update project info based on actual JSON structure
+            document.getElementById('projectName').textContent = projectData.project_name || 'N/A';
+            document.getElementById('dealerName').textContent = projectData.name || 'N/A';
+            document.getElementById('phoneNumber').textContent = projectData.phone || 'N/A';
+            
+            // Calculate total images count
+            const frontCount = projectData.front_images ? projectData.front_images.length : 0;
+            const rearCount = projectData.rear_images ? projectData.rear_images.length : 0;
+            document.getElementById('imagesCount').textContent = `${frontCount} Front, ${rearCount} Rear`;
+            
+            // Load front images by default
+            loadImages('front');
+        }
+
+        // ========== IMAGE DISPLAY FUNCTIONS ==========
+        function loadImages(imageType) {
+            console.log('Loading images of type:', imageType);
+            if (!projectData) return;
+            
+            currentImageType = imageType;
+            const thumbnailsGrid = document.getElementById('thumbnailsGrid');
+            
+            // Clear existing thumbnails
+            thumbnailsGrid.innerHTML = '';
+            
+            // Get image URLs based on type using the actual JSON structure
+            let imageUrls = [];
+            let filenames = [];
+            
+            if (imageType === 'front' && projectData.front_images && projectData.front_path) {
+                const basePath = projectData.front_path;
+                filenames = projectData.front_images;
+                imageUrls = filenames.map(filename => basePath + filename);
+            } else if (imageType === 'rear' && projectData.rear_images && projectData.rear_path) {
+                const basePath = projectData.rear_path;
+                filenames = projectData.rear_images;
+                imageUrls = filenames.map(filename => basePath + filename);
+            }
+            
+            console.log(`${imageType} images URLs:`, imageUrls);
+            
+            // Update toggle buttons
+            updateToggleButtons(imageType);
+            
+            // Display images
+            if (imageUrls.length === 0) {
+                thumbnailsGrid.innerHTML = `
+                    <div class="text-center" style="grid-column: 1/-1; padding: 3rem;">
+                        <i class="fas fa-image" style="font-size: 3rem; color: var(--secondary); margin-bottom: 1rem;"></i>
+                        <div class="text-muted">No ${imageType} images found for this project.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Check if we have saved crop settings for all images
+            const applyToAll = localStorage.getItem(`crop_all_${currentProjectId}_${imageType}`) === 'true';
+            
+            // Create thumbnails
+            imageUrls.forEach((url, index) => {
+                const filename = filenames[index];
+                const imgId = `thumb-${imageType}-${index}`;
+                
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail-card';
+                
+                // Add indicator if crop settings are applied
+                const cropIndicator = applyToAll ? 
+                    '<span style="position: absolute; top: 10px; right: 10px; background: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; z-index: 10;"><i class="fas fa-crop"></i></span>' : 
+                    '';
+                
+                thumbnail.innerHTML = `
+                    <div style="position: relative;">
+                        <img id="${imgId}" src="" alt="${filename}" class="thumbnail-image" 
+                             data-src="${url}" 
+                             onload="this.classList.remove('loading')"
+                             onerror="this.onerror=null; this.classList.remove('loading'); this.classList.add('error'); this.src='${ERROR_SVG}';">
+                        ${cropIndicator}
+                    </div>
+                    <div class="thumbnail-content">
+                        <div class="thumbnail-filename">${filename}</div>
+                        <button class="btn btn-primary" onclick="openCropModal('${url.replace(/'/g, "\\'")}', '${filename.replace(/'/g, "\\'")}', ${index})" style="width: 100%;">
+                            <i class="fas fa-crop"></i>
+                            Crop & Print
+                        </button>
+                        ${applyToAll ? 
+                            '<div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fas fa-check-circle" style="color: var(--success);"></i> Crop settings applied</div>' : 
+                            ''}
+                    </div>
+                `;
+                
+                thumbnailsGrid.appendChild(thumbnail);
+                
+                // Load image after DOM insertion
+                setTimeout(() => {
+                    const imgElement = document.getElementById(imgId);
+                    if (imgElement) {
+                        imgElement.classList.add('loading');
+                        imgElement.src = url;
+                    }
+                }, 100);
+            });
+        }
+
+        function showFrontImages() {
+            loadImages('front');
+        }
+
+        function showRearImages() {
+            loadImages('rear');
+        }
+
+        function updateToggleButtons(activeType) {
+            const buttons = document.querySelectorAll('.image-toggle-btn');
+            buttons.forEach(button => {
+                if (button.textContent.includes(activeType === 'front' ? 'Front' : 'Rear')) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        function showLoading(isLoading) {
+            const thumbnailsGrid = document.getElementById('thumbnailsGrid');
+            if (isLoading) {
+                thumbnailsGrid.innerHTML = `
+                    <div class="loading" style="grid-column: 1/-1;">
+                        <div class="loading-spinner"></div>
+                        Loading project images...
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message) {
+            const thumbnailsGrid = document.getElementById('thumbnailsGrid');
+            thumbnailsGrid.innerHTML = `
+                <div class="text-center" style="grid-column: 1/-1; padding: 3rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                    <div class="text-muted">${message}</div>
+                    <button class="btn btn-outline mt-2" onclick="window.location.href='project.html'">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Projects
+                    </button>
+                </div>
+            `;
+        }
+
+        // ========== TOAST NOTIFICATION ==========
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} active`;
+            toast.style.display = 'flex';
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 300);
+            }, 3000);
+        }
+
+        // ========== DOWNLOAD MODAL FUNCTIONS ==========
+        function showDownloadModal() {
+            downloadModal.classList.add('active');
+            // Reset progress
+            updateDownloadProgress(0, 'Preparing download...');
+            document.getElementById('downloadMessage').style.display = 'none';
+            document.getElementById('closeDownloadBtn').style.display = 'none';
+        }
+
+        function closeDownloadModal() {
+            downloadModal.classList.remove('active');
+        }
+
+        function updateDownloadProgress(percent, message) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const downloadStatus = document.getElementById('downloadStatus');
+            
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `${Math.round(percent)}%`;
+            downloadStatus.textContent = message;
+        }
+
+        function showDownloadComplete() {
+            document.getElementById('downloadMessage').style.display = 'flex';
+            document.getElementById('closeDownloadBtn').style.display = 'flex';
+            updateDownloadProgress(100, 'Download complete!');
+        }
+
+        // ========== CROP MODAL FUNCTIONS ==========
+        function openCropModal(imageUrl, fileName, index) {
+            currentImageUrl = imageUrl;
+            currentImageIndex = index;
+            
+            // Check if we have apply-to-all settings
+            const applyToAll = localStorage.getItem(`crop_all_${currentProjectId}_${currentImageType}`) === 'true';
+            const cropIndicator = applyToAll ? 
+                '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> Applied to all</span>' : 
+                '';
+            
+            // Update current image name
+            document.getElementById('currentImageName').innerHTML = `
+                ${fileName} ${cropIndicator}
+            `;
+            
+            // Show save to all button only if there are multiple images
+            const saveBtn = document.getElementById('saveToAllBtn');
+            if (currentImageType === 'front' && projectData.front_images) {
+                const images = projectData.front_images;
+                saveBtn.style.display = images.length > 1 ? 'flex' : 'none';
+            } else if (currentImageType === 'rear' && projectData.rear_images) {
+                const images = projectData.rear_images;
+                saveBtn.style.display = images.length > 1 ? 'flex' : 'none';
+            } else {
+                saveBtn.style.display = 'none';
+            }
+            
+            cropModal.classList.add('active');
+            cropImg = new Image();
+            
+            // Try to load with CORS proxy first
+            loadImageWithCors(imageUrl);
+            
+            function loadImageWithCors(url) {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = function() {
+                    cropImg = img;
+                    initCropCanvas();
+                };
+                
+                img.onerror = function() {
+                    // If CORS fails, try without it
+                    console.log('CORS failed, trying without...');
+                    const img2 = new Image();
+                    img2.onload = function() {
+                        cropImg = img2;
+                        initCropCanvas();
+                    };
+                    img2.onerror = function() {
+                        alert('Failed to load image: ' + url);
+                        closeModal();
+                    };
+                    img2.src = url;
+                };
+                
+                // Try with a timestamp to avoid caching issues
+                img.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+            }
+            
+            function initCropCanvas() {
+                // Set canvas size to match container
+                const container = document.getElementById('cropCanvasContainer');
+                cropCanvas.width = container.clientWidth;
+                cropCanvas.height = container.clientHeight;
+                
+                // Set preview canvas size
+                previewCanvas.width = 400;
+                previewCanvas.height = 300;
+                
+                // Check for saved crop settings
+                if (!applySavedCropSettings()) {
+                    // Initialize crop rectangle to 80% of image centered
+                    const cropWidth = cropImg.width * 0.8;
+                    const cropHeight = cropImg.height * 0.8;
+                    
+                    cropRect = {
+                        x: cropImg.width * 0.1,
+                        y: cropImg.height * 0.1,
+                        w: cropWidth,
+                        h: cropHeight,
+                        initialWidth: cropWidth,
+                        initialHeight: cropHeight
+                    };
+                    
+                    rotation = 0;
+                    zoom = 1;
+                    panX = 0;
+                    panY = 0;
+                    aspectRatio = null;
+                    
+                    // Set free aspect ratio as active
+                    document.querySelectorAll('.crop-btn-group .crop-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    const freeBtn = document.querySelector('.crop-btn[onclick*="setAspect(null)"]');
+                    if (freeBtn) freeBtn.classList.add('active');
+                }
+                
+                calculateScaleAndOffset();
+                drawCrop();
+                createHandles();
+                updatePreview();
+            }
+        }
+
+        // ========== CROP FUNCTIONS ==========
+        function calculateScaleAndOffset() {
+            if (!cropImg) return;
+            
+            scale = Math.min(
+                cropCanvas.width / cropImg.width,
+                cropCanvas.height / cropImg.height
+            ) * zoom;
+            
+            offsetX = (cropCanvas.width - cropImg.width * scale) / 2 + panX;
+            offsetY = (cropCanvas.height - cropImg.height * scale) / 2 + panY;
+        }
+
+        function drawCrop() {
+            if (!cropImg || !cropCtx) return;
+            
+            cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+            cropCtx.save();
+            
+            cropCtx.translate(offsetX + (cropImg.width * scale) / 2, offsetY + (cropImg.height * scale) / 2);
+            cropCtx.rotate(rotation * Math.PI / 180);
+            cropCtx.translate(-(cropImg.width * scale) / 2, -(cropImg.height * scale) / 2);
+            
+            cropCtx.drawImage(cropImg, 0, 0, cropImg.width * scale, cropImg.height * scale);
+            cropCtx.restore();
+            
+            if (cropRect && cropRect.w > 0 && cropRect.h > 0) {
+                const cropX = offsetX + (cropRect.x * scale);
+                const cropY = offsetY + (cropRect.y * scale);
+                const cropW = cropRect.w * scale;
+                const cropH = cropRect.h * scale;
+                
+                cropCtx.save();
+                cropCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+                cropCtx.clearRect(cropX, cropY, cropW, cropH);
+                
+                cropCtx.strokeStyle = "#696cff"; 
+                cropCtx.lineWidth = 2;
+                cropCtx.setLineDash([6, 4]);
+                cropCtx.strokeRect(cropX, cropY, cropW, cropH);
+                cropCtx.setLineDash([]);
+                
+                cropCtx.strokeStyle = "rgba(105,108,255, 0.4)";
+                cropCtx.lineWidth = 1;
+                for (let i = 1; i < 3; i++) {
+                    const xPos = cropX + (cropW / 3) * i;
+                    cropCtx.beginPath();
+                    cropCtx.moveTo(xPos, cropY);
+                    cropCtx.lineTo(xPos, cropY + cropH);
+                    cropCtx.stroke();
+                }
+                for (let i = 1; i < 3; i++) {
+                    const yPos = cropY + (cropH / 3) * i;
+                    cropCtx.beginPath();
+                    cropCtx.moveTo(cropX, yPos);
+                    cropCtx.lineTo(cropX + cropW, yPos);
+                    cropCtx.stroke();
+                }
+                
+                cropCtx.restore();
+            }
+            
+            if (previewUpdateTimeout) clearTimeout(previewUpdateTimeout);
+            previewUpdateTimeout = setTimeout(updatePreview, 100);
+        }
+
+        function updatePreview() {
+            if (!cropRect || cropRect.w === 0 || cropRect.h === 0 || !cropImg.complete) {
+                // Clear preview canvas
+                previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                
+                // Show placeholder
+                previewCtx.fillStyle = '#f5f5f9';
+                previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+                previewCtx.fillStyle = '#697a8d';
+                previewCtx.font = '14px Arial';
+                previewCtx.textAlign = 'center';
+                previewCtx.fillText('No crop selected', previewCanvas.width / 2, previewCanvas.height / 2);
+                
+                document.getElementById('previewInfo').innerHTML = '';
+                return;
+            }
+            
+            try {
+                // Clear preview canvas
+                previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                
+                // Calculate preview scale to fit in container
+                const previewScale = Math.min(
+                    (previewCanvas.width - 20) / cropRect.w,
+                    (previewCanvas.height - 20) / cropRect.h
+                );
+                
+                // Calculate dimensions for drawing
+                const drawWidth = cropRect.w * previewScale;
+                const drawHeight = cropRect.h * previewScale;
+                const drawX = (previewCanvas.width - drawWidth) / 2;
+                const drawY = (previewCanvas.height - drawHeight) / 2;
+                
+                // Clear and draw background
+                previewCtx.fillStyle = 'white';
+                previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+                
+                // Draw the cropped portion directly
+                previewCtx.drawImage(
+                    cropImg,
+                    cropRect.x, cropRect.y, cropRect.w, cropRect.h,
+                    drawX, drawY, drawWidth, drawHeight
+                );
+                
+                // Add a border
+                previewCtx.strokeStyle = "#696cff";
+                previewCtx.lineWidth = 2;
+                previewCtx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+                
+                // Calculate preview info
+                const aspectRatioValue = (cropRect.w / cropRect.h).toFixed(2);
+                
+                document.getElementById('previewInfo').innerHTML = `
+                    <div class="preview-info-item">
+                        <span class="preview-label">Dimensions:</span>
+                        <span class="preview-value">${Math.round(cropRect.w)} × ${Math.round(cropRect.h)} px</span>
+                    </div>
+                    <div class="preview-info-item">
+                        <span class="preview-label">Aspect Ratio:</span>
+                        <span class="preview-value">${aspectRatioValue}</span>
+                    </div>
+                    <div class="preview-info-item">
+                        <span class="preview-label">Rotation:</span>
+                        <span class="preview-value">${rotation}°</span>
+                    </div>
+                    <div class="preview-info-item">
+                        <span class="preview-label">Position:</span>
+                        <span class="preview-value">${Math.round(cropRect.x)}, ${Math.round(cropRect.y)}</span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error updating preview:', error);
+                
+                // Show error in preview
+                previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                previewCtx.fillStyle = '#ffebee';
+                previewCtx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+                previewCtx.fillStyle = '#d32f2f';
+                previewCtx.font = '12px Arial';
+                previewCtx.textAlign = 'center';
+                previewCtx.fillText('Preview error', previewCanvas.width / 2, previewCanvas.height / 2);
+                
+                // Still show crop info
+                if (cropRect) {
+                    const aspectRatioValue = (cropRect.w / cropRect.h).toFixed(2);
+                    document.getElementById('previewInfo').innerHTML = `
+                        <div class="preview-info-item">
+                            <span class="preview-label">Dimensions:</span>
+                            <span class="preview-value">${Math.round(cropRect.w)} × ${Math.round(cropRect.h)} px</span>
+                        </div>
+                        <div class="preview-info-item">
+                            <span class="preview-label">Aspect Ratio:</span>
+                            <span class="preview-value">${aspectRatioValue}</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function applySavedCropSettings() {
+            // Check if we should apply settings to all images
+            const applyToAll = localStorage.getItem(`crop_all_${currentProjectId}_${currentImageType}`) === 'true';
+            
+            if (applyToAll) {
+                const savedSettings = localStorage.getItem(`crop_${currentProjectId}_${currentImageType}`);
+                if (savedSettings) {
+                    try {
+                        const settings = JSON.parse(savedSettings);
+                        cropRect = {
+                            x: settings.x,
+                            y: settings.y,
+                            w: settings.w,
+                            h: settings.h,
+                            initialWidth: settings.w,
+                            initialHeight: settings.h
+                        };
+                        rotation = settings.rotation || 0;
+                        zoom = settings.zoom || 1;
+                        aspectRatio = settings.aspectRatio || null;
+                        
+                        // Update aspect ratio buttons
+                        document.querySelectorAll('.crop-btn-group .crop-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        
+                        // Activate the correct aspect ratio button
+                        if (aspectRatio === 1) {
+                            document.querySelector('.crop-btn[onclick*="setAspect(1)"]')?.classList.add('active');
+                        } else if (aspectRatio === 4/3) {
+                            document.querySelector('.crop-btn[onclick*="setAspect(4/3)"]')?.classList.add('active');
+                        } else if (aspectRatio === 16/9) {
+                            document.querySelector('.crop-btn[onclick*="setAspect(16/9)"]')?.classList.add('active');
+                        } else {
+                            document.querySelector('.crop-btn[onclick*="setAspect(null)"]')?.classList.add('active');
+                        }
+                        
+                        return true;
+                    } catch (e) {
+                        console.error('Error parsing saved crop settings:', e);
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function saveCropToAll() {
+            if (!cropRect || !projectData) {
+                alert('Please set up crop first');
+                return;
+            }
+
+            // Show loading in the modal
+            const saveBtn = document.getElementById('saveToAllBtn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+            saveBtn.disabled = true;
+
+            // Get current crop settings
+            const cropSettings = {
+                x: cropRect.x,
+                y: cropRect.y,
+                w: cropRect.w,
+                h: cropRect.h,
+                rotation: rotation,
+                zoom: zoom,
+                aspectRatio: aspectRatio
+            };
+
+            // Store crop settings for the current image type
+            localStorage.setItem(`crop_${currentProjectId}_${currentImageType}`, JSON.stringify(cropSettings));
+            
+            // Also store a flag that indicates settings should apply to all
+            localStorage.setItem(`crop_all_${currentProjectId}_${currentImageType}`, 'true');
+            
+            // Determine how many images of this type exist
+            const imageCount = currentImageType === 'front' 
+                ? (projectData.front_images ? projectData.front_images.length : 0)
+                : (projectData.rear_images ? projectData.rear_images.length : 0);
+            
+            // Show toast notification
+            showToast(`Crop settings applied to all ${imageCount} ${currentImageType} images`, 'success');
+            
+            // Update UI after a short delay
+            setTimeout(() => {
+                // Update all thumbnails for the current image type
+                loadImages(currentImageType);
+                // Update the current modal preview
+                updatePreview();
+                // Update the modal footer info
+                const cropIndicator = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> Applied to all</span>';
+                const currentName = document.getElementById('currentImageName').textContent.split(' ')[0];
+                document.getElementById('currentImageName').innerHTML = `
+                    ${currentName} ${cropIndicator}
+                `;
+                
+                // Reset button
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }, 1000);
+        }
+
+        function clearAllCropSettings() {
+            if (confirm('Are you sure you want to clear crop settings for all images?')) {
+                localStorage.removeItem(`crop_${currentProjectId}_${currentImageType}`);
+                localStorage.removeItem(`crop_all_${currentProjectId}_${currentImageType}`);
+                resetCrop();
+                loadImages(currentImageType);
+                showToast('Crop settings cleared for all images', 'info');
+                
+                // Update modal footer
+                const currentName = document.getElementById('currentImageName').textContent.split(' ')[0];
+                document.getElementById('currentImageName').textContent = currentName;
+            }
+        }
+
+        function closeModal() {
+            cropModal.classList.remove('active');
+            cropRect = null;
+            removeHandles();
+            clearTimeout(previewUpdateTimeout);
+        }
+
+        function setAspect(ratio) {
+            aspectRatio = ratio;
+            document.querySelectorAll('.crop-btn-group .crop-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (cropRect && aspectRatio && cropRect.w > 0 && cropRect.h > 0) {
+                const centerX = cropRect.x + cropRect.w / 2;
+                const centerY = cropRect.y + cropRect.h / 2;
+                
+                if (aspectRatio === 1) {
+                    const size = Math.min(cropRect.w, cropRect.h);
+                    cropRect.w = size;
+                    cropRect.h = size;
+                } else {
+                    if (cropRect.w / cropRect.h > aspectRatio) {
+                        cropRect.w = cropRect.h * aspectRatio;
+                    } else {
+                        cropRect.h = cropRect.w / aspectRatio;
+                    }
+                }
+                
+                cropRect.x = centerX - cropRect.w / 2;
+                cropRect.y = centerY - cropRect.h / 2;
+                
+                cropRect.x = Math.max(0, cropRect.x);
+                cropRect.y = Math.max(0, cropRect.y);
+                cropRect.w = Math.min(cropImg.width - cropRect.x, cropRect.w);
+                cropRect.h = Math.min(cropImg.height - cropRect.y, cropRect.h);
+                
+                drawCrop();
+                updateHandles();
+                updatePreview();
+            }
+        }
+
+        function zoomIn() {
+            zoom = Math.min(zoom * 1.2, 5);
+            calculateScaleAndOffset();
+            drawCrop();
+            updateHandles();
+        }
+
+        function zoomOut() {
+            zoom = Math.max(zoom / 1.2, 0.5);
+            calculateScaleAndOffset();
+            drawCrop();
+            updateHandles();
+        }
+
+        function resetZoom() {
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            calculateScaleAndOffset();
+            drawCrop();
+            updateHandles();
+        }
+
+        function rotateImage(degrees) {
+            rotation = (rotation + degrees) % 360;
+            drawCrop();
+            updatePreview();
+        }
+
+        // ========== CROP HANDLES FUNCTIONS ==========
+        function createHandles() {
+            removeHandles();
+            
+            if (!cropRect) return;
+            
+            const corners = ['nw', 'ne', 'sw', 'se'];
+            corners.forEach(corner => {
+                const handle = document.createElement('div');
+                handle.className = `crop-handle crop-handle-${corner}`;
+                handle.dataset.handle = corner;
+                handle.style.position = 'absolute';
+                handle.style.zIndex = '10';
+                document.getElementById('cropCanvasContainer').appendChild(handle);
+                handles.push(handle);
+                
+                handle.addEventListener('mousedown', startResize);
+            });
+            
+            updateHandles();
+        }
+
+        function updateHandles() {
+            if (!cropRect) return;
+            
+            const cropX = offsetX + (cropRect.x * scale);
+            const cropY = offsetY + (cropRect.y * scale);
+            const cropW = cropRect.w * scale;
+            const cropH = cropRect.h * scale;
+            
+            handles.forEach(handle => {
+                const handleType = handle.dataset.handle;
+                
+                let left, top;
+                
+                switch(handleType) {
+                    case 'nw':
+                        left = cropX - 5;
+                        top = cropY - 5;
+                        break;
+                    case 'ne':
+                        left = cropX + cropW - 5;
+                        top = cropY - 5;
+                        break;
+                    case 'sw':
+                        left = cropX - 5;
+                        top = cropY + cropH - 5;
+                        break;
+                    case 'se':
+                        left = cropX + cropW - 5;
+                        top = cropY + cropH - 5;
+                        break;
+                }
+                
+                handle.style.left = left + 'px';
+                handle.style.top = top + 'px';
+            });
+        }
+
+        function removeHandles() {
+            handles.forEach(handle => {
+                handle.remove();
+            });
+            handles = [];
+        }
+
+        function startResize(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isResizing = true;
+            resizeHandle = e.target.dataset.handle;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            cropRect.initial = {
+                x: cropRect.x,
+                y: cropRect.y,
+                w: cropRect.w,
+                h: cropRect.h
+            };
+            
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+        }
+
+        function doResize(e) {
+            if (!isResizing || !cropRect) return;
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            const imgDx = dx / scale;
+            const imgDy = dy / scale;
+            
+            const initial = cropRect.initial;
+            
+            let newX = initial.x;
+            let newY = initial.y;
+            let newW = initial.w;
+            let newH = initial.h;
+            
+            switch(resizeHandle) {
+                case 'nw':
+                    newX = initial.x + imgDx;
+                    newY = initial.y + imgDy;
+                    newW = initial.w - imgDx;
+                    newH = initial.h - imgDy;
+                    break;
+                case 'ne':
+                    newY = initial.y + imgDy;
+                    newW = initial.w + imgDx;
+                    newH = initial.h - imgDy;
+                    break;
+                case 'sw':
+                    newX = initial.x + imgDx;
+                    newW = initial.w - imgDx;
+                    newH = initial.h + imgDy;
+                    break;
+                case 'se':
+                    newW = initial.w + imgDx;
+                    newH = initial.h + imgDy;
+                    break;
+            }
+            
+            if (newW < 0) {
+                newX += newW;
+                newW = Math.abs(newW);
+                if (resizeHandle === 'ne') resizeHandle = 'nw';
+                else if (resizeHandle === 'nw') resizeHandle = 'ne';
+                else if (resizeHandle === 'se') resizeHandle = 'sw';
+                else if (resizeHandle === 'sw') resizeHandle = 'se';
+            }
+            
+            if (newH < 0) {
+                newY += newH;
+                newH = Math.abs(newH);
+                if (resizeHandle === 'nw') resizeHandle = 'sw';
+                else if (resizeHandle === 'ne') resizeHandle = 'se';
+                else if (resizeHandle === 'sw') resizeHandle = 'nw';
+                else if (resizeHandle === 'se') resizeHandle = 'ne';
+            }
+            
+            if (aspectRatio) {
+                const centerX = newX + newW / 2;
+                const centerY = newY + newH / 2;
+                
+                if (newW / newH > aspectRatio) {
+                    newW = newH * aspectRatio;
+                } else {
+                    newH = newW / aspectRatio;
+                }
+                
+                newX = centerX - newW / 2;
+                newY = centerY - newH / 2;
+            }
+            
+            newX = Math.max(0, newX);
+            newY = Math.max(0, newY);
+            newW = Math.min(cropImg.width - newX, newW);
+            newH = Math.min(cropImg.height - newY, newH);
+            
+            newW = Math.max(10, newW);
+            newH = Math.max(10, newH);
+            
+            cropRect.x = newX;
+            cropRect.y = newY;
+            cropRect.w = newW;
+            cropRect.h = newH;
+            
+            drawCrop();
+            updateHandles();
+            updatePreview();
+        }
+
+        function stopResize() {
+            isResizing = false;
+            resizeHandle = null;
+            document.removeEventListener('mousemove', doResize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        function isInsideCrop(x, y) {
+            if (!cropRect) return false;
+            
+            const cropX = offsetX + (cropRect.x * scale);
+            const cropY = offsetY + (cropRect.y * scale);
+            const cropW = cropRect.w * scale;
+            const cropH = cropRect.h * scale;
+            
+            return x >= cropX && x <= cropX + cropW &&
+                   y >= cropY && y <= cropY + cropH;
+        }
+
+        function resetCrop() {
+            if (!cropImg) return;
+            
+            const cropWidth = cropImg.width * 0.8;
+            const cropHeight = cropImg.height * 0.8;
+            
+            cropRect = {
+                x: cropImg.width * 0.1,
+                y: cropImg.height * 0.1,
+                w: cropWidth,
+                h: cropHeight,
+                initialWidth: cropWidth,
+                initialHeight: cropHeight
+            };
+            rotation = 0;
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            aspectRatio = null;
+            
+            document.querySelectorAll('.crop-btn-group .crop-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const freeBtn = document.querySelector('.crop-btn[onclick*="setAspect(null)"]');
+            if (freeBtn) freeBtn.classList.add('active');
+            
+            calculateScaleAndOffset();
+            drawCrop();
+            createHandles();
+            updatePreview();
+        }
+
+        function centerCrop() {
+            if (!cropRect || !cropImg) return;
+            
+            cropRect.x = (cropImg.width - cropRect.w) / 2;
+            cropRect.y = (cropImg.height - cropRect.h) / 2;
+            
+            drawCrop();
+            updateHandles();
+            updatePreview();
+        }
+
+        // ========== CANVAS EVENT HANDLERS ==========
+        cropCanvas.onmousedown = function(e) {
+            const rect = cropCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if (cropRect && isInsideCrop(x, y)) {
+                isMoving = true;
+                startX = x;
+                startY = y;
+                
+                const cropX = offsetX + (cropRect.x * scale);
+                const cropY = offsetY + (cropRect.y * scale);
+                
+                moveOffsetX = x - cropX;
+                moveOffsetY = y - cropY;
+                
+                document.addEventListener('mousemove', doMove);
+                document.addEventListener('mouseup', stopMove);
+            } else {
+                isDragging = true;
+                startX = x;
+                startY = y;
+                
+                const imgX = (x - offsetX) / scale;
+                const imgY = (y - offsetY) / scale;
+                
+                cropRect = { 
+                    x: Math.max(0, Math.min(imgX, cropImg.width)), 
+                    y: Math.max(0, Math.min(imgY, cropImg.height)), 
+                    w: 0, 
+                    h: 0,
+                    initialWidth: 0,
+                    initialHeight: 0
+                };
+                
+                createHandles();
+                
+                document.addEventListener('mousemove', doDrag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+        };
+
+        function doDrag(e) {
+            if (!isDragging || !cropRect) return;
+            
+            const rect = cropCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const imgX = (x - offsetX) / scale;
+            const imgY = (y - offsetY) / scale;
+            
+            cropRect.w = imgX - cropRect.x;
+            cropRect.h = imgY - cropRect.y;
+            
+            if (aspectRatio) {
+                const currentRatio = Math.abs(cropRect.w / cropRect.h);
+                if (currentRatio > aspectRatio) {
+                    cropRect.w = cropRect.h * aspectRatio * Math.sign(cropRect.w);
+                } else {
+                    cropRect.h = cropRect.w / aspectRatio * Math.sign(cropRect.h);
+                }
+            }
+            
+            drawCrop();
+            updateHandles();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            
+            if (cropRect) {
+                if (cropRect.w < 0) {
+                    cropRect.x += cropRect.w;
+                    cropRect.w = Math.abs(cropRect.w);
+                }
+                if (cropRect.h < 0) {
+                    cropRect.y += cropRect.h;
+                    cropRect.h = Math.abs(cropRect.h);
+                }
+                
+                cropRect.x = Math.max(0, cropRect.x);
+                cropRect.y = Math.max(0, cropRect.y);
+                cropRect.w = Math.min(cropImg.width - cropRect.x, cropRect.w);
+                cropRect.h = Math.min(cropImg.height - cropRect.y, cropRect.h);
+                
+                drawCrop();
+                updateHandles();
+                updatePreview();
+            }
+        }
+
+        function doMove(e) {
+            if (!isMoving || !cropRect) return;
+            
+            const rect = cropCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const cropX = (x - moveOffsetX - offsetX) / scale;
+            const cropY = (y - moveOffsetY - offsetY) / scale;
+            
+            let newX = Math.max(0, Math.min(cropX, cropImg.width - cropRect.w));
+            let newY = Math.max(0, Math.min(cropY, cropImg.height - cropRect.h));
+            
+            cropRect.x = newX;
+            cropRect.y = newY;
+            
+            drawCrop();
+            updateHandles();
+            updatePreview();
+        }
+
+        function stopMove() {
+            isMoving = false;
+            document.removeEventListener('mousemove', doMove);
+            document.removeEventListener('mouseup', stopMove);
+        }
+
+        // ========== DOWNLOAD PROCESS ==========
+        function startDownloadProcess() {
+            if (!cropRect || cropRect.w === 0 || cropRect.h === 0) {
+                showToast('Please select a crop area first', 'error');
+                return;
+            }
+            
+            // Show download modal
+            showDownloadModal();
+            
+            // Start download process with simulated progress
+            setTimeout(() => {
+                updateDownloadProgress(10, 'Creating cropped image...');
+                
+                setTimeout(() => {
+                    updateDownloadProgress(30, 'Processing image data...');
+                    
+                    setTimeout(() => {
+                        updateDownloadProgress(60, 'Preparing download...');
+                        
+                        setTimeout(() => {
+                            updateDownloadProgress(90, 'Finalizing...');
+                            
+                            // Actually download the image
+                            downloadImage();
+                        }, 300);
+                    }, 400);
+                }, 300);
+            }, 300);
+        }
+
+        function downloadImage() {
+            try {
+                // Get filename
+                const filename = document.getElementById('currentImageName').textContent.split(' ')[0] || `cropped-${currentImageType}-${Date.now()}.jpg`;
+                const downloadName = filename.replace(/\.[^/.]+$/, "") + '_cropped.jpg';
+                
+                // Create a temporary canvas for the cropped image
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = cropRect.w;
+                tempCanvas.height = cropRect.h;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Try to draw the cropped portion
+                tempCtx.drawImage(
+                    cropImg, 
+                    cropRect.x, cropRect.y, cropRect.w, cropRect.h,
+                    0, 0, cropRect.w, cropRect.h
+                );
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = downloadName;
+                
+                // Try to get data URL from the temp canvas
+                try {
+                    link.href = tempCanvas.toDataURL('image/jpeg', 0.95);
+                } catch (e) {
+                    // If that fails, use the preview canvas (always works)
+                    console.log('Using preview canvas for download');
+                    link.href = previewCanvas.toDataURL('image/jpeg', 0.95);
+                }
+                
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Show completion
+                setTimeout(() => {
+                    updateDownloadProgress(100, 'Download complete!');
+                    showDownloadComplete();
+                    showToast(`Image downloaded as "${downloadName}"`, 'success');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                updateDownloadProgress(100, 'Download failed!');
+                
+                setTimeout(() => {
+                    closeDownloadModal();
+                    showToast('Download failed. Please try again.', 'error');
+                }, 1000);
+            }
+        }
+
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchProjectData();
+            
+            // Set up close button
+            document.getElementById('closeCropModal').onclick = closeModal;
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === cropModal) {
+                    closeModal();
+                }
+                if (event.target === downloadModal) {
+                    closeDownloadModal();
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (cropModal.classList.contains('active') && cropImg.complete) {
+                    calculateScaleAndOffset();
+                    drawCrop();
+                    updateHandles();
+                    updatePreview();
+                }
+            });
+            
+            // Set up keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (!cropModal.classList.contains('active')) return;
+                
+                if (e.key === 'Escape') {
+                    closeModal();
+                    return;
+                }
+                
+                if (e.key === 'r' || e.key === 'R') {
+                    if (e.ctrlKey || e.metaKey) {
+                        resetCrop();
+                    }
+                    return;
+                }
+                
+                if (!cropRect) return;
+                
+                const step = e.shiftKey ? 10 : 1;
+                switch (e.key) {
+                    case 'ArrowUp':
+                        cropRect.y = Math.max(0, cropRect.y - step);
+                        drawCrop();
+                        updateHandles();
+                        updatePreview();
+                        break;
+                    case 'ArrowDown':
+                        cropRect.y = Math.min(cropImg.height - cropRect.h, cropRect.y + step);
+                        drawCrop();
+                        updateHandles();
+                        updatePreview();
+                        break;
+                    case 'ArrowLeft':
+                        cropRect.x = Math.max(0, cropRect.x - step);
+                        drawCrop();
+                        updateHandles();
+                        updatePreview();
+                        break;
+                    case 'ArrowRight':
+                        cropRect.x = Math.min(cropImg.width - cropRect.w, cropRect.x + step);
+                        drawCrop();
+                        updateHandles();
+                        updatePreview();
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
