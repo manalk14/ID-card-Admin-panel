@@ -1432,6 +1432,15 @@
                 </div>
             </div>
 
+            <!-- Import Project Button -->
+            <div class="section">
+                <div class="section-label">📁 Import Project</div>
+                <label class="file-upload-btn">
+                    Import JSON Project
+                    <input type="file" accept=".json" onchange="importProject(event)" style="display: none;">
+                </label>
+            </div>
+
             <!-- Background Image -->
             <div class="section">
                 <div class="section-label">Background Image</div>
@@ -1641,6 +1650,268 @@
             }
         }
 
+        // Safe JSON parsing function
+        function safeJsonParse(str) {
+            try {
+                return JSON.parse(str);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                // Try to clean the JSON string
+                const cleaned = str
+                    .replace(/\\/g, '\\\\')
+                    .replace(/\n/g, '\\n')
+                    .replace(/\r/g, '\\r')
+                    .replace(/\t/g, '\\t');
+                return JSON.parse(cleaned);
+            }
+        }
+
+        // Create placeholder image for missing images
+        function createPlaceholderImage(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 150;
+            canvas.height = 150;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw background
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, 150, 150);
+            
+            // Draw border
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(5, 5, 140, 140);
+            
+            // Draw text
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 75, 75);
+            
+            return canvas.toDataURL('image/png');
+        }
+
+        // IMPORT PROJECT FUNCTION
+        function importProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.json')) {
+                alert('Please select a JSON file');
+                return;
+            }
+            
+            showLoading();
+            updateLoadingText('Loading project...');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    // Use safe JSON parsing
+                    const importData = safeJsonParse(e.target.result);
+                    
+                    console.log('🔍 Import Data Received:', importData);
+                    
+                    // Check if it's the new JSON format or old format
+                    const isNewFormat = importData.elements && importData.canvasSize;
+                    const isOldFormat = importData.projectData && importData.canvasData;
+                    
+                    if (!isNewFormat && !isOldFormat) {
+                        hideLoading();
+                        alert('❌ Invalid project file format');
+                        return;
+                    }
+                    
+                    if (!confirm('Importing will replace your current project. Continue?')) {
+                        hideLoading();
+                        return;
+                    }
+                    
+                    if (isNewFormat) {
+                        // ============ NEW JSON FORMAT HANDLING ============
+                        console.log('✅ Loading new JSON format');
+                        
+                        // Set canvas size from import data
+                        state.front.width = importData.canvasSize?.width || 700;
+                        state.front.height = importData.canvasSize?.height || 450;
+                        state.back.width = importData.canvasSize?.width || 700;
+                        state.back.height = importData.canvasSize?.height || 450;
+                        
+                        // Update input fields
+                        document.getElementById('canvasWidth').value = state.front.width;
+                        document.getElementById('canvasHeight').value = state.front.height;
+                        
+                        // Reset elements
+                        state.front.elements = [];
+                        state.back.elements = [];
+                        state.selectedElement = null;
+                        
+                        // Process front elements
+                        if (importData.elements?.front) {
+                            importData.elements.front.forEach(element => {
+                                const processedElement = processImportedElement(element);
+                                if (processedElement) {
+                                    state.front.elements.push(processedElement);
+                                }
+                            });
+                            console.log(`✅ Loaded ${state.front.elements.length} front elements`);
+                        }
+                        
+                        // Process back elements
+                        if (importData.elements?.back) {
+                            importData.elements.back.forEach(element => {
+                                const processedElement = processImportedElement(element);
+                                if (processedElement) {
+                                    state.back.elements.push(processedElement);
+                                }
+                            });
+                            console.log(`✅ Loaded ${state.back.elements.length} back elements`);
+                        }
+                        
+                        // Load canvas background
+                        if (importData.canvasBackground) {
+                            state.front.background = importData.canvasBackground;
+                            state.back.background = importData.canvasBackground;
+                            document.getElementById('bgColorInput').value = importData.canvasBackground;
+                        }
+                        
+                        // Hide back side button if no back elements
+                        if (!importData.elements?.back || importData.elements.back.length === 0) {
+                            document.getElementById('backSideBtn').style.display = 'none';
+                        } else {
+                            document.getElementById('backSideBtn').style.display = 'block';
+                        }
+                        
+                        // Load export data if available
+                        if (importData.exportData) {
+                            exportData = importData.exportData;
+                            // Update modal fields
+                            document.getElementById('templateNameInput').value = exportData.templateName || '';
+                            document.getElementById('serviceSelect').value = exportData.service || '';
+                            
+                            // Set access type
+                            if (exportData.accessType) {
+                                const accessTypeRadio = document.querySelector(`input[name="accessType"][value="${exportData.accessType}"]`);
+                                if (accessTypeRadio) {
+                                    accessTypeRadio.checked = true;
+                                    accessTypeRadio.parentElement.classList.add('selected');
+                                }
+                            }
+                            
+                            // Set export type
+                            if (exportData.exportType) {
+                                const exportTypeRadio = document.querySelector(`input[name="exportType"][value="${exportData.exportType}"]`);
+                                if (exportTypeRadio) {
+                                    exportTypeRadio.checked = true;
+                                    exportTypeRadio.parentElement.classList.add('selected');
+                                }
+                            }
+                        }
+                        
+                        // Update UI
+                        updateUI();
+                        
+                        hideLoading();
+                        alert(`✅ Project imported successfully!\n\nFront: ${state.front.elements.length} elements\nBack: ${state.back.elements.length} elements\nSize: ${state.front.width} x ${state.front.height}px`);
+                        
+                    } else {
+                        // ============ OLD FORMAT HANDLING ============
+                        console.log('Loading old format');
+                        
+                        if (importData.canvasData) {
+                            state.front = importData.canvasData.front || state.front;
+                            state.back = importData.canvasData.back || state.back;
+                            state.activeSide = importData.canvasData.activeSide || 'front';
+                            
+                            // Update input fields
+                            document.getElementById('canvasWidth').value = state.front.width;
+                            document.getElementById('canvasHeight').value = state.front.height;
+                            
+                            if (state.front.background) {
+                                document.getElementById('bgColorInput').value = state.front.background;
+                            }
+                        }
+                        
+                        // Reset history and update UI
+                        state.history.front = [];
+                        state.history.back = [];
+                        state.historyIndex.front = -1;
+                        state.historyIndex.back = -1;
+                        
+                        saveToHistory();
+                        switchSide(state.activeSide);
+                        updateUI();
+                        
+                        hideLoading();
+                        alert('✅ Project loaded successfully!');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Import error:', error);
+                    hideLoading();
+                    alert('❌ Error importing project file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function processImportedElement(element) {
+            // Handle both old and new element formats
+            if (!element || !element.type) return null;
+            
+            console.log('Processing element:', element);
+            
+            const processedElement = {
+                id: element.id || Date.now().toString(),
+                type: element.type,
+                content: element.content || '',
+                x: element.x || 50,
+                y: element.y || 50,
+                width: element.width || 150,
+                height: element.height || 150,
+                rotation: element.rotation || 0,
+                opacity: element.opacity || 1,
+                borderRadius: element.borderRadius || 0,
+                borderWidth: element.borderWidth || 0,
+                borderColor: element.borderColor || '#000000'
+            };
+            
+            if (element.type === 'text') {
+                // Map text properties from new format to existing format
+                processedElement.fontSize = element.fontSize || 24;
+                processedElement.color = element.color || '#333333';
+                processedElement.fontFamily = element.fontFamily || "'Inter', sans-serif";
+                processedElement.fontWeight = element.fontWeight || 'normal';
+                processedElement.fontStyle = element.fontStyle || 'normal';
+                processedElement.textDecoration = element.textDecoration || 'none';
+                processedElement.textAlign = element.textAlign || 'left';
+                processedElement.textTransform = element.textTransform || 'none';
+                processedElement.letterSpacing = element.letterSpacing || 'normal';
+                processedElement.lineHeight = element.lineHeight || 'normal';
+                processedElement.textBackgroundColor = element.textBackgroundColor || 'transparent';
+                processedElement.textBorderWidth = element.textBorderWidth || 0;
+                processedElement.textBorderColor = element.textBorderColor || '#000000';
+                processedElement.textBorderRadius = element.textBorderRadius || 0;
+                processedElement.textPadding = element.textPadding || 5;
+            } else if (element.type === 'image') {
+                // For images, ensure content is valid
+                if (processedElement.content && !processedElement.content.startsWith('data:image')) {
+                    // Try to add data URL prefix if missing
+                    if (processedElement.content.includes('base64')) {
+                        processedElement.content = 'data:image/png;base64,' + processedElement.content.replace('data:image/png;base64,', '');
+                    } else {
+                        processedElement.content = createPlaceholderImage('Imported Image');
+                    }
+                } else if (!processedElement.content) {
+                    processedElement.content = createPlaceholderImage('Missing Image');
+                }
+            }
+            
+            return processedElement;
+        }
+
         // LOAD TEMPLATE FUNCTION - Called when page loads with template parameters
         async function loadTemplateForEditing() {
             // Get template parameters from URL
@@ -1655,12 +1926,12 @@
                 return;
             }
             
-            console.log('Loading template with:', { templateId, appId });
-            console.log('URL Parameters:', params);
+            console.log('🔍 Loading template with:', { templateId, appId });
+            console.log('📋 URL Parameters:', params);
             
             try {
                 showLoading();
-                updateLoadingText('Loading template data...');
+                updateLoadingText('Loading template data from API...');
                 
                 // Prepare request data
                 const requestData = {
@@ -1668,7 +1939,7 @@
                     tempid: templateId
                 };
                 
-                console.log('Sending request to template-details.php:', requestData);
+                console.log('📤 Sending request to template-details.php:', requestData);
                 
                 // Fetch template data from template-details.php
                 const response = await fetch(TEMPLATE_DETAILS_API, {
@@ -1686,55 +1957,49 @@
                 }
                 
                 const data = await response.json();
-                console.log('API Response Data:', data);
+                console.log('✅ API Response Data:', data);
                 
                 // Check if data is array or object
-                // let templateData;
-                // if (Array.isArray(data)) {
-                //     templateData = data.find(t => 
-                //         t.id === templateId || 
-                //         t.tempid === templateId ||
-                //         (t.template_id && t.template_id === templateId)
-                //     );
-                //     if (!templateData && data.length > 0) {
-                //         templateData = data[0];
-                //     }
-                // } else if (data.data && Array.isArray(data.data)) {
-                //     templateData = data.data.find(t => 
-                //         t.id === templateId || 
-                //         t.tempid === templateId ||
-                //         (t.template_id && t.template_id === templateId)
-                //     );
-                //     if (!templateData && data.data.length > 0) {
-                //         templateData = data.data[0];
-                //     }
-                // } else if (data.template) {
-                //     templateData = data.template;
-                // } else {
-                //     templateData = data;
-                // }
+                let templateData;
+                if (Array.isArray(data)) {
+                    templateData = data.find(t => 
+                        t.id === templateId || 
+                        t.tempid === templateId ||
+                        (t.template_id && t.template_id === templateId)
+                    );
+                    if (!templateData && data.length > 0) {
+                        templateData = data[0];
+                    }
+                } else if (data.data && Array.isArray(data.data)) {
+                    templateData = data.data.find(t => 
+                        t.id === templateId || 
+                        t.tempid === templateId ||
+                        (t.template_id && t.template_id === templateId)
+                    );
+                    if (!templateData && data.data.length > 0) {
+                        templateData = data.data[0];
+                    }
+                } else if (data.template) {
+                    templateData = data.template;
+                } else {
+                    templateData = data;
+                }
                 
-                // console.log('Found template data:', templateData);
+                console.log('🎯 Found template data:', templateData);
                 
-                // if (!templateData) {
-                //     throw new Error('Template not found in response');
-                // }
-                // console.log('332333');
+                if (!templateData) {
+                    throw new Error('Template not found in response');
+                }
+                
                 // Parse JSON data from template
                 let jsonData;
                 if (templateData.json_data) {
                     if (typeof templateData.json_data === 'string') {
                         try {
-                            jsonData = JSON.parse(templateData.json_data);
+                            jsonData = safeJsonParse(templateData.json_data);
                         } catch (parseError) {
                             console.error('Error parsing json_data:', parseError);
-                            // Try to clean the JSON string
-                            const cleanedJson = templateData.json_data
-                                .replace(/\\/g, '\\\\')
-                                .replace(/\n/g, '\\n')
-                                .replace(/\r/g, '\\r')
-                                .replace(/\t/g, '\\t');
-                            jsonData = JSON.parse(cleanedJson);
+                            throw new Error('Failed to parse template JSON data');
                         }
                     } else {
                         jsonData = templateData.json_data;
@@ -1746,8 +2011,8 @@
                     throw new Error('No template data found in response');
                 }
                 
-                console.log('Parsed JSON data structure:', jsonData);
-                console.log('Elements data:', jsonData.elements);
+                console.log('📊 Parsed JSON data structure:', jsonData);
+                console.log('🎨 Elements data:', jsonData.elements);
                 
                 // Store original data for edit mode
                 originalTemplateData = {
@@ -1792,10 +2057,11 @@
                             }
                             return element;
                         });
-                        console.log('Loaded front elements:', state.front.elements.length);
+                        console.log(`✅ Loaded ${state.front.elements.length} front elements`);
                     } else if (Array.isArray(jsonData.elements)) {
                         // If elements is a simple array, put all in front
                         state.front.elements = jsonData.elements;
+                        console.log(`✅ Loaded ${state.front.elements.length} elements to front`);
                     }
                     
                     if (jsonData.elements.back && Array.isArray(jsonData.elements.back)) {
@@ -1807,7 +2073,7 @@
                             }
                             return element;
                         });
-                        console.log('Loaded back elements:', state.back.elements.length);
+                        console.log(`✅ Loaded ${state.back.elements.length} back elements`);
                     }
                 } else if (jsonData.front || jsonData.back) {
                     // Alternative structure
@@ -1832,6 +2098,7 @@
                     // Update input fields
                     document.getElementById('canvasWidth').value = state.front.width;
                     document.getElementById('canvasHeight').value = state.front.height;
+                    console.log(`📏 Canvas size: ${state.front.width} x ${state.front.height}`);
                 }
                 
                 // Load export data from template
@@ -1845,6 +2112,8 @@
                         exportType: 'both'
                     };
                 }
+                
+                console.log('📋 Export data:', exportData);
                 
                 // Update modal fields
                 document.getElementById('templateNameInput').value = exportData.templateName;
@@ -1877,11 +2146,11 @@
                 
                 // Show success message
                 setTimeout(() => {
-                    alert(`✅ Template "${exportData.templateName}" loaded successfully!\n\nDate: ${originalTemplateData.date}\nElements: ${state.front.elements.length + state.back.elements.length}`);
+                    alert(`✅ Template "${exportData.templateName}" loaded successfully!\n\n📅 Date: ${originalTemplateData.date}\n🎨 Front Elements: ${state.front.elements.length}\n🎨 Back Elements: ${state.back.elements.length}\n📏 Size: ${state.front.width} x ${state.front.height}px`);
                 }, 500);
                 
             } catch (error) {
-                console.error('Error loading template:', error);
+                console.error('❌ Error loading template:', error);
                 hideLoading();
                 alert(`❌ Error loading template: ${error.message}\n\nPlease check if the template exists and try again.`);
             }
@@ -1889,7 +2158,7 @@
 
         // Initialize function
         async function init() {
-            console.log('Initializing ID Card Editor...');
+            console.log('🚀 Initializing ID Card Editor...');
             
             // Add input event listeners for real-time validation
             document.getElementById('fullNameInput').addEventListener('input', validateForm);
@@ -1900,16 +2169,16 @@
             const params = getUrlParams();
             const hasTemplateParams = (params.tempid || params.template_id || params.id) && (params.appid || params.app_id);
             
-            console.log('URL Parameters:', params);
-            console.log('Has template params:', hasTemplateParams);
+            console.log('📋 URL Parameters:', params);
+            console.log('🔍 Has template params:', hasTemplateParams);
             
             if (hasTemplateParams) {
                 // Automatically load template for editing
-                console.log('Loading template for editing...');
+                console.log('🔄 Loading template for editing...');
                 await loadTemplateForEditing();
             } else {
                 // Normal initialization for new template
-                console.log('Starting new template...');
+                console.log('🆕 Starting new template...');
                 saveToHistory();
                 updateUI();
                 updateZoomDisplay();
@@ -1928,7 +2197,7 @@
             
             // Get app_id from localStorage on init
             const appId = getAppId();
-            console.log('App ID on init:', appId);
+            console.log('🆔 App ID on init:', appId);
             
             // Update size estimate when canvas size changes
             document.getElementById('canvasWidth').addEventListener('input', updateEstimatedSize);
@@ -1949,7 +2218,7 @@
                 });
             });
             
-            console.log('Initialization complete');
+            console.log('✅ Initialization complete');
         }
 
         // NEW: Export Elements Modal functions
@@ -3745,10 +4014,10 @@
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', async function () {
-            console.log('DOM Content Loaded - Starting initialization');
+            console.log('🚀 DOM Content Loaded - Starting initialization');
             await init();
             loadSavedExportData();
-            console.log('App initialization complete');
+            console.log('✅ App initialization complete');
         });
     </script>
 </body>
