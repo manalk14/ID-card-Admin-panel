@@ -1552,7 +1552,7 @@
             exportType: 'both'
         };
 
-        // API endpoints
+        // API endpoints - CHANGE THESE TO YOUR ACTUAL ENDPOINTS
         const API_ENDPOINT = `http://192.168.20.103:80/skynetwork/admin/action/templates.php`;
         const TEMPLATE_DETAILS_API = 'http://192.168.20.103:80/skynetwork/admin/template-details.php';
 
@@ -1649,7 +1649,43 @@
                 return 'app_' + Date.now();
             }
         }
+document.addEventListener('DOMContentLoaded', async function () {
+    await callTemplateAPI();
+});
 
+async function callTemplateAPI() {
+    try {
+        const payload = {
+            app_id: "MQ--",
+            tempid: "MQ--"
+        };
+
+        const response = await fetch(
+            "http://192.168.20.103:80/skynetwork/admin/template-details.php",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+        }
+
+        const data = await response.json();
+        console.log("✅ API DATA:", data);
+
+        // 👉 call your loader here
+        // loadProjectData(data);
+
+    } catch (error) {
+        console.error("❌ API ERROR:", error);
+    }
+}
         // Safe JSON parsing function
         function safeJsonParse(str) {
             try {
@@ -1661,8 +1697,24 @@
                     .replace(/\\/g, '\\\\')
                     .replace(/\n/g, '\\n')
                     .replace(/\r/g, '\\r')
-                    .replace(/\t/g, '\\t');
-                return JSON.parse(cleaned);
+                    .replace(/\t/g, '\\t')
+                    .replace(/"{/g, '{')
+                    .replace(/}"/g, '}')
+                    .replace(/\\"/g, '"');
+                try {
+                    return JSON.parse(cleaned);
+                } catch (e2) {
+                    // If still fails, try to extract JSON from string
+                    const jsonMatch = str.match(/\{.*\}/s);
+                    if (jsonMatch) {
+                        try {
+                            return JSON.parse(jsonMatch[0]);
+                        } catch (e3) {
+                            throw new Error('Failed to parse JSON: ' + e.message);
+                        }
+                    }
+                    throw new Error('Invalid JSON format');
+                }
             }
         }
 
@@ -1897,14 +1949,22 @@
                 processedElement.textPadding = element.textPadding || 5;
             } else if (element.type === 'image') {
                 // For images, ensure content is valid
-                if (processedElement.content && !processedElement.content.startsWith('data:image')) {
-                    // Try to add data URL prefix if missing
-                    if (processedElement.content.includes('base64')) {
-                        processedElement.content = 'data:image/png;base64,' + processedElement.content.replace('data:image/png;base64,', '');
-                    } else {
-                        processedElement.content = createPlaceholderImage('Imported Image');
+                if (processedElement.content) {
+                    if (!processedElement.content.startsWith('data:image')) {
+                        // If it's base64 without data URL prefix
+                        if (processedElement.content.includes('base64')) {
+                            processedElement.content = 'data:image/png;base64,' + processedElement.content.replace('data:image/png;base64,', '');
+                        } else {
+                            // Check if it's a URL or base64 string
+                            if (processedElement.content.length > 1000 || processedElement.content.includes('/9j/') || processedElement.content.includes('iVBORw')) {
+                                // Likely base64 image data
+                                processedElement.content = 'data:image/png;base64,' + processedElement.content;
+                            } else {
+                                processedElement.content = createPlaceholderImage('Imported Image');
+                            }
+                        }
                     }
-                } else if (!processedElement.content) {
+                } else {
                     processedElement.content = createPlaceholderImage('Missing Image');
                 }
             }
@@ -1917,17 +1977,17 @@
             // Get template parameters from URL
             const params = getUrlParams();
             const templateId = params.tempid || params.template_id || params.id;
-            const appId = params.appid || params.app_id;
+            const appId = params.appid || params.app_id || getAppId();
             
-            if (!templateId || !appId) {
-                console.log('No template parameters found in URL');
-                console.log('Current URL params:', params);
-                // Not in edit mode, start fresh
+            console.log('📋 URL Parameters:', params);
+            console.log('🔍 Looking for template with:', { templateId, appId });
+            
+            if (!templateId) {
+                console.log('No template ID found in URL');
                 return;
             }
             
-            console.log('🔍 Loading template with:', { templateId, appId });
-            console.log('📋 URL Parameters:', params);
+            console.log('🔄 Loading template for editing...');
             
             try {
                 showLoading();
@@ -1948,71 +2008,85 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(requestData),
-                    mode: 'cors'
+                    body: JSON.stringify(requestData)
                 });
                 
+                console.log('📥 Response status:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch template: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const data = await response.json();
-                console.log('✅ API Response Data:', data);
+                const responseText = await response.text();
+                console.log('📥 Raw response:', responseText);
                 
-                // Check if data is array or object
-                let templateData;
-                if (Array.isArray(data)) {
-                    templateData = data.find(t => 
-                        t.id === templateId || 
-                        t.tempid === templateId ||
-                        (t.template_id && t.template_id === templateId)
-                    );
-                    if (!templateData && data.length > 0) {
-                        templateData = data[0];
-                    }
-                } else if (data.data && Array.isArray(data.data)) {
-                    templateData = data.data.find(t => 
-                        t.id === templateId || 
-                        t.tempid === templateId ||
-                        (t.template_id && t.template_id === templateId)
-                    );
-                    if (!templateData && data.data.length > 0) {
-                        templateData = data.data[0];
-                    }
+                let data;
+                try {
+                    data = safeJsonParse(responseText);
+                } catch (parseError) {
+                    console.error('Failed to parse response as JSON:', parseError);
+                    throw new Error('Invalid JSON response from server');
+                }
+                
+                console.log('✅ Parsed API Response:', data);
+                
+                // Handle different response formats
+                let templateData = null;
+                
+                if (data.success && data.data) {
+                    // Format 1: {success: true, data: {...}}
+                    templateData = data.data;
+                } else if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+                    // Format 2: {data: [{...}]}
+                    templateData = data.data[0];
                 } else if (data.template) {
+                    // Format 3: {template: {...}}
                     templateData = data.template;
-                } else {
+                } else if (Array.isArray(data) && data.length > 0) {
+                    // Format 4: [{...}]
+                    templateData = data.find(t => t.id === templateId || t.tempid === templateId) || data[0];
+                } else if (typeof data === 'object') {
+                    // Format 5: direct object
                     templateData = data;
                 }
                 
-                console.log('🎯 Found template data:', templateData);
+                console.log('🎯 Extracted template data:', templateData);
                 
                 if (!templateData) {
-                    throw new Error('Template not found in response');
-                }
-                
-                // Parse JSON data from template
-                let jsonData;
-                if (templateData.json_data) {
-                    if (typeof templateData.json_data === 'string') {
-                        try {
-                            jsonData = safeJsonParse(templateData.json_data);
-                        } catch (parseError) {
-                            console.error('Error parsing json_data:', parseError);
-                            throw new Error('Failed to parse template JSON data');
-                        }
-                    } else {
-                        jsonData = templateData.json_data;
-                    }
-                } else if (templateData.elements) {
-                    // Alternative: direct elements data
-                    jsonData = templateData;
-                } else {
                     throw new Error('No template data found in response');
                 }
                 
-                console.log('📊 Parsed JSON data structure:', jsonData);
-                console.log('🎨 Elements data:', jsonData.elements);
+                // Parse JSON data from template
+                let jsonData = {};
+                if (templateData.json_data) {
+                    try {
+                        if (typeof templateData.json_data === 'string') {
+                            jsonData = safeJsonParse(templateData.json_data);
+                        } else {
+                            jsonData = templateData.json_data;
+                        }
+                        console.log('📊 Parsed json_data:', jsonData);
+                    } catch (parseError) {
+                        console.error('Error parsing json_data:', parseError);
+                        // Try to extract JSON from the string
+                        try {
+                            const jsonMatch = templateData.json_data.match(/\{.*\}/s);
+                            if (jsonMatch) {
+                                jsonData = safeJsonParse(jsonMatch[0]);
+                            } else {
+                                throw new Error('No JSON found in json_data');
+                            }
+                        } catch (e) {
+                            console.error('Failed to extract JSON:', e);
+                        }
+                    }
+                } else if (templateData.elements) {
+                    // Direct elements data
+                    jsonData = templateData;
+                } else {
+                    // Try to parse the entire template data as JSON structure
+                    jsonData = templateData;
+                }
                 
                 // Store original data for edit mode
                 originalTemplateData = {
@@ -2023,7 +2097,7 @@
                     access: templateData.access || 'All',
                     jsonData: jsonData,
                     date: templateData.date || new Date().toLocaleString(),
-                    rawData: templateData // Store raw data for debugging
+                    rawData: templateData
                 };
                 
                 // Set edit mode
@@ -2038,54 +2112,49 @@
                 document.getElementById('exportElementsMainBtn').style.display = 'none';
                 document.getElementById('updateTemplateBtn').style.display = 'block';
                 
+                // Clear current elements
+                state.front.elements = [];
+                state.back.elements = [];
+                
                 // Load elements into state
                 if (jsonData.elements) {
                     // Check if elements is an object with front/back properties
                     if (jsonData.elements.front && Array.isArray(jsonData.elements.front)) {
                         state.front.elements = jsonData.elements.front.map(element => {
-                            // Ensure all image content has proper data URL format
-                            if (element.type === 'image' && element.content) {
-                                // Check if content is base64 without data URL prefix
-                                if (element.content.startsWith('data:')) {
-                                    // Already has data URL prefix
-                                    return element;
-                                } else {
-                                    // Add data URL prefix if missing
-                                    element.content = 'data:image/png;base64,' + element.content;
-                                    return element;
-                                }
-                            }
-                            return element;
-                        });
+                            return processImportedElement(element);
+                        }).filter(Boolean);
                         console.log(`✅ Loaded ${state.front.elements.length} front elements`);
                     } else if (Array.isArray(jsonData.elements)) {
                         // If elements is a simple array, put all in front
-                        state.front.elements = jsonData.elements;
+                        state.front.elements = jsonData.elements.map(element => {
+                            return processImportedElement(element);
+                        }).filter(Boolean);
                         console.log(`✅ Loaded ${state.front.elements.length} elements to front`);
                     }
                     
                     if (jsonData.elements.back && Array.isArray(jsonData.elements.back)) {
                         state.back.elements = jsonData.elements.back.map(element => {
-                            if (element.type === 'image' && element.content) {
-                                if (!element.content.startsWith('data:')) {
-                                    element.content = 'data:image/png;base64,' + element.content;
-                                }
-                            }
-                            return element;
-                        });
+                            return processImportedElement(element);
+                        }).filter(Boolean);
                         console.log(`✅ Loaded ${state.back.elements.length} back elements`);
                     }
                 } else if (jsonData.front || jsonData.back) {
                     // Alternative structure
                     if (jsonData.front && Array.isArray(jsonData.front)) {
-                        state.front.elements = jsonData.front;
+                        state.front.elements = jsonData.front.map(element => {
+                            return processImportedElement(element);
+                        }).filter(Boolean);
                     }
                     if (jsonData.back && Array.isArray(jsonData.back)) {
-                        state.back.elements = jsonData.back;
+                        state.back.elements = jsonData.back.map(element => {
+                            return processImportedElement(element);
+                        }).filter(Boolean);
                     }
                 } else if (Array.isArray(jsonData)) {
                     // If jsonData itself is an array of elements
-                    state.front.elements = jsonData;
+                    state.front.elements = jsonData.map(element => {
+                        return processImportedElement(element);
+                    }).filter(Boolean);
                 }
                 
                 // Load canvas size
@@ -2106,7 +2175,7 @@
                     exportData = jsonData.exportData;
                 } else {
                     exportData = {
-                        accessType: (templateData.access || 'All') === 'All' ? 'all' : 'dealer',
+                        accessType: (templateData.access || 'All').toLowerCase() === 'all' ? 'all' : 'dealer',
                         templateName: templateData.name || templateData.template_name || 'Untitled',
                         service: templateData.service || 'ID Card',
                         exportType: 'both'
@@ -2167,7 +2236,7 @@
             
             // Check if we have template parameters in URL (for edit mode)
             const params = getUrlParams();
-            const hasTemplateParams = (params.tempid || params.template_id || params.id) && (params.appid || params.app_id);
+            const hasTemplateParams = params.tempid || params.template_id || params.id;
             
             console.log('📋 URL Parameters:', params);
             console.log('🔍 Has template params:', hasTemplateParams);
@@ -2509,8 +2578,7 @@
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(finalPayload),
-                        signal: controller.signal,
-                        mode: 'cors'
+                        signal: controller.signal
                     });
 
                     clearTimeout(timeoutId);
@@ -2706,8 +2774,7 @@
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(finalPayload),
-                        signal: controller.signal,
-                        mode: 'cors'
+                        signal: controller.signal
                     });
 
                     clearTimeout(timeoutId);
@@ -3332,7 +3399,7 @@
                     div.style.width = element.width + 'px';
                     div.style.height = element.height + 'px';
                     const img = document.createElement('img');
-                    // Ensure image content has proper data URL
+                    // Ensure image content has proper data URL format
                     let imgSrc = element.content;
                     if (imgSrc && !imgSrc.startsWith('data:')) {
                         imgSrc = 'data:image/png;base64,' + imgSrc;
